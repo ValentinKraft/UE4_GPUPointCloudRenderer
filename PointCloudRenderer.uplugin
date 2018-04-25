@@ -1,0 +1,41 @@
+{
+  "FileVersion": 3,
+  "Version": 1,
+  "VersionName": "1.0",
+  "EngineVersion": "4.18.0",
+  "FriendlyName": "GPU Point Cloud Renderer",
+  "Description": "A GPU-powered point cloud renderer.",
+  "Category": "Rendering",
+  "CreatedBy": "Valentin Kraft",
+  "CreatedByURL": "http://www.valentinkraft.de",
+  "DocsURL": "",
+  "MarketplaceURL": "",
+  "SupportURL": "",
+  "EnabledByDefault": false,
+  "CanContainContent": true,
+  "IsBetaVersion": true,
+  "Installed": false,
+  "WhitelistPlatforms": [ "Win64" ],
+  "Modules": [
+    {
+      "Name": "PointCloudRenderer",
+      "Type": "Runtime",
+      "LoadingPhase": "PreDefault"
+    },
+    {
+      "Name": "PointCloudRendererEditor",
+      "Type": "Runtime",
+      "LoadingPhase": "Default"
+    }
+  ],
+  "Plugins": [
+    {
+      "Name": "ComputeShader",
+      "Enabled": true
+    },
+    {
+      "Name": "PixelShader",
+      "Enabled": true
+    }
+  ]
+}
