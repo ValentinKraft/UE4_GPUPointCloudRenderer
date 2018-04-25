@@ -29,28 +29,13 @@ DECLARE_CYCLE_STAT(TEXT("Update Shader Textures"), STAT_UpdateShaderTextures, ST
 //////////////////////
 
 
-void FPointCloudStreamingCore::FillPointCloudWithRandomPoints(int32 pointsPerAxis, float extent) {
-
-	//IPointCloudCore::FillPointCloudWithRandomPoints(pointsPerAxis, extent);
-	InitializeStreaming(pointsPerAxis*pointsPerAxis);
-	UpdateStreamingBuffers();
-	SortPointCloudData();
-	UpdateStreamingTextures();
-}
-
-
-//////////////////////
-// STREAMING /////////
-//////////////////////
-
-
 void FPointCloudStreamingCore::InitializeStreaming(unsigned int pointCount)
 {
 	int32 pointsPerAxis = FMath::CeilToInt(FMath::Sqrt(pointCount));
-	auto newPointCount = pointsPerAxis * pointsPerAxis;
+	mPointCount = pointsPerAxis * pointsPerAxis;
 
 	// Check if update is neccessary
-	if (mColorData.Num() == newPointCount * 4 && mPointPosDataPointer->Num() == newPointCount && mPointPosTexture && mColorTexture && mPointScalingTexture)
+	if (mColorData.Num() == mPointCount * 4 && mPointPosDataPointer->Num() == mPointCount && mPointPosTexture && mColorTexture && mPointScalingTexture)
 		return;
 
 	// create point cloud positions texture
@@ -77,15 +62,9 @@ void FPointCloudStreamingCore::InitializeStreaming(unsigned int pointCount)
 	mColorTexture->UpdateResource();
 	mColorTexture->MipGenSettings = TextureMipGenSettings::TMGS_NoMipmaps;
 
-
 	FreeData();
 
-	// cpu buffer
-	mPointPosData.Init(FLinearColor::Black, newPointCount);
-	mPointPosDataPointer = &mPointPosData;
-	mColorData.AddUninitialized(newPointCount * 4); // 4 as we have bgra
-	mPointScalingData.Init(FVector::OneVector, newPointCount);
-
+	mPointScalingData.Init(FVector::OneVector, mPointCount);
 	mUpdateTextureRegion = new FUpdateTextureRegion2D(0, 0, 0, 0, pointsPerAxis, pointsPerAxis);
 
 }
@@ -99,14 +78,30 @@ void FPointCloudStreamingCore::FreeData()
 	if (mUpdateTextureRegion) delete mUpdateTextureRegion; mUpdateTextureRegion = nullptr;
 }
 
-void FPointCloudStreamingCore::SetCustomPointInput(TArray<FLinearColor> &pointPositions, TArray<FColor> &pointColors) {
-	
-	InitializeStreaming(pointPositions.Num());
+void FPointCloudStreamingCore::SetInput(TArray<FLinearColor> &pointPositions, TArray<uint8> &pointColors, bool sortDataEveryFrame) {
 
 	ensure(pointPositions.Num() == pointColors.Num());
-	ensure(mPointPosDataPointer->Num() >= pointPositions.Num() && mColorData.Num() >= pointColors.Num());
+	InitializeStreaming(pointPositions.Num());
 
 	mPointPosDataPointer = &pointPositions;
+	mColorDataPointer = &pointColors;
+
+	if (sortDataEveryFrame)
+		SortPointCloudData();
+	UpdateStreamingTextures();
+}
+
+void FPointCloudStreamingCore::SetInput(TArray<FLinearColor> &pointPositions, TArray<FColor> &pointColors, bool sortDataEveryFrame) {
+	
+	ensure(pointPositions.Num() == pointColors.Num());
+	InitializeStreaming(pointPositions.Num());	
+
+	mPointPosDataPointer = &pointPositions;
+
+	if (mColorData.Num() < pointColors.Num()) {
+		mColorData.Empty();
+		mColorData.AddUninitialized(mPointCount * 4); // 4 as we have bgra
+	}
 
 	for (int i = 0; i < pointColors.Num(); ++i) {		
 
@@ -116,44 +111,65 @@ void FPointCloudStreamingCore::SetCustomPointInput(TArray<FLinearColor> &pointPo
 		mColorData[i * 4 + 3] = pointColors[i].A;
 	}
 
+	mColorDataPointer = &mColorData;
+
+	if (sortDataEveryFrame)
+		SortPointCloudData();
+	UpdateStreamingTextures();
 }
 
-void FPointCloudStreamingCore::Update(bool isDynamicPointCloud, bool sortDataEveryFrame, float deltaTime) {
+void FPointCloudStreamingCore::SetInput(TArray<FVector> &pointPositions, TArray<FColor> &pointColors, bool sortDataEveryFrame) {
 
-	if(sortDataEveryFrame)
+	ensure(pointPositions.Num() == pointColors.Num());
+	InitializeStreaming(pointPositions.Num());
+
+	if (mPointPosData.Num() < pointPositions.Num()) {
+		mPointPosData.Empty();
+		mPointPosData.AddUninitialized(mPointCount); // 4 as we have bgra
+	}
+
+	for (int i = 0; i < pointColors.Num(); ++i) {
+
+		mPointPosData[i].A = pointPositions[i].Z;	//#ToDo: Improve (bottleneck!?)
+		mPointPosData[i].G = pointPositions[i].X;
+		mPointPosData[i].B = pointPositions[i].Y;
+		mPointPosData[i].R = pointPositions[i].Z;
+	}
+
+	mPointPosDataPointer = &mPointPosData;
+
+	if (mColorData.Num() < pointColors.Num()) {
+		mColorData.Empty();
+		mColorData.AddUninitialized(mPointCount * 4); // 4 as we have bgra
+	}
+
+	for (int i = 0; i < pointColors.Num(); ++i) {
+
+		mColorData[i * 4] = pointColors[i].R;
+		mColorData[i * 4 + 1] = pointColors[i].G;
+		mColorData[i * 4 + 2] = pointColors[i].B;
+		mColorData[i * 4 + 3] = pointColors[i].A;
+	}
+
+	mColorDataPointer = &mColorData;
+
+	if (sortDataEveryFrame)
 		SortPointCloudData();
-	if (isDynamicPointCloud)
-		UpdateStreamingTextures();
+	UpdateStreamingTextures();
+}
+
+void FPointCloudStreamingCore::Update(float deltaTime) {
+
 	UpdateShaderParameter();
 
 	TotalElapsedTime += deltaTime;
-}
-
-void FPointCloudStreamingCore::UpdateStreamingBuffers()
-{
-	SCOPE_CYCLE_COUNTER(STAT_FillCPUBuffer);
-
-	//if (mColorData.Num() == 0 || mPointPosDataPointer->Num() == 0 || !mPointPosTexture || !mColorTexture || cloud->points.size() > (*mPointPosDataPointer).Num())		//#ToDo: exceptions o.s.
-	//	return;
-
-	//for (int i = 0; i < cloud->points.size(); ++i) {
-	//	(*mPointPosDataPointer)[i].A = cloud->points[i].z;	//#ToDo: Improve (bottleneck!?)
-	//	(*mPointPosDataPointer)[i].G = cloud->points[i].x;
-	//	(*mPointPosDataPointer)[i].B = cloud->points[i].y;
-	//	(*mPointPosDataPointer)[i].R = cloud->points[i].z;
-
-	//	mColorData[i * 4] = cloud->points[i].r;
-	//	mColorData[i * 4 + 1] = cloud->points[i].g;
-	//	mColorData[i * 4 + 2] = cloud->points[i].b;
-	//	mColorData[i * 4 + 3] = cloud->points[i].a;
-	//}
-	
 }
 
 void FPointCloudStreamingCore::SortPointCloudData() {
 
 	SCOPE_CYCLE_COUNTER(STAT_SortPointCloudData);
 
+	// # ToDo
 }
 
 void FPointCloudStreamingCore::UpdateStreamingTextures()
@@ -164,7 +180,7 @@ void FPointCloudStreamingCore::UpdateStreamingTextures()
 		return;
 
 	mPointPosTexture->UpdateTextureRegions(0, 1, mUpdateTextureRegion, mPointPosTexture->GetSizeX() * sizeof(FLinearColor), sizeof(FLinearColor), (uint8*)mPointPosDataPointer->GetData());
-	mColorTexture->UpdateTextureRegions(0, 1, mUpdateTextureRegion, mColorTexture->GetSizeX() * sizeof(uint8) * 4, 4, mColorData.GetData());
+	mColorTexture->UpdateTextureRegions(0, 1, mUpdateTextureRegion, mColorTexture->GetSizeX() * sizeof(uint8) * 4, 4, mColorDataPointer->GetData());
 	//if(mHasSurfaceReconstructed)
 		mPointScalingTexture->UpdateTextureRegions(0, 1, mUpdateTextureRegion, mPointPosTexture->GetSizeX() * sizeof(FVector), sizeof(FVector), (uint8*)mPointScalingData.GetData());
 }

@@ -53,17 +53,6 @@ UPointCloudRendererComponent::~UPointCloudRendererComponent() {
 //////////////////////
 
 
-void UPointCloudRendererComponent::FillPointCloudWithRandomPoints(int32 pointsPerAxis, float extent) {
-	
-	if (!(BaseMesh->NumPoints == pointsPerAxis * pointsPerAxis))
-		CreateStreamingBaseMesh(pointsPerAxis*pointsPerAxis);
-
-	if (mPointCloudCore)
-		mPointCloudCore->FillPointCloudWithRandomPoints(pointsPerAxis, extent);
-
-	mPointCount = pointsPerAxis * pointsPerAxis;
-}
-
 void UPointCloudRendererComponent::SetDynamicProperties(float cloudScaling, float falloff, float splatSize, float distanceScalingStart, float maxDistanceScaling, bool overrideColor) {
 	
 	mFalloff = falloff;
@@ -83,8 +72,7 @@ void UPointCloudRendererComponent::SetDynamicPointStreamInput(TArray<FLinearColo
 		return;
 
 	CreateStreamingBaseMesh(pointPositions.Num());
-	mPointCloudCore->SetCustomPointInput(pointPositions, pointColors);
-	mShouldUpdateEveryFrame = true;
+	mPointCloudCore->SetInput(pointPositions, pointColors, false);
 }
 
 
@@ -120,7 +108,7 @@ void UPointCloudRendererComponent::TickComponent(float DeltaTime, ELevelTick Tic
 
 	// Update core
 	if (mPointCloudCore) {
-		mPointCloudCore->Update(mShouldUpdateEveryFrame, mSortDataEveryFrame, DeltaTime);
+		mPointCloudCore->Update(DeltaTime);
 		mPointCount = mPointCloudCore->GetPointCount();
 	}
 

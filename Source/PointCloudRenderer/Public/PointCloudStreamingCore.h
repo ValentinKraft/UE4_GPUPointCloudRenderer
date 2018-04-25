@@ -20,16 +20,16 @@ public:
 	//virtual unsigned int GetInstanceId() const { return _instanceId; };
 	unsigned int GetPointCount() { return mPointCount; };
 
-	void FillPointCloudWithRandomPoints(int32 pointsPerAxis = 128, float extent = 100);
-	void Update(bool isDynamicPointCloud, bool sortDataEveryFrame, float deltaTime);
+	void Update(float deltaTime);
 	void UpdateDynamicMaterialForStreaming(UMaterialInstanceDynamic* pointCloudShaderDynInstance) { mDynamicMatInstance = pointCloudShaderDynInstance; };
-	void SetCustomPointInput(TArray<FLinearColor> &pointPositions, TArray<FColor> &pointColors);
+	void SetInput(TArray<FLinearColor> &pointPositions, TArray<uint8> &pointColors, bool sortDataEveryFrame);
+	void SetInput(TArray<FLinearColor> &pointPositions, TArray<FColor> &pointColors, bool sortDataEveryFrame);
+	void SetInput(TArray<FVector> &pointPositions, TArray<FColor> &pointColors, bool sortDataEveryFrame);
 
 private:
 	void InitializeStreaming(unsigned int pointCount);
 	void UpdateStreamingTextures();
 	void UpdateShaderParameter();
-	void UpdateStreamingBuffers();
 	void SortPointCloudData();
 	void FreeData();
 
@@ -42,6 +42,7 @@ private:
 	TArray<FLinearColor> mPointPosData;
 	TArray<FLinearColor>* mPointPosDataPointer = nullptr;
 	TArray<uint8> mColorData;
+	TArray<uint8>* mColorDataPointer = nullptr;
 	TArray<FVector> mPointScalingData;
 
 	// GPU texture buffers

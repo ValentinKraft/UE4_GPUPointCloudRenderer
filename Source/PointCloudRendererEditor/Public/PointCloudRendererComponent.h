@@ -41,15 +41,6 @@ public:
 	void SetDynamicProperties(float cloudScaling = 1.0f, float falloff = 1.0f, float splatSize = 1.0f, float distanceScalingStart = 1000.f, float maxDistanceScaling = 3.f, bool overrideColor = false);
 
 	/**
-	* Fills the point cloud with random points.
-	*
-	* @param	extent						The extent of the randomly created points (the points are getting spawned in a cube).
-	* @param	pointsPerAxis				The number of random points you wish to create per Axis.
-	*/
-	UFUNCTION(DisplayName = "PCR Fill Point Cloud With Random Points", BlueprintCallable, Category = "PointCloudRenderer", meta = (Keywords = "point cloud fill create random"))
-	void FillPointCloudWithRandomPoints(int32 pointsPerAxis = 128, float extent = 100);
-
-	/**
 	* For dynamic point clouds only. Send your own, custom point data stream to the renderer. Could be used for a kinect point stream or similar. Can be called every frame. Point positions have to be encoded as a array of LinearColors with the following mapping:
 		Alpha Channel : Z-values;
 		Green Channel : X-values;
@@ -83,10 +74,6 @@ private:
 	/// Streaming-specific variables
 	UPROPERTY()
 	UMaterialInterface* mStreamingBaseMat = nullptr;
-	UPROPERTY(VisibleAnywhere, Category = "PointCloudRenderer")
-	bool mShouldUpdateEveryFrame = false;
-	UPROPERTY(VisibleAnywhere, Category = "PointCloudRenderer")
-	bool mSortDataEveryFrame = false;
 	float mFalloff = 2.0f;
 	float mScaling = 1.0f;
 	float mDistanceScalingStart = 1000.f;
