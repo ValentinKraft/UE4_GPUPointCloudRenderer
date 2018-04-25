@@ -8,8 +8,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
-//#include "ComputeShaderUsageExample.h"
-//#include "PixelShaderUsageExample.h"
+#include "Runtime/Engine/Classes/Engine/Texture2D.h"
+
+DECLARE_STATS_GROUP(TEXT("PointCloudRenderer"), STATGROUP_PCR, STATCAT_Advanced);
 
 class POINTCLOUDRENDERER_API FPointCloudStreamingCore
 {
@@ -45,7 +46,7 @@ private:
 
 	// GPU texture buffers
 	struct FUpdateTextureRegion2D* mUpdateTextureRegion = nullptr;
-	class UTexture2D* mPointPosTexture = nullptr;
+	UTexture2D* mPointPosTexture = nullptr;
 	UTexture2D* mPointScalingTexture = nullptr;
 	UTexture2D* mColorTexture = nullptr;
 	

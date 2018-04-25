@@ -13,8 +13,8 @@
 
 
 DEFINE_LOG_CATEGORY(PointCloudRenderer);
-DECLARE_CYCLE_STAT(TEXT("Update Shader Parameter"), STAT_UpdateShaderParameter, STATGROUP_PCR);
-DECLARE_CYCLE_STAT(TEXT("Create Dynamic Base Mesh"), STAT_CreateDynamicBaseMesh, STATGROUP_PCR);
+//DECLARE_CYCLE_STAT(TEXT("Update Shader Parameter"), STAT_UpdateShaderParameter, STATGROUP_PCR);
+//DECLARE_CYCLE_STAT(TEXT("Create Dynamic Base Mesh"), STAT_CreateDynamicBaseMesh, STATGROUP_PCR);
 
 #define CHECK_PCR_STATUS																\
 if (!IPointCloudRenderer::IsAvailable() /*|| !FPointCloudModule::IsAvailable()*/) {		\
@@ -136,7 +136,7 @@ void UPointCloudRendererComponent::TickComponent(float DeltaTime, ELevelTick Tic
 
 void UPointCloudRendererComponent::CreateStreamingBaseMesh(int32 pointCount)
 {
-	SCOPE_CYCLE_COUNTER(STAT_CreateDynamicBaseMesh);
+	//SCOPE_CYCLE_COUNTER(STAT_CreateDynamicBaseMesh);
 
 	//Check if update is neccessary
 	if (BaseMesh && BaseMesh->NumPoints == pointCount)
@@ -159,7 +159,7 @@ void UPointCloudRendererComponent::CreateStreamingBaseMesh(int32 pointCount)
 
 void UPointCloudRendererComponent::UpdateShaderProperties()
 {
-	SCOPE_CYCLE_COUNTER(STAT_UpdateShaderParameter);
+	//SCOPE_CYCLE_COUNTER(STAT_UpdateShaderParameter);
 
 	if (!mPointCloudMaterial)
 		return;

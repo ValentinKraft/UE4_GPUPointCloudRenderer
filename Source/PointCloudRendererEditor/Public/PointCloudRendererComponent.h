@@ -9,12 +9,10 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-//#include "PointCloudStreamingCore.h"
-//#include "PointCloudComponent.h"
 
 #include "PointCloudRendererComponent.generated.h"
 
-DECLARE_STATS_GROUP(TEXT("PointCloudRenderer"), STATGROUP_PCR, STATCAT_Advanced);
+//DECLARE_STATS_GROUP(TEXT("PointCloudRenderer"), STATGROUP_PCR, STATCAT_Advanced);
 DECLARE_LOG_CATEGORY_EXTERN(PointCloudRenderer, Log, All);
 
 UCLASS( ClassGroup=Rendering, meta=(BlueprintSpawnableComponent), hideCategories = (Object, LOD, Physics, Collision))

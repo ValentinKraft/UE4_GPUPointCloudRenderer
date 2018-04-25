@@ -8,14 +8,20 @@
 #include "CoreMinimal.h"
 #include "IPointCloudRenderer.h"
 #include "PointCloudStreamingCore.h"
-#include "Runtime/Engine/Classes/Engine/Texture2D.h"
 #include "Engine/TextureRenderTarget2D.h"
 #include "Engine/World.h"
 #include "App.h"
-
+//#include "ComputeShaderUsageExample.h"
+//#include "PixelShaderUsageExample.h"
 
 using namespace std;
 #undef UpdateResource
+
+DECLARE_CYCLE_STAT(TEXT("Generate Random Cloud"), STAT_GenerateRandomCloud, STATGROUP_PCR);
+DECLARE_CYCLE_STAT(TEXT("Fill CPU Buffer"), STAT_FillCPUBuffer, STATGROUP_PCR);
+DECLARE_CYCLE_STAT(TEXT("Update Texture Regions"), STAT_UpdateTextureRegions, STATGROUP_PCR);
+DECLARE_CYCLE_STAT(TEXT("Sort Point Cloud Data"), STAT_SortPointCloudData, STATGROUP_PCR);
+DECLARE_CYCLE_STAT(TEXT("Update Shader Textures"), STAT_UpdateShaderTextures, STATGROUP_PCR);
 
 
 //////////////////////
@@ -125,7 +131,7 @@ void FPointCloudStreamingCore::Update(bool isDynamicPointCloud, bool sortDataEve
 
 void FPointCloudStreamingCore::UpdateStreamingBuffers()
 {
-	//SCOPE_CYCLE_COUNTER(STAT_FillCPUBuffer);
+	SCOPE_CYCLE_COUNTER(STAT_FillCPUBuffer);
 
 	//if (mColorData.Num() == 0 || mPointPosDataPointer->Num() == 0 || !mPointPosTexture || !mColorTexture || cloud->points.size() > (*mPointPosDataPointer).Num())		//#ToDo: exceptions o.s.
 	//	return;
@@ -146,13 +152,13 @@ void FPointCloudStreamingCore::UpdateStreamingBuffers()
 
 void FPointCloudStreamingCore::SortPointCloudData() {
 
-	//SCOPE_CYCLE_COUNTER(STAT_SortPointCloudData);
+	SCOPE_CYCLE_COUNTER(STAT_SortPointCloudData);
 
 }
 
 void FPointCloudStreamingCore::UpdateStreamingTextures()
 {
-	//SCOPE_CYCLE_COUNTER(STAT_UpdateTextureRegions);
+	SCOPE_CYCLE_COUNTER(STAT_UpdateTextureRegions);
 
 	if (mColorData.Num() == 0 || mPointPosDataPointer->Num() == 0 || !mPointPosTexture || !mColorTexture || !mPointScalingTexture)
 		return;
@@ -165,7 +171,7 @@ void FPointCloudStreamingCore::UpdateStreamingTextures()
 
 void FPointCloudStreamingCore::UpdateShaderParameter()
 {
-	//SCOPE_CYCLE_COUNTER(STAT_UpdateShaderTextures);
+	SCOPE_CYCLE_COUNTER(STAT_UpdateShaderTextures);
 
 	if (mColorData.Num() == 0 || mPointPosDataPointer->Num() == 0 || !mPointPosTexture || !mColorTexture || !mPointScalingTexture)
 		return;
