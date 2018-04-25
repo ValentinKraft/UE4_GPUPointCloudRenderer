@@ -167,6 +167,9 @@ void FPointCloudStreamingCore::UpdateShaderParameter()
 {
 	//SCOPE_CYCLE_COUNTER(STAT_UpdateShaderTextures);
 
+	if (mColorData.Num() == 0 || mPointPosDataPointer->Num() == 0 || !mPointPosTexture || !mColorTexture || !mPointScalingTexture)
+		return;
+
 	if (!mDynamicMatInstance)
 		return;
 

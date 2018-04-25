@@ -29,8 +29,6 @@ if (!mPointCloudCore) {																	\
 
 UPointCloudRendererComponent::UPointCloudRendererComponent(const FObjectInitializer& ObjectInitializer)
 {
-	CHECK_PCR_STATUS
-
 	/// Set default values
 	PrimaryComponentTick.bCanEverTick = true;
 	//this->GetOwner()->AutoReceiveInput = EAutoReceiveInput::Player0;
