@@ -22,8 +22,11 @@ class FPointCloudRendererEditorPlugin : public IPointCloudRendererEditorPlugin
 		UE_LOG(PointCloudRenderer, Log, TEXT("// Initializing Point Cloud Renderer... \n"));
 		UE_LOG(PointCloudRenderer, Log, TEXT("/////////////////////////////////////// \n"));
 
-		#if defined HAVE_CUDA
+		#ifdef HAVE_CUDA
 			UE_LOG(PointCloudRenderer, Log, TEXT("Found CUDA installation. \n"));
+		#endif
+		#ifdef WITH_PCL
+			UE_LOG(PointCloudRenderer, Log, TEXT("Found PCL installation. \n"));
 		#endif
 	}
 
