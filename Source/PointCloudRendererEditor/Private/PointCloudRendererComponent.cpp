@@ -13,8 +13,6 @@
 
 
 DEFINE_LOG_CATEGORY(PointCloudRenderer);
-//DECLARE_CYCLE_STAT(TEXT("Update Shader Parameter"), STAT_UpdateShaderParameter, STATGROUP_PCR);
-//DECLARE_CYCLE_STAT(TEXT("Create Dynamic Base Mesh"), STAT_CreateDynamicBaseMesh, STATGROUP_PCR);
 
 #define CHECK_PCR_STATUS																\
 if (!IPointCloudRenderer::IsAvailable() /*|| !FPointCloudModule::IsAvailable()*/) {		\
@@ -63,7 +61,7 @@ void UPointCloudRendererComponent::SetDynamicProperties(float cloudScaling, floa
 	mShouldOverrideColor = overrideColor;
 }
 
-void UPointCloudRendererComponent::SetDynamicPointStreamInput(TArray<FLinearColor> &pointPositions, TArray<FColor> &pointColors) {
+void UPointCloudRendererComponent::SetInputAndConvert1(TArray<FLinearColor> &pointPositions, TArray<FColor> &pointColors, bool sortDataEveryFrame) {
 	if (pointPositions.Num() != pointColors.Num()) {
 		UE_LOG(PointCloudRenderer, Error, TEXT("The number of point positions doesn't match the number of point colors."));
 		return;
@@ -72,9 +70,32 @@ void UPointCloudRendererComponent::SetDynamicPointStreamInput(TArray<FLinearColo
 		return;
 
 	CreateStreamingBaseMesh(pointPositions.Num());
-	mPointCloudCore->SetInput(pointPositions, pointColors, false);
+	mPointCloudCore->SetInput(pointPositions, pointColors, sortDataEveryFrame);
 }
 
+void UPointCloudRendererComponent::SetInput(TArray<FLinearColor> &pointPositions, TArray<uint8> &pointColors, bool sortDataEveryFrame) {
+	if (pointPositions.Num() != pointColors.Num()) {
+		UE_LOG(PointCloudRenderer, Error, TEXT("The number of point positions doesn't match the number of point colors."));
+		return;
+	}
+	if (!mPointCloudCore)
+		return;
+
+	CreateStreamingBaseMesh(pointPositions.Num());
+	mPointCloudCore->SetInput(pointPositions, pointColors, sortDataEveryFrame);
+}
+
+void UPointCloudRendererComponent::SetInputAndConvert2(TArray<FVector> &pointPositions, TArray<FColor> &pointColors, bool sortDataEveryFrame) {
+	if (pointPositions.Num() != pointColors.Num()) {
+		UE_LOG(PointCloudRenderer, Error, TEXT("The number of point positions doesn't match the number of point colors."));
+		return;
+	}
+	if (!mPointCloudCore)
+		return;
+
+	CreateStreamingBaseMesh(pointPositions.Num());
+	mPointCloudCore->SetInput(pointPositions, pointColors, sortDataEveryFrame);
+}
 
 //////////////////////////
 // STANDARD FUNCTIONS ////

@@ -205,12 +205,12 @@ void FPointCloudStreamingCore::UpdateShaderParameter()
 }
 
 FPointCloudStreamingCore::~FPointCloudStreamingCore() {
-	if (mUpdateTextureRegion)
-		delete mUpdateTextureRegion;
-	if (mPointPosTexture)
-		delete mPointPosTexture;
-	if (mPointScalingTexture)
-		delete mPointScalingTexture;
-	if (mColorTexture)
-		delete mColorTexture;
+	//if (mUpdateTextureRegion)
+	//	delete mUpdateTextureRegion;
+	//if (mPointPosTexture)
+	//	delete mPointPosTexture;
+	//if (mPointScalingTexture)
+	//	delete mPointScalingTexture;
+	//if (mColorTexture)
+	//	delete mColorTexture;
 }

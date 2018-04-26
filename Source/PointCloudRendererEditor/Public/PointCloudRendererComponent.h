@@ -12,7 +12,6 @@
 
 #include "PointCloudRendererComponent.generated.h"
 
-//DECLARE_STATS_GROUP(TEXT("PointCloudRenderer"), STATGROUP_PCR, STATCAT_Advanced);
 DECLARE_LOG_CATEGORY_EXTERN(PointCloudRenderer, Log, All);
 
 UCLASS( ClassGroup=Rendering, meta=(BlueprintSpawnableComponent), hideCategories = (Object, LOD, Physics, Collision))
@@ -41,19 +40,39 @@ public:
 	void SetDynamicProperties(float cloudScaling = 1.0f, float falloff = 1.0f, float splatSize = 1.0f, float distanceScalingStart = 1000.f, float maxDistanceScaling = 3.f, bool overrideColor = false);
 
 	/**
-	* For dynamic point clouds only. Send your own, custom point data stream to the renderer. Could be used for a kinect point stream or similar. Can be called every frame. Point positions have to be encoded as a array of LinearColors with the following mapping:
+	* Send your own, custom point data stream to the renderer. Could be used for a kinect point stream or similar. Can be called every frame. Point positions have to be encoded as a array of LinearColors with the following mapping:
 		Alpha Channel : Z-values;
 		Green Channel : X-values;
 		Blue Channel : Y-values;
 		Red Channel : Z-values;
-		[BETA FUNCTIONALITY].
 	*
 	* @param	pointPositions				Array of your point positions. Please mind the mapping: Alpha Channel : Z-values, Green Channel : X-values, Blue Channel : Y-values, Red Channel : Z-values.
 	* @param	pointColors					Array of your point colors.
 	*/
-	UFUNCTION(DisplayName = "PCR Set Dynamic Point Stream Input", BlueprintCallable, Category = "PointCloudRenderer", meta = (Keywords = "set kinect custom own dynamic point cloud streaming input"))
-	void SetDynamicPointStreamInput(UPARAM(ref) TArray<FLinearColor> &pointPositions, UPARAM(ref) TArray<FColor> &pointColors);
-	
+	UFUNCTION(DisplayName = "PCR Set/Stream Input (FLinearColor/FColor)", BlueprintCallable, Category = "PointCloudRenderer", meta = (Keywords = "set kinect custom own dynamic point cloud streaming input"))
+	void SetInputAndConvert1(UPARAM(ref) TArray<FLinearColor> &pointPositions, UPARAM(ref) TArray<FColor> &pointColors, bool sortDataEveryFrame = false);
+
+	/**
+	* Send your own, custom point data stream to the renderer. Could be used for a kinect point stream or similar. Can be called every frame. Point positions have to be encoded as a array of LinearColors with the following mapping:
+	Alpha Channel : Z-values;
+	Green Channel : X-values;
+	Blue Channel : Y-values;
+	Red Channel : Z-values;
+	*
+	* @param	pointPositions				Array of your point positions. Please mind the mapping: Alpha Channel : Z-values, Green Channel : X-values, Blue Channel : Y-values, Red Channel : Z-values.
+	* @param	pointColors					Array of your point colors.
+	*/
+	UFUNCTION(DisplayName = "PCR Set/Stream Input FAST", BlueprintCallable, Category = "PointCloudRenderer", meta = (Keywords = "set kinect custom own dynamic point cloud streaming input"))
+	void SetInput(UPARAM(ref) TArray<FLinearColor> &pointPositions, UPARAM(ref) TArray<uint8> &pointColors, bool sortDataEveryFrame = false);
+
+	/**
+	* Send your own, custom point data stream to the renderer. Could be used for a kinect point stream or similar. Can be called every frame.
+	*
+	* @param	pointPositions				Array of your point positions.
+	* @param	pointColors					Array of your point colors.
+	*/
+	UFUNCTION(DisplayName = "PCR Set/Stream Input (FVector/FColor)", BlueprintCallable, Category = "PointCloudRenderer", meta = (Keywords = "set kinect custom own dynamic point cloud streaming input"))
+	void SetInputAndConvert2(UPARAM(ref) TArray<FVector> &pointPositions, UPARAM(ref) TArray<FColor> &pointColors, bool sortDataEveryFrame = false);
 
 private:
 	class FPointCloudStreamingCore* mPointCloudCore = nullptr;
@@ -68,8 +87,6 @@ private:
 	float mSplatSize = 1.0f;
 	UPROPERTY(VisibleAnywhere, Category = "PointCloudRenderer")
 	float mPointCloudScaling = 1.0f;
-	UPROPERTY(VisibleAnywhere, Category = "PointCloudRenderer")
-	bool mAlwaysFaceCamera = true;
 
 	/// Streaming-specific variables
 	UPROPERTY()
