@@ -10,18 +10,18 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 
-#include "PointCloudRendererComponent.generated.h"
+#include "GPUPointCloudRendererComponent.generated.h"
 
-DECLARE_LOG_CATEGORY_EXTERN(PointCloudRenderer, Log, All);
+DECLARE_LOG_CATEGORY_EXTERN(GPUPointCloudRenderer, Log, All);
 
 UCLASS( ClassGroup=Rendering, meta=(BlueprintSpawnableComponent), hideCategories = (Object, LOD, Physics, Collision))
-class POINTCLOUDRENDEREREDITOR_API UPointCloudRendererComponent : public USceneComponent
+class GPUPOINTCLOUDRENDEREREDITOR_API UGPUPointCloudRendererComponent : public USceneComponent
 {
 	GENERATED_BODY()
 
 public:	
-	UPointCloudRendererComponent(const FObjectInitializer& ObjectInitializer);
-	~UPointCloudRendererComponent();
+	UGPUPointCloudRendererComponent(const FObjectInitializer& ObjectInitializer);
+	~UGPUPointCloudRendererComponent();
 
 	UPROPERTY()
 	class UPointCloudComponent* BaseMesh;
@@ -36,7 +36,7 @@ public:
 	* @param	maxDistanceScaling			Maximal scaling value (set to 1 if you want to disable scaling by distance).
 	* @param	overrideColor				Overrides the point cloud colors with the given color.
 	*/
-	UFUNCTION(DisplayName = "PCR Set Dynamic Point Cloud Properties", BlueprintCallable, Category = "PointCloudRenderer", meta = (Keywords = "point cloud update set properties"))
+	UFUNCTION(DisplayName = "PCR Set Dynamic Point Cloud Properties", BlueprintCallable, Category = "GPUPointCloudRenderer", meta = (Keywords = "point cloud update set properties"))
 	void SetDynamicProperties(float cloudScaling = 1.0f, float falloff = 1.0f, float splatSize = 1.0f, float distanceScalingStart = 1000.f, float maxDistanceScaling = 3.f, bool overrideColor = false);
 
 	/**
@@ -49,7 +49,7 @@ public:
 	* @param	pointPositions				Array of your point positions. Please mind the mapping: Alpha Channel : Z-values, Green Channel : X-values, Blue Channel : Y-values, Red Channel : Z-values.
 	* @param	pointColors					Array of your point colors.
 	*/
-	UFUNCTION(DisplayName = "PCR Set/Stream Input (FLinearColor/FColor)", BlueprintCallable, Category = "PointCloudRenderer", meta = (Keywords = "set kinect custom own dynamic point cloud streaming input"))
+	UFUNCTION(DisplayName = "PCR Set/Stream Input (FLinearColor/FColor)", BlueprintCallable, Category = "GPUPointCloudRenderer", meta = (Keywords = "set kinect custom own dynamic point cloud streaming input"))
 	void SetInputAndConvert1(UPARAM(ref) TArray<FLinearColor> &pointPositions, UPARAM(ref) TArray<FColor> &pointColors, bool sortDataEveryFrame = false);
 
 	/**
@@ -62,7 +62,7 @@ public:
 	* @param	pointPositions				Array of your point positions. Please mind the mapping: Alpha Channel : Z-values, Green Channel : X-values, Blue Channel : Y-values, Red Channel : Z-values.
 	* @param	pointColors					Array of your point colors.
 	*/
-	UFUNCTION(DisplayName = "PCR Set/Stream Input FAST", BlueprintCallable, Category = "PointCloudRenderer", meta = (Keywords = "set kinect custom own dynamic point cloud streaming input"))
+	UFUNCTION(DisplayName = "PCR Set/Stream Input FAST", BlueprintCallable, Category = "GPUPointCloudRenderer", meta = (Keywords = "set kinect custom own dynamic point cloud streaming input"))
 	void SetInput(UPARAM(ref) TArray<FLinearColor> &pointPositions, UPARAM(ref) TArray<uint8> &pointColors, bool sortDataEveryFrame = false);
 
 	/**
@@ -71,21 +71,21 @@ public:
 	* @param	pointPositions				Array of your point positions.
 	* @param	pointColors					Array of your point colors.
 	*/
-	UFUNCTION(DisplayName = "PCR Set/Stream Input (FVector/FColor)", BlueprintCallable, Category = "PointCloudRenderer", meta = (Keywords = "set kinect custom own dynamic point cloud streaming input"))
+	UFUNCTION(DisplayName = "PCR Set/Stream Input (FVector/FColor)", BlueprintCallable, Category = "GPUPointCloudRenderer", meta = (Keywords = "set kinect custom own dynamic point cloud streaming input"))
 	void SetInputAndConvert2(UPARAM(ref) TArray<FVector> &pointPositions, UPARAM(ref) TArray<FColor> &pointColors, bool sortDataEveryFrame = false);
 
 private:
 	class FPointCloudStreamingCore* mPointCloudCore = nullptr;
 
-	UPROPERTY(VisibleAnywhere, Category = "PointCloudRenderer")
+	UPROPERTY(VisibleAnywhere, Category = "GPUPointCloudRenderer")
 	int32 mPointCount = 0;
-	UPROPERTY(VisibleAnywhere, Category = "PointCloudRenderer")
+	UPROPERTY(VisibleAnywhere, Category = "GPUPointCloudRenderer")
 	FString mExtent = "No data.";
-	UPROPERTY(VisibleAnywhere, Category = "PointCloudRenderer")
+	UPROPERTY(VisibleAnywhere, Category = "GPUPointCloudRenderer")
 	UMaterialInstanceDynamic* mPointCloudMaterial = nullptr;
-	UPROPERTY(VisibleAnywhere, Category = "PointCloudRenderer")
+	UPROPERTY(VisibleAnywhere, Category = "GPUPointCloudRenderer")
 	float mSplatSize = 1.0f;
-	UPROPERTY(VisibleAnywhere, Category = "PointCloudRenderer")
+	UPROPERTY(VisibleAnywhere, Category = "GPUPointCloudRenderer")
 	float mPointCloudScaling = 1.0f;
 
 	/// Streaming-specific variables

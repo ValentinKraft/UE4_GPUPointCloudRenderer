@@ -9,24 +9,24 @@
 #include "UObject/Class.h"
 #include "PropertyEditorModule.h"
 #include "Modules/ModuleManager.h"
-#include "PointCloudRendererComponent.h"
-#include "IPointCloudRendererEditorPlugin.h"
+#include "GPUPointCloudRendererComponent.h"
+#include "IGPUPointCloudRendererEditorPlugin.h"
 
 
-class FPointCloudRendererEditorPlugin : public IPointCloudRendererEditorPlugin
+class FGPUPointCloudRendererEditorPlugin : public IGPUPointCloudRendererEditorPlugin
 {
 	/** IModuleInterface implementation */
 	virtual void StartupModule() override
 	{
-		UE_LOG(PointCloudRenderer, Log, TEXT("/////////////////////////////////////// \n"));
-		UE_LOG(PointCloudRenderer, Log, TEXT("// Initializing Point Cloud Renderer... \n"));
-		UE_LOG(PointCloudRenderer, Log, TEXT("/////////////////////////////////////// \n"));
+		UE_LOG(GPUPointCloudRenderer, Log, TEXT("/////////////////////////////////////// \n"));
+		UE_LOG(GPUPointCloudRenderer, Log, TEXT("// Initializing Point Cloud Renderer... \n"));
+		UE_LOG(GPUPointCloudRenderer, Log, TEXT("/////////////////////////////////////// \n"));
 
 		#ifdef HAVE_CUDA
-			UE_LOG(PointCloudRenderer, Log, TEXT("Found CUDA installation. \n"));
+			UE_LOG(GPUPointCloudRenderer, Log, TEXT("Found CUDA installation. \n"));
 		#endif
 		#ifdef WITH_PCL
-			UE_LOG(PointCloudRenderer, Log, TEXT("Found PCL installation. \n"));
+			UE_LOG(GPUPointCloudRenderer, Log, TEXT("Found PCL installation. \n"));
 		#endif
 	}
 
@@ -36,4 +36,4 @@ class FPointCloudRendererEditorPlugin : public IPointCloudRendererEditorPlugin
 	}
 };
 
-IMPLEMENT_MODULE(FPointCloudRendererEditorPlugin, PointCloudRendererEditor)
+IMPLEMENT_MODULE(FGPUPointCloudRendererEditorPlugin, GPUPointCloudRendererEditor)

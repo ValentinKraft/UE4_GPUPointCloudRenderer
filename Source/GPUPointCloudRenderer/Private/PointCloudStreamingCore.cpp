@@ -6,7 +6,7 @@
 **************************************************************************************************/
 
 #include "CoreMinimal.h"
-#include "IPointCloudRenderer.h"
+#include "IGPUPointCloudRenderer.h"
 #include "PointCloudStreamingCore.h"
 #include "Engine/TextureRenderTarget2D.h"
 #include "Engine/World.h"

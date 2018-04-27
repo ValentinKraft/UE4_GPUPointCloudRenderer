@@ -29,7 +29,7 @@ struct FPointCloudParticle
 
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class POINTCLOUDRENDEREREDITOR_API UPointCloudComponent : public UInstancedStaticMeshComponent
+class GPUPOINTCLOUDRENDEREREDITOR_API UPointCloudComponent : public UInstancedStaticMeshComponent
 {
     GENERATED_UCLASS_BODY()
 

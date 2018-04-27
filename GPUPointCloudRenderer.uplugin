@@ -13,17 +13,17 @@
   "SupportURL": "",
   "EnabledByDefault": false,
   "CanContainContent": true,
-  "IsBetaVersion": true,
+  "IsBetaVersion": false,
   "Installed": false,
   "WhitelistPlatforms": [ "Win64" ],
   "Modules": [
     {
-      "Name": "PointCloudRenderer",
+      "Name": "GPUPointCloudRenderer",
       "Type": "Runtime",
       "LoadingPhase": "PreDefault"
     },
     {
-      "Name": "PointCloudRendererEditor",
+      "Name": "GPUPointCloudRendererEditor",
       "Type": "Runtime",
       "LoadingPhase": "Default"
     }

@@ -16,7 +16,7 @@
  * The public interface to the Point Cloud Renderer module.
  * @Author Valentin Kraft
  */
-class POINTCLOUDRENDERER_API IPointCloudRenderer : public IModuleInterface
+class GPUPOINTCLOUDRENDERER_API IGPUPointCloudRenderer : public IModuleInterface
 {
 
 public:
@@ -27,9 +27,9 @@ public:
 	 *
 	 * @return Returns singleton instance, loading the module on demand if needed
 	 */
-	static inline IPointCloudRenderer& Get()
+	static inline IGPUPointCloudRenderer& Get()
 	{
-		return FModuleManager::LoadModuleChecked< IPointCloudRenderer >( "PointCloudRenderer" );
+		return FModuleManager::LoadModuleChecked< IGPUPointCloudRenderer >( "GPUPointCloudRenderer" );
 	}
 
 	/**
@@ -39,7 +39,7 @@ public:
 	 */
 	static inline bool IsAvailable()
 	{
-		return FModuleManager::Get().IsModuleLoaded( "PointCloudRenderer" );
+		return FModuleManager::Get().IsModuleLoaded( "GPUPointCloudRenderer" );
 	}
 
 	/**

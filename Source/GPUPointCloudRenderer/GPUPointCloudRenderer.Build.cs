@@ -5,7 +5,7 @@ using System;
 
 namespace UnrealBuildTool.Rules
 {
-    public class PointCloudRenderer : ModuleRules
+    public class GPUPointCloudRenderer : ModuleRules
     {
         private string ModulePath
         {
@@ -22,10 +22,10 @@ namespace UnrealBuildTool.Rules
             get { return Path.GetFullPath(Path.Combine(ModulePath, "../../Binaries/")); }
         }
 
-        public PointCloudRenderer(ReadOnlyTargetRules Target) : base(Target)
+        public GPUPointCloudRenderer(ReadOnlyTargetRules Target) : base(Target)
         {
-            PrivateIncludePaths.Add("PointCloudRenderer/Private");
-            PublicIncludePaths.Add("PointCloudRenderer/Public");
+            PrivateIncludePaths.Add("GPUPointCloudRenderer/Private");
+            PublicIncludePaths.Add("GPUPointCloudRenderer/Public");
 
             PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "RHI", "ComputeShader", "PixelShader" });
             PrivateDependencyModuleNames.AddRange(new string[] { "Core", "Projects" });

@@ -1,16 +1,16 @@
 
 using UnrealBuildTool;
 
-public class PointCloudRendererEditor : ModuleRules
+public class GPUPointCloudRendererEditor : ModuleRules
 {
-	public PointCloudRendererEditor(ReadOnlyTargetRules Target) : base(Target)
+	public GPUPointCloudRendererEditor(ReadOnlyTargetRules Target) : base(Target)
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
         //Type = ModuleType.Editor;
 
-        PublicIncludePaths.Add("PointCloudRendererEditor/Public");
-        PrivateIncludePaths.Add("PointCloudRendererEditor/Private");
+        PublicIncludePaths.Add("GPUPointCloudRendererEditor/Public");
+        PrivateIncludePaths.Add("GPUPointCloudRendererEditor/Private");
 
         PublicDependencyModuleNames.AddRange(
                 new string[]
@@ -20,7 +20,7 @@ public class PointCloudRendererEditor : ModuleRules
                     "Engine",
                     "PropertyEditor",
                     "BlueprintGraph",
-                    "PointCloudRenderer",
+                    "GPUPointCloudRenderer",
                     "ShaderCore",
                     "RenderCore",
                     "RHI"
@@ -38,7 +38,7 @@ public class PointCloudRendererEditor : ModuleRules
             }
         );
 
-        // DynamicallyLoadedModuleNames.AddRange(new string[] { "PointCloudRenderer" });
+        // DynamicallyLoadedModuleNames.AddRange(new string[] { "GPUPointCloudRenderer" });
 
         // Uncomment if you are using Slate UI
         // PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });

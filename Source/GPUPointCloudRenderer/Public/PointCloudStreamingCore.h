@@ -10,9 +10,9 @@
 #include "CoreMinimal.h"
 #include "Runtime/Engine/Classes/Engine/Texture2D.h"
 
-DECLARE_STATS_GROUP(TEXT("PointCloudRenderer"), STATGROUP_PCR, STATCAT_Advanced);
+DECLARE_STATS_GROUP(TEXT("GPUPointCloudRenderer"), STATGROUP_PCR, STATCAT_Advanced);
 
-class POINTCLOUDRENDERER_API FPointCloudStreamingCore
+class GPUPOINTCLOUDRENDERER_API FPointCloudStreamingCore
 {
 public:
 	FPointCloudStreamingCore(UMaterialInstanceDynamic* pointCloudShaderDynInstance = nullptr) { mDynamicMatInstance = pointCloudShaderDynInstance; };

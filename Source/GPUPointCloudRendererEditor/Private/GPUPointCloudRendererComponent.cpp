@@ -5,43 +5,43 @@
 * Written by Valentin Kraft <valentin.kraft@online.de>, http://www.valentinkraft.de, February 2018
 **************************************************************************************************/
 
-#include "PointCloudRendererComponent.h"
-#include "IPointCloudRenderer.h"
+#include "GPUPointCloudRendererComponent.h"
+#include "IGPUPointCloudRenderer.h"
 #include "PointCloudStreamingCore.h"
 #include "PointCloudComponent.h"
 #include "ConstructorHelpers.h"
 
 
-DEFINE_LOG_CATEGORY(PointCloudRenderer);
+DEFINE_LOG_CATEGORY(GPUPointCloudRenderer);
 
 #define CHECK_PCR_STATUS																\
-if (!IPointCloudRenderer::IsAvailable() /*|| !FPointCloudModule::IsAvailable()*/) {		\
-	UE_LOG(PointCloudRenderer, Error, TEXT("Point Cloud Renderer module not loaded!"));	\
+if (!IGPUPointCloudRenderer::IsAvailable() /*|| !FPointCloudModule::IsAvailable()*/) {		\
+	UE_LOG(GPUPointCloudRenderer, Error, TEXT("Point Cloud Renderer module not loaded!"));	\
 	return;																				\
 }																						\
 if (!mPointCloudCore) {																	\
-	UE_LOG(PointCloudRenderer, Error, TEXT("Point Cloud Core component not found!"));	\
+	UE_LOG(GPUPointCloudRenderer, Error, TEXT("Point Cloud Core component not found!"));	\
 	return;																				\
 }
 
 
-UPointCloudRendererComponent::UPointCloudRendererComponent(const FObjectInitializer& ObjectInitializer)
+UGPUPointCloudRendererComponent::UGPUPointCloudRendererComponent(const FObjectInitializer& ObjectInitializer)
 {
 	/// Set default values
 	PrimaryComponentTick.bCanEverTick = true;
 	//this->GetOwner()->AutoReceiveInput = EAutoReceiveInput::Player0;
 
-	ConstructorHelpers::FObjectFinder<UMaterial> MaterialRef(TEXT("Material'/PointCloudRenderer/Streaming/DynPCMat.DynPCMat'"));
+	ConstructorHelpers::FObjectFinder<UMaterial> MaterialRef(TEXT("Material'/GPUPointCloudRenderer/Streaming/DynPCMat.DynPCMat'"));
 	mStreamingBaseMat = MaterialRef.Object;
 	mPointCloudMaterial = UMaterialInstanceDynamic::Create(mStreamingBaseMat, this->GetOwner());
 
 	if (mPointCloudCore)
 		delete mPointCloudCore;
-	mPointCloudCore = IPointCloudRenderer::Get().CreateStreamingInstance(mPointCloudMaterial);
+	mPointCloudCore = IGPUPointCloudRenderer::Get().CreateStreamingInstance(mPointCloudMaterial);
 	//mPointCloudCore->currentWorld = GetWorld();
 }
 
-UPointCloudRendererComponent::~UPointCloudRendererComponent() {
+UGPUPointCloudRendererComponent::~UGPUPointCloudRendererComponent() {
 	if (mPointCloudCore)
 		delete mPointCloudCore;
 }
@@ -51,7 +51,7 @@ UPointCloudRendererComponent::~UPointCloudRendererComponent() {
 //////////////////////
 
 
-void UPointCloudRendererComponent::SetDynamicProperties(float cloudScaling, float falloff, float splatSize, float distanceScalingStart, float maxDistanceScaling, bool overrideColor) {
+void UGPUPointCloudRendererComponent::SetDynamicProperties(float cloudScaling, float falloff, float splatSize, float distanceScalingStart, float maxDistanceScaling, bool overrideColor) {
 	
 	mFalloff = falloff;
 	mScaling = cloudScaling;
@@ -61,9 +61,9 @@ void UPointCloudRendererComponent::SetDynamicProperties(float cloudScaling, floa
 	mShouldOverrideColor = overrideColor;
 }
 
-void UPointCloudRendererComponent::SetInputAndConvert1(TArray<FLinearColor> &pointPositions, TArray<FColor> &pointColors, bool sortDataEveryFrame) {
+void UGPUPointCloudRendererComponent::SetInputAndConvert1(TArray<FLinearColor> &pointPositions, TArray<FColor> &pointColors, bool sortDataEveryFrame) {
 	if (pointPositions.Num() != pointColors.Num()) {
-		UE_LOG(PointCloudRenderer, Error, TEXT("The number of point positions doesn't match the number of point colors."));
+		UE_LOG(GPUPointCloudRenderer, Error, TEXT("The number of point positions doesn't match the number of point colors."));
 		return;
 	}
 	if (!mPointCloudCore)
@@ -73,9 +73,9 @@ void UPointCloudRendererComponent::SetInputAndConvert1(TArray<FLinearColor> &poi
 	mPointCloudCore->SetInput(pointPositions, pointColors, sortDataEveryFrame);
 }
 
-void UPointCloudRendererComponent::SetInput(TArray<FLinearColor> &pointPositions, TArray<uint8> &pointColors, bool sortDataEveryFrame) {
+void UGPUPointCloudRendererComponent::SetInput(TArray<FLinearColor> &pointPositions, TArray<uint8> &pointColors, bool sortDataEveryFrame) {
 	if (pointPositions.Num() != pointColors.Num()) {
-		UE_LOG(PointCloudRenderer, Error, TEXT("The number of point positions doesn't match the number of point colors."));
+		UE_LOG(GPUPointCloudRenderer, Error, TEXT("The number of point positions doesn't match the number of point colors."));
 		return;
 	}
 	if (!mPointCloudCore)
@@ -85,9 +85,9 @@ void UPointCloudRendererComponent::SetInput(TArray<FLinearColor> &pointPositions
 	mPointCloudCore->SetInput(pointPositions, pointColors, sortDataEveryFrame);
 }
 
-void UPointCloudRendererComponent::SetInputAndConvert2(TArray<FVector> &pointPositions, TArray<FColor> &pointColors, bool sortDataEveryFrame) {
+void UGPUPointCloudRendererComponent::SetInputAndConvert2(TArray<FVector> &pointPositions, TArray<FColor> &pointColors, bool sortDataEveryFrame) {
 	if (pointPositions.Num() != pointColors.Num()) {
-		UE_LOG(PointCloudRenderer, Error, TEXT("The number of point positions doesn't match the number of point colors."));
+		UE_LOG(GPUPointCloudRenderer, Error, TEXT("The number of point positions doesn't match the number of point colors."));
 		return;
 	}
 	if (!mPointCloudCore)
@@ -101,7 +101,7 @@ void UPointCloudRendererComponent::SetInputAndConvert2(TArray<FVector> &pointPos
 // STANDARD FUNCTIONS ////
 //////////////////////////
 
-//void UPointCloudRendererComponent::PostEditChangeProperty(FPropertyChangedEvent &PropertyChangedEvent) {
+//void UGPUPointCloudRendererComponent::PostEditChangeProperty(FPropertyChangedEvent &PropertyChangedEvent) {
 //	
 //	Super::PostEditChangeProperty(PropertyChangedEvent);
 //
@@ -114,12 +114,12 @@ void UPointCloudRendererComponent::SetInputAndConvert2(TArray<FVector> &pointPos
 //	PointCloudVisualisationHelper(mShowNormals, mShowEnclosingGrid);
 //}
 
-//void UPointCloudRendererComponent::PostEditComponentMove(bool bFinished) {
+//void UGPUPointCloudRendererComponent::PostEditComponentMove(bool bFinished) {
 //	//PointCloudVisualisationHelper(mShowNormals, mShowEnclosingGrid);
 //}
 
 
-void UPointCloudRendererComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+void UGPUPointCloudRendererComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 	
@@ -143,7 +143,7 @@ void UPointCloudRendererComponent::TickComponent(float DeltaTime, ELevelTick Tic
 ////////////////////////
 
 
-void UPointCloudRendererComponent::CreateStreamingBaseMesh(int32 pointCount)
+void UGPUPointCloudRendererComponent::CreateStreamingBaseMesh(int32 pointCount)
 {
 	//SCOPE_CYCLE_COUNTER(STAT_CreateDynamicBaseMesh);
 
@@ -166,7 +166,7 @@ void UPointCloudRendererComponent::CreateStreamingBaseMesh(int32 pointCount)
 }
 
 
-void UPointCloudRendererComponent::UpdateShaderProperties()
+void UGPUPointCloudRendererComponent::UpdateShaderProperties()
 {
 	//SCOPE_CYCLE_COUNTER(STAT_UpdateShaderParameter);
 

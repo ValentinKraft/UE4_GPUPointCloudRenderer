@@ -8,9 +8,9 @@
 #include "CoreMinimal.h"
 #include "PointCloudStreamingCore.h"
 #include "Modules/ModuleManager.h"
-#include "IPointCloudRenderer.h"
+#include "IGPUPointCloudRenderer.h"
 
-class FPointCloudRendererPlugin : public IPointCloudRenderer
+class FGPUPointCloudRendererPlugin : public IGPUPointCloudRenderer
 {
 
 	virtual void StartupModule() override
@@ -29,4 +29,4 @@ class FPointCloudRendererPlugin : public IPointCloudRenderer
 	}
 };
 
-IMPLEMENT_MODULE(FPointCloudRendererPlugin, PointCloudRenderer)
+IMPLEMENT_MODULE(FGPUPointCloudRendererPlugin, GPUPointCloudRenderer)

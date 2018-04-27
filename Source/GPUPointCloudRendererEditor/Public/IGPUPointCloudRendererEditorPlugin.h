@@ -15,7 +15,7 @@
 /**
  * The public interface to this module
  */
-class IPointCloudRendererEditorPlugin : public IModuleInterface
+class IGPUPointCloudRendererEditorPlugin : public IModuleInterface
 {
 
 public:
@@ -26,9 +26,9 @@ public:
 	 *
 	 * @return Returns singleton instance, loading the module on demand if needed
 	 */
-	static inline IPointCloudRendererEditorPlugin& Get()
+	static inline IGPUPointCloudRendererEditorPlugin& Get()
 	{
-		return FModuleManager::LoadModuleChecked< IPointCloudRendererEditorPlugin >( "PointCloudRendererEditor" );
+		return FModuleManager::LoadModuleChecked< IGPUPointCloudRendererEditorPlugin >( "GPUPointCloudRendererEditor" );
 	}
 
 	/**
@@ -38,7 +38,7 @@ public:
 	 */
 	static inline bool IsAvailable()
 	{
-		return FModuleManager::Get().IsModuleLoaded( "PointCloudRendererEditor" );
+		return FModuleManager::Get().IsModuleLoaded( "GPUPointCloudRendererEditor" );
 	}
 };
 
