@@ -26,6 +26,9 @@ public:
 	void SetInput(TArray<FLinearColor> &pointPositions, TArray<FColor> &pointColors, bool sortDataEveryFrame);
 	void SetInput(TArray<FVector> &pointPositions, TArray<FColor> &pointColors, bool sortDataEveryFrame);
 
+	//UWorld* currentWorld = nullptr;
+	//FVector currentCamPos = FVector::ZeroVector;
+
 private:
 	void InitializeStreaming(unsigned int pointCount);
 	void UpdateStreamingTextures();

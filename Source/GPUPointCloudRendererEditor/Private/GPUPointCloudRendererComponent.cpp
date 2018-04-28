@@ -61,40 +61,40 @@ void UGPUPointCloudRendererComponent::SetDynamicProperties(float cloudScaling, f
 	mShouldOverrideColor = overrideColor;
 }
 
-void UGPUPointCloudRendererComponent::SetInputAndConvert1(TArray<FLinearColor> &pointPositions, TArray<FColor> &pointColors, bool sortDataEveryFrame) {
+void UGPUPointCloudRendererComponent::SetInputAndConvert1(TArray<FLinearColor> &pointPositions, TArray<FColor> &pointColors, bool sortData) {
+	
 	if (pointPositions.Num() != pointColors.Num()) {
-		UE_LOG(GPUPointCloudRenderer, Error, TEXT("The number of point positions doesn't match the number of point colors."));
-		return;
+		UE_LOG(GPUPointCloudRenderer, Warning, TEXT("The number of point positions doesn't match the number of point colors."));
 	}
 	if (!mPointCloudCore)
 		return;
 
 	CreateStreamingBaseMesh(pointPositions.Num());
-	mPointCloudCore->SetInput(pointPositions, pointColors, sortDataEveryFrame);
+	mPointCloudCore->SetInput(pointPositions, pointColors, sortData);
 }
 
-void UGPUPointCloudRendererComponent::SetInput(TArray<FLinearColor> &pointPositions, TArray<uint8> &pointColors, bool sortDataEveryFrame) {
-	if (pointPositions.Num() != pointColors.Num()) {
-		UE_LOG(GPUPointCloudRenderer, Error, TEXT("The number of point positions doesn't match the number of point colors."));
-		return;
+void UGPUPointCloudRendererComponent::SetInput(TArray<FLinearColor> &pointPositions, TArray<uint8> &pointColors, bool sortData) {
+	
+	if (pointPositions.Num()*4 != pointColors.Num()) {
+		UE_LOG(GPUPointCloudRenderer, Warning, TEXT("The number of point positions doesn't match the number of point colors."));
 	}
 	if (!mPointCloudCore)
 		return;
 
 	CreateStreamingBaseMesh(pointPositions.Num());
-	mPointCloudCore->SetInput(pointPositions, pointColors, sortDataEveryFrame);
+	mPointCloudCore->SetInput(pointPositions, pointColors, sortData);
 }
 
-void UGPUPointCloudRendererComponent::SetInputAndConvert2(TArray<FVector> &pointPositions, TArray<FColor> &pointColors, bool sortDataEveryFrame) {
+void UGPUPointCloudRendererComponent::SetInputAndConvert2(TArray<FVector> &pointPositions, TArray<FColor> &pointColors, bool sortData) {
+	
 	if (pointPositions.Num() != pointColors.Num()) {
-		UE_LOG(GPUPointCloudRenderer, Error, TEXT("The number of point positions doesn't match the number of point colors."));
-		return;
+		UE_LOG(GPUPointCloudRenderer, Warning, TEXT("The number of point positions doesn't match the number of point colors."));
 	}
 	if (!mPointCloudCore)
 		return;
 
 	CreateStreamingBaseMesh(pointPositions.Num());
-	mPointCloudCore->SetInput(pointPositions, pointColors, sortDataEveryFrame);
+	mPointCloudCore->SetInput(pointPositions, pointColors, sortData);
 }
 
 //////////////////////////

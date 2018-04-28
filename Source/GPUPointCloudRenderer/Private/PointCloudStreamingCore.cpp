@@ -77,22 +77,25 @@ void FPointCloudStreamingCore::FreeData()
 	if (mUpdateTextureRegion) delete mUpdateTextureRegion; mUpdateTextureRegion = nullptr;
 }
 
-void FPointCloudStreamingCore::SetInput(TArray<FLinearColor> &pointPositions, TArray<uint8> &pointColors, bool sortDataEveryFrame) {
+void FPointCloudStreamingCore::SetInput(TArray<FLinearColor> &pointPositions, TArray<uint8> &pointColors, bool sortData) {
 
-	ensure(pointPositions.Num() == pointColors.Num());
+	ensure(pointPositions.Num()*4 == pointColors.Num());
 	InitializeStreaming(pointPositions.Num());
+
+	if (pointColors.Num() < pointPositions.Num() * 4)
+		pointColors.Reserve(pointPositions.Num() * 4);
 
 	mPointPosDataPointer = &pointPositions;
 	mColorDataPointer = &pointColors;
 
-	if (sortDataEveryFrame)
+	if (sortData)
 		SortPointCloudData();
 	UpdateStreamingTextures();
 }
 
-void FPointCloudStreamingCore::SetInput(TArray<FLinearColor> &pointPositions, TArray<FColor> &pointColors, bool sortDataEveryFrame) {
+void FPointCloudStreamingCore::SetInput(TArray<FLinearColor> &pointPositions, TArray<FColor> &pointColors, bool sortData) {
 	
-	ensure(pointPositions.Num() == pointColors.Num());
+	check(pointPositions.Num() == pointColors.Num());
 	InitializeStreaming(pointPositions.Num());	
 
 	mPointPosDataPointer = &pointPositions;
@@ -112,14 +115,14 @@ void FPointCloudStreamingCore::SetInput(TArray<FLinearColor> &pointPositions, TA
 
 	mColorDataPointer = &mColorData;
 
-	if (sortDataEveryFrame)
+	if (sortData)
 		SortPointCloudData();
 	UpdateStreamingTextures();
 }
 
-void FPointCloudStreamingCore::SetInput(TArray<FVector> &pointPositions, TArray<FColor> &pointColors, bool sortDataEveryFrame) {
+void FPointCloudStreamingCore::SetInput(TArray<FVector> &pointPositions, TArray<FColor> &pointColors, bool sortData) {
 
-	ensure(pointPositions.Num() == pointColors.Num());
+	check(pointPositions.Num() == pointColors.Num());
 	InitializeStreaming(pointPositions.Num());
 
 	if (mPointPosData.Num() < pointPositions.Num()) {
@@ -152,7 +155,7 @@ void FPointCloudStreamingCore::SetInput(TArray<FVector> &pointPositions, TArray<
 
 	mColorDataPointer = &mColorData;
 
-	if (sortDataEveryFrame)
+	if (sortData)
 		SortPointCloudData();
 	UpdateStreamingTextures();
 }
@@ -175,7 +178,7 @@ void FPointCloudStreamingCore::UpdateStreamingTextures()
 {
 	SCOPE_CYCLE_COUNTER(STAT_UpdateTextureRegions);
 
-	if (mColorData.Num() == 0 || mPointPosDataPointer->Num() == 0 || !mPointPosTexture || !mColorTexture || !mPointScalingTexture)
+	if (mColorDataPointer->Num() == 0 || mPointPosDataPointer->Num() == 0 || !mPointPosTexture || !mColorTexture || !mPointScalingTexture)
 		return;
 
 	mPointPosTexture->UpdateTextureRegions(0, 1, mUpdateTextureRegion, mPointPosTexture->GetSizeX() * sizeof(FLinearColor), sizeof(FLinearColor), (uint8*)mPointPosDataPointer->GetData());
@@ -188,7 +191,7 @@ void FPointCloudStreamingCore::UpdateShaderParameter()
 {
 	SCOPE_CYCLE_COUNTER(STAT_UpdateShaderTextures);
 
-	if (mColorData.Num() == 0 || mPointPosDataPointer->Num() == 0 || !mPointPosTexture || !mColorTexture || !mPointScalingTexture)
+	if (mColorDataPointer->Num() == 0 || mPointPosDataPointer->Num() == 0 || !mPointPosTexture || !mColorTexture || !mPointScalingTexture)
 		return;
 
 	if (!mDynamicMatInstance)
