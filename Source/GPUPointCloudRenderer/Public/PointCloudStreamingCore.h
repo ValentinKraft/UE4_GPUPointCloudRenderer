@@ -10,7 +10,7 @@
 #include "CoreMinimal.h"
 #include "Runtime/Engine/Classes/Engine/Texture2D.h"
 
-DECLARE_STATS_GROUP(TEXT("GPUPointCloudRenderer"), STATGROUP_PCR, STATCAT_Advanced);
+DECLARE_STATS_GROUP(TEXT("GPUPointCloudRenderer"), STATGROUP_GPUPCR, STATCAT_Advanced);
 
 class GPUPOINTCLOUDRENDERER_API FPointCloudStreamingCore
 {
