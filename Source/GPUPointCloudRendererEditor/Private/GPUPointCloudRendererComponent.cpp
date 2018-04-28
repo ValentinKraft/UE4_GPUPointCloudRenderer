@@ -101,23 +101,6 @@ void UGPUPointCloudRendererComponent::SetInputAndConvert2(TArray<FVector> &point
 // STANDARD FUNCTIONS ////
 //////////////////////////
 
-//void UGPUPointCloudRendererComponent::PostEditChangeProperty(FPropertyChangedEvent &PropertyChangedEvent) {
-//	
-//	Super::PostEditChangeProperty(PropertyChangedEvent);
-//
-//	CHECK_PCR_STATUS
-//
-//	UpdateSpriteComponentProperties();
-//
-//	SpriteComponent->UpdateBounds();
-//	mExtent = (SpriteComponent->Bounds.GetBox().GetExtent()/50.0f).ToString();
-//	PointCloudVisualisationHelper(mShowNormals, mShowEnclosingGrid);
-//}
-
-//void UGPUPointCloudRendererComponent::PostEditComponentMove(bool bFinished) {
-//	//PointCloudVisualisationHelper(mShowNormals, mShowEnclosingGrid);
-//}
-
 
 void UGPUPointCloudRendererComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
