@@ -89,9 +89,11 @@ void UGPUPointCloudRendererComponent::SetInputAndConvert2(TArray<FVector> &point
 }
 
 void UGPUPointCloudRendererComponent::SetExtent(FBox extent) {
+	
 	CHECK_PCR_STATUS
 
 	mPointCloudCore->SetExtent(extent);
+	mExtent = extent.ToString();
 }
 
 //////////////////////////

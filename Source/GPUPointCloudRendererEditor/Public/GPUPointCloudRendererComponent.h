@@ -87,7 +87,7 @@ private:
 	UPROPERTY(VisibleAnywhere, Category = "GPUPointCloudRenderer")
 	FString mExtent = "No data.";
 	UPROPERTY(VisibleAnywhere, Category = "GPUPointCloudRenderer")
-	UMaterialInstanceDynamic* mPointCloudMaterial = nullptr;
+	class UMaterialInstanceDynamic* mPointCloudMaterial = nullptr;
 	UPROPERTY(VisibleAnywhere, Category = "GPUPointCloudRenderer")
 	float mSplatSize = 1.0f;
 	UPROPERTY(VisibleAnywhere, Category = "GPUPointCloudRenderer")

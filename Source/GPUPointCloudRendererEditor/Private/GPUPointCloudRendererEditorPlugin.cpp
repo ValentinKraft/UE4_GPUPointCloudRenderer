@@ -15,9 +15,9 @@ class FGPUPointCloudRendererEditorPlugin : public IGPUPointCloudRendererEditorPl
 	/** IModuleInterface implementation */
 	virtual void StartupModule() override
 	{
-		UE_LOG(GPUPointCloudRenderer, Log, TEXT("/////////////////////////////////////// \n"));
-		UE_LOG(GPUPointCloudRenderer, Log, TEXT("// Initializing Point Cloud Renderer... \n"));
-		UE_LOG(GPUPointCloudRenderer, Log, TEXT("/////////////////////////////////////// \n"));
+		UE_LOG(GPUPointCloudRenderer, Log, TEXT("//////////////////////////////////////////// \n"));
+		UE_LOG(GPUPointCloudRenderer, Log, TEXT("// Initializing GPU Point Cloud Renderer... \n"));
+		UE_LOG(GPUPointCloudRenderer, Log, TEXT("//////////////////////////////////////////// \n"));
 
 		#ifdef HAVE_CUDA
 			UE_LOG(GPUPointCloudRenderer, Log, TEXT("Found CUDA installation. \n"));
