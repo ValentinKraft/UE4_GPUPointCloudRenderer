@@ -74,6 +74,14 @@ public:
 	UFUNCTION(DisplayName = "PCR Set/Stream Input (FVector/FColor)", BlueprintCallable, Category = "GPUPointCloudRenderer", meta = (Keywords = "set kinect custom own dynamic point cloud streaming input"))
 	void SetInputAndConvert2(UPARAM(ref) TArray<FVector> &pointPositions, UPARAM(ref) TArray<FColor> &pointColors, bool sortDataEveryFrame = false);
 
+	/**
+	* Sets the extents of the point cloud. Needed for proper coloring with a gradient.
+	*
+	* @param	extent						The extent of the cloud.
+	*/
+	UFUNCTION(DisplayName = "PCR Set Extent", BlueprintCallable, Category = "GPUPointCloudRenderer", meta = (Keywords = "set extent point cloud"))
+	void SetExtent(FBox extent);
+
 private:
 	class FPointCloudStreamingCore* mPointCloudCore = nullptr;
 

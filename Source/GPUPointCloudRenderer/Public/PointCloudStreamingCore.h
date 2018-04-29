@@ -25,6 +25,7 @@ public:
 	void SetInput(TArray<FLinearColor> &pointPositions, TArray<uint8> &pointColors, bool sortDataEveryFrame);
 	void SetInput(TArray<FLinearColor> &pointPositions, TArray<FColor> &pointColors, bool sortDataEveryFrame);
 	void SetInput(TArray<FVector> &pointPositions, TArray<FColor> &pointColors, bool sortDataEveryFrame);
+	void SetExtent(FBox extent) { mExtent = extent; };
 
 	//UWorld* currentWorld = nullptr;
 	//FVector currentCamPos = FVector::ZeroVector;
@@ -38,7 +39,7 @@ private:
 
 	class UMaterialInstanceDynamic* mDynamicMatInstance = nullptr;
 	unsigned int mPointCount = 0;
-
+	FBox mExtent;
 	float TotalElapsedTime = 0.f;	//#Temp?
 
 	// CPU buffers

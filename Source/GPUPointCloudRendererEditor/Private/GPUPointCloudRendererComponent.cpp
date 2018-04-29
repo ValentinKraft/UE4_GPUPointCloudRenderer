@@ -63,11 +63,9 @@ void UGPUPointCloudRendererComponent::SetDynamicProperties(float cloudScaling, f
 
 void UGPUPointCloudRendererComponent::SetInputAndConvert1(TArray<FLinearColor> &pointPositions, TArray<FColor> &pointColors, bool sortData) {
 	
-	if (pointPositions.Num() != pointColors.Num()) {
+	CHECK_PCR_STATUS
+	if (pointPositions.Num() != pointColors.Num())
 		UE_LOG(GPUPointCloudRenderer, Warning, TEXT("The number of point positions doesn't match the number of point colors."));
-	}
-	if (!mPointCloudCore)
-		return;
 
 	CreateStreamingBaseMesh(pointPositions.Num());
 	mPointCloudCore->SetInput(pointPositions, pointColors, sortData);
@@ -75,11 +73,9 @@ void UGPUPointCloudRendererComponent::SetInputAndConvert1(TArray<FLinearColor> &
 
 void UGPUPointCloudRendererComponent::SetInput(TArray<FLinearColor> &pointPositions, TArray<uint8> &pointColors, bool sortData) {
 	
-	if (pointPositions.Num()*4 != pointColors.Num()) {
+	CHECK_PCR_STATUS
+	if (pointPositions.Num()*4 != pointColors.Num())
 		UE_LOG(GPUPointCloudRenderer, Warning, TEXT("The number of point positions doesn't match the number of point colors."));
-	}
-	if (!mPointCloudCore)
-		return;
 
 	CreateStreamingBaseMesh(pointPositions.Num());
 	mPointCloudCore->SetInput(pointPositions, pointColors, sortData);
@@ -87,14 +83,18 @@ void UGPUPointCloudRendererComponent::SetInput(TArray<FLinearColor> &pointPositi
 
 void UGPUPointCloudRendererComponent::SetInputAndConvert2(TArray<FVector> &pointPositions, TArray<FColor> &pointColors, bool sortData) {
 	
-	if (pointPositions.Num() != pointColors.Num()) {
+	CHECK_PCR_STATUS
+	if (pointPositions.Num() != pointColors.Num())
 		UE_LOG(GPUPointCloudRenderer, Warning, TEXT("The number of point positions doesn't match the number of point colors."));
-	}
-	if (!mPointCloudCore)
-		return;
 
 	CreateStreamingBaseMesh(pointPositions.Num());
 	mPointCloudCore->SetInput(pointPositions, pointColors, sortData);
+}
+
+void UGPUPointCloudRendererComponent::SetExtent(FBox extent) {
+	CHECK_PCR_STATUS
+
+	mPointCloudCore->SetExtent(extent);
 }
 
 //////////////////////////
@@ -128,6 +128,7 @@ void UGPUPointCloudRendererComponent::TickComponent(float DeltaTime, ELevelTick 
 
 void UGPUPointCloudRendererComponent::CreateStreamingBaseMesh(int32 pointCount)
 {
+	CHECK_PCR_STATUS
 	//SCOPE_CYCLE_COUNTER(STAT_CreateDynamicBaseMesh);
 
 	//Check if update is neccessary
