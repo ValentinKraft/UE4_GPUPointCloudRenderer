@@ -1,8 +1,5 @@
 /*************************************************************************************************
-* Copyright (C) Valentin Kraft - All Rights Reserved
-* Unauthorized copying of this file, via any medium is strictly prohibited
-* Proprietary and confidential
-* Written by Valentin Kraft <valentin.kraft@online.de>, http://www.valentinkraft.de, February 2018
+* Written by Valentin Kraft <valentin.kraft@online.de>, http://www.valentinkraft.de, 2018
 **************************************************************************************************/
 
 #pragma once
