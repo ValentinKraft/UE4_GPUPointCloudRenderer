@@ -176,29 +176,34 @@ void FPointCloudStreamingCore::UpdateStreamingTextures()
 {
 	SCOPE_CYCLE_COUNTER(STAT_UpdateTextureRegions);
 
-	if (mColorDataPointer->Num() == 0 || mPointPosDataPointer->Num() == 0 || !mPointPosTexture || !mColorTexture || !mPointScalingTexture)
+	if (!mColorDataPointer || !mPointPosDataPointer || !mPointPosTexture || !mColorTexture || !mPointScalingTexture)
+		return;
+	if (mColorDataPointer->Num() == 0 || mPointPosDataPointer->Num() == 0)
+		return;
+	if (!mDynamicMatInstance)
 		return;
 
 	mPointPosTexture->UpdateTextureRegions(0, 1, mUpdateTextureRegion, mPointPosTexture->GetSizeX() * sizeof(FLinearColor), sizeof(FLinearColor), (uint8*)mPointPosDataPointer->GetData());
 	mColorTexture->UpdateTextureRegions(0, 1, mUpdateTextureRegion, mColorTexture->GetSizeX() * sizeof(uint8) * 4, 4, mColorDataPointer->GetData());
 	//if(mHasSurfaceReconstructed)
-		mPointScalingTexture->UpdateTextureRegions(0, 1, mUpdateTextureRegion, mPointPosTexture->GetSizeX() * sizeof(FVector), sizeof(FVector), (uint8*)mPointScalingData.GetData());
+	//	mPointScalingTexture->UpdateTextureRegions(0, 1, mUpdateTextureRegion, mPointPosTexture->GetSizeX() * sizeof(FVector), sizeof(FVector), (uint8*)mPointScalingData.GetData());
 }
 
 void FPointCloudStreamingCore::UpdateShaderParameter()
 {
 	SCOPE_CYCLE_COUNTER(STAT_UpdateShaderTextures);
 
-	if (mColorDataPointer->Num() == 0 || mPointPosDataPointer->Num() == 0 || !mPointPosTexture || !mColorTexture || !mPointScalingTexture)
+	if (!mColorDataPointer || !mPointPosDataPointer || !mPointPosTexture || !mColorTexture || !mPointScalingTexture)
 		return;
-
+	if (mColorDataPointer->Num() == 0 || mPointPosDataPointer->Num() == 0)
+		return;
 	if (!mDynamicMatInstance)
 		return;
 
 	mDynamicMatInstance->SetTextureParameterValue("PositionTexture", mPointPosTexture);
 	mDynamicMatInstance->SetTextureParameterValue("ColorTexture", mColorTexture);
 	//if (mHasSurfaceReconstructed)
-		mDynamicMatInstance->SetTextureParameterValue("ScalingTexture", mPointScalingTexture);
+	//	mDynamicMatInstance->SetTextureParameterValue("ScalingTexture", mPointScalingTexture);
 	mDynamicMatInstance->SetVectorParameterValue("CloudSizeV2", FLinearColor(mPointPosTexture->GetSizeX(), mPointPosTexture->GetSizeY(), 0, 0));
 	mDynamicMatInstance->SetVectorParameterValue("minExtent", mExtent.Min);
 	mDynamicMatInstance->SetVectorParameterValue("maxExtent", mExtent.Max);
