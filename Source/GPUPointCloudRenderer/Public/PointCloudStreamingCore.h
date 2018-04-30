@@ -28,8 +28,8 @@ public:
 	//FVector currentCamPos = FVector::ZeroVector;
 
 private:
-	void InitializeStreaming(unsigned int pointCount);
-	void UpdateStreamingTextures();
+	void Initialize(unsigned int pointCount);
+	void UpdateTextureBuffer();
 	void UpdateShaderParameter();
 	void SortPointCloudData();
 	void FreeData();

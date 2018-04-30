@@ -38,8 +38,8 @@ void FPointCloudStreamingCore::SetInput(TArray<FLinearColor> &pointPositions, TA
 
 	if (sortData)
 		SortPointCloudData();
-	InitializeStreaming(pointPositions.Num());
-	UpdateStreamingTextures();
+	Initialize(pointPositions.Num());
+	UpdateTextureBuffer();
 }
 
 void FPointCloudStreamingCore::SetInput(TArray<FLinearColor> &pointPositions, TArray<FColor> &pointColors, bool sortData) {
@@ -66,8 +66,8 @@ void FPointCloudStreamingCore::SetInput(TArray<FLinearColor> &pointPositions, TA
 	
 	if (sortData)
 		SortPointCloudData();
-	InitializeStreaming(pointPositions.Num());
-	UpdateStreamingTextures();
+	Initialize(pointPositions.Num());
+	UpdateTextureBuffer();
 }
 
 void FPointCloudStreamingCore::SetInput(TArray<FVector> &pointPositions, TArray<FColor> &pointColors, bool sortData) {
@@ -106,8 +106,8 @@ void FPointCloudStreamingCore::SetInput(TArray<FVector> &pointPositions, TArray<
 
 	if (sortData)
 		SortPointCloudData();
-	InitializeStreaming(pointPositions.Num());
-	UpdateStreamingTextures();
+	Initialize(pointPositions.Num());
+	UpdateTextureBuffer();
 }
 
 void FPointCloudStreamingCore::Update(float deltaTime) {
@@ -124,7 +124,7 @@ void FPointCloudStreamingCore::SortPointCloudData() {
 	// # ToDo
 }
 
-void FPointCloudStreamingCore::InitializeStreaming(unsigned int pointCount)
+void FPointCloudStreamingCore::Initialize(unsigned int pointCount)
 {
 	int32 pointsPerAxis = FMath::CeilToInt(FMath::Sqrt(pointCount));
 	mPointCount = pointsPerAxis * pointsPerAxis;
@@ -160,12 +160,13 @@ void FPointCloudStreamingCore::InitializeStreaming(unsigned int pointCount)
 
 	mPointScalingData.Empty();
 	mPointScalingData.Init(FVector::OneVector, mPointCount);
+
 	if (mUpdateTextureRegion) delete mUpdateTextureRegion; mUpdateTextureRegion = nullptr;
 	mUpdateTextureRegion = new FUpdateTextureRegion2D(0, 0, 0, 0, pointsPerAxis, pointsPerAxis);
 
 }
 
-void FPointCloudStreamingCore::UpdateStreamingTextures()
+void FPointCloudStreamingCore::UpdateTextureBuffer()
 {
 	SCOPE_CYCLE_COUNTER(STAT_UpdateTextureRegions);
 
