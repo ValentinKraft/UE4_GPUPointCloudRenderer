@@ -28,7 +28,9 @@ DECLARE_CYCLE_STAT(TEXT("Update Shader Textures"), STAT_UpdateShaderTextures, ST
 
 void FPointCloudStreamingCore::SetInput(TArray<FLinearColor> &pointPositions, TArray<uint8> &pointColors, bool sortData) {
 
-	ensure(pointPositions.Num() * 4 == pointColors.Num());
+	Initialize(pointPositions.Num());
+
+	check(pointPositions.Num() * 4 == pointColors.Num());
 
 	if (pointColors.Num() < pointPositions.Num() * 4)
 		pointColors.Reserve(pointPositions.Num() * 4);
@@ -38,20 +40,15 @@ void FPointCloudStreamingCore::SetInput(TArray<FLinearColor> &pointPositions, TA
 
 	if (sortData)
 		SortPointCloudData();
-	Initialize(pointPositions.Num());
 	UpdateTextureBuffer();
 }
 
 void FPointCloudStreamingCore::SetInput(TArray<FLinearColor> &pointPositions, TArray<FColor> &pointColors, bool sortData) {
 
-	check(pointPositions.Num() == pointColors.Num());
+	Initialize(pointPositions.Num());
 
-	mPointPosDataPointer = &pointPositions;
-
-	if (mColorData.Num() < pointColors.Num()) {
-		mColorData.Empty();
-		mColorData.AddUninitialized(mPointCount * 4); // 4 as we have bgra
-	}
+	ensure(pointPositions.Num() == pointColors.Num());
+	ensure(mColorData.Num() >= pointColors.Num()*4);
 
 	for (int i = 0; i < pointColors.Num(); ++i) {
 
@@ -60,24 +57,21 @@ void FPointCloudStreamingCore::SetInput(TArray<FLinearColor> &pointPositions, TA
 		mColorData[i * 4 + 2] = pointColors[i].B;
 		mColorData[i * 4 + 3] = pointColors[i].A;
 	}
-
 	mColorDataPointer = &mColorData;
-
+	mPointPosDataPointer = &pointPositions;
 	
 	if (sortData)
 		SortPointCloudData();
-	Initialize(pointPositions.Num());
 	UpdateTextureBuffer();
 }
 
 void FPointCloudStreamingCore::SetInput(TArray<FVector> &pointPositions, TArray<FColor> &pointColors, bool sortData) {
 
-	check(pointPositions.Num() == pointColors.Num());
+	Initialize(pointPositions.Num());
 
-	if (mPointPosData.Num() < pointPositions.Num()) {
-		mPointPosData.Empty();
-		mPointPosData.AddUninitialized(mPointCount); // 4 as we have bgra
-	}
+	ensure(pointPositions.Num() == pointColors.Num());
+	ensure(mColorData.Num() >= pointColors.Num() * 4);
+	ensure(mPointPosData.Num() >= pointPositions.Num());
 
 	for (int i = 0; i < pointColors.Num(); ++i) {
 
@@ -86,13 +80,7 @@ void FPointCloudStreamingCore::SetInput(TArray<FVector> &pointPositions, TArray<
 		mPointPosData[i].B = pointPositions[i].Y;
 		mPointPosData[i].R = pointPositions[i].Z;
 	}
-
 	mPointPosDataPointer = &mPointPosData;
-
-	if (mColorData.Num() < pointColors.Num()) {
-		mColorData.Empty();
-		mColorData.AddUninitialized(mPointCount * 4); // 4 as we have bgra
-	}
 
 	for (int i = 0; i < pointColors.Num(); ++i) {
 
@@ -101,12 +89,10 @@ void FPointCloudStreamingCore::SetInput(TArray<FVector> &pointPositions, TArray<
 		mColorData[i * 4 + 2] = pointColors[i].B;
 		mColorData[i * 4 + 3] = pointColors[i].A;
 	}
-
 	mColorDataPointer = &mColorData;
 
 	if (sortData)
 		SortPointCloudData();
-	Initialize(pointPositions.Num());
 	UpdateTextureBuffer();
 }
 
@@ -126,6 +112,9 @@ void FPointCloudStreamingCore::SortPointCloudData() {
 
 void FPointCloudStreamingCore::Initialize(unsigned int pointCount)
 {
+	if (pointCount == 0)
+		return;
+
 	int32 pointsPerAxis = FMath::CeilToInt(FMath::Sqrt(pointCount));
 	mPointCount = pointsPerAxis * pointsPerAxis;
 
@@ -157,6 +146,14 @@ void FPointCloudStreamingCore::Initialize(unsigned int pointCount)
 	mColorTexture->AddToRoot();
 	mColorTexture->UpdateResource();
 	mColorTexture->MipGenSettings = TextureMipGenSettings::TMGS_NoMipmaps;
+
+	mPointPosData.Empty();
+	mPointPosData.AddUninitialized(mPointCount);
+	mPointPosDataPointer = &mPointPosData;
+
+	mColorData.Empty();
+	mColorData.AddUninitialized(mPointCount * 4); // 4 as we have bgra
+	mColorDataPointer = &mColorData;
 
 	mPointScalingData.Empty();
 	mPointScalingData.Init(FVector::OneVector, mPointCount);
