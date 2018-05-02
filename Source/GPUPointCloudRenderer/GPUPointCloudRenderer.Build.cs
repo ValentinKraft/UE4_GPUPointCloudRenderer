@@ -27,7 +27,7 @@ namespace UnrealBuildTool.Rules
             PrivateIncludePaths.Add("GPUPointCloudRenderer/Private");
             PublicIncludePaths.Add("GPUPointCloudRenderer/Public");
 
-            PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "RHI", "ComputeShader", "PixelShader" });
+            PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "RHI" });
             PrivateDependencyModuleNames.AddRange(new string[] { "Core", "Projects" });
 
         }
