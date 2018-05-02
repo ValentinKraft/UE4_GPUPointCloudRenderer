@@ -236,6 +236,7 @@ void FPointCloudStreamingCore::UpdateShaderParameter()
 
 	mDynamicMatInstance->SetTextureParameterValue("PositionTexture", mPointPosTexture);
 	mDynamicMatInstance->SetTextureParameterValue("ColorTexture", mColorTexture);
+	mDynamicMatInstance->SetTextureParameterValue("CSTexture", CastedRenderTarget);
 	//if (mHasSurfaceReconstructed)
 	//	mDynamicMatInstance->SetTextureParameterValue("ScalingTexture", mPointScalingTexture);
 	mDynamicMatInstance->SetVectorParameterValue("CloudSizeV2", FLinearColor(mPointPosTexture->GetSizeX(), mPointPosTexture->GetSizeY(), 0, 0));
@@ -282,10 +283,10 @@ FPointCloudStreamingCore::~FPointCloudStreamingCore() {
 		delete PixelShading;
 	if (RenderTarget) {
 		RenderTarget->ReleaseResource();
-		delete RenderTarget;
+		//delete RenderTarget;
 	}
 	if (CastedRenderTarget) {
 		CastedRenderTarget->ReleaseResource();
-		delete CastedRenderTarget;
+		//delete CastedRenderTarget;
 	}
 }
