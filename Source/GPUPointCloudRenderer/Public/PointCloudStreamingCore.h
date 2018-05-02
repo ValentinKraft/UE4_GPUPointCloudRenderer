@@ -24,8 +24,8 @@ public:
 	void SetInput(TArray<FVector> &pointPositions, TArray<FColor> &pointColors, bool sortDataEveryFrame);
 	void SetExtent(FBox extent) { mExtent = extent; };
 
-	//UWorld* currentWorld = nullptr;
-	//FVector currentCamPos = FVector::ZeroVector;
+	UWorld* currentWorld = nullptr;
+	FVector currentCamPos = FVector::ZeroVector;
 
 private:
 	void Initialize(unsigned int pointCount);
@@ -33,11 +33,11 @@ private:
 	void UpdateShaderParameter();
 	void SortPointCloudData();
 	void FreeData();
+	unsigned int GetUpperPowerOfTwo(unsigned int v);
 
 	class UMaterialInstanceDynamic* mDynamicMatInstance = nullptr;
 	unsigned int mPointCount = 0;
 	FBox mExtent;
-	float TotalElapsedTime = 0.f;	//#Temp?
 
 	// CPU buffers
 	TArray<FLinearColor> mPointPosData;
@@ -52,5 +52,11 @@ private:
 	UTexture2D* mPointScalingTexture = nullptr;
 	UTexture2D* mColorTexture = nullptr;
 	
+	// Sorting-related variables
+	class FComputeShaderUsageExample* ComputeShading = nullptr;
+	class FPixelShaderUsageExample* PixelShading = nullptr;
+	class UTextureRenderTarget2D* RenderTarget = nullptr;
+	UTexture* CastedRenderTarget = nullptr;
+	float TotalElapsedTime = 0;
 };
 

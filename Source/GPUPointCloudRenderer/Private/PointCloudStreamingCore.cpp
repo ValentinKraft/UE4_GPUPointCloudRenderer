@@ -8,8 +8,8 @@
 #include "Engine/World.h"
 #include "App.h"
 #include "Runtime/Engine/Classes/Materials/MaterialInstanceDynamic.h"
-//#include "ComputeShaderUsageExample.h"
-//#include "PixelShaderUsageExample.h"
+#include "ComputeShaderUsageExample.h"
+#include "PixelShaderUsageExample.h"
 
 using namespace std;
 #undef UpdateResource
@@ -103,11 +103,32 @@ void FPointCloudStreamingCore::Update(float deltaTime) {
 	TotalElapsedTime += deltaTime;
 }
 
+///////////////////////
+// OTHER FUNCTIONS ////
+///////////////////////
+
 void FPointCloudStreamingCore::SortPointCloudData() {
 
 	SCOPE_CYCLE_COUNTER(STAT_SortPointCloudData);
 
-	// # ToDo
+	// Execute shader
+	if (PixelShading) {
+		FTexture2DRHIRef InputTexture = NULL;
+
+		if (ComputeShading)
+		{
+			// Send unsorted point position texture to compute shader
+			ComputeShading->SetPointPosTextureReference(mPointPosTexture->Resource->TextureRHI->GetTexture2D());
+
+			ComputeShading->ExecuteComputeShader(TotalElapsedTime);
+
+			// Get the output texture from the compute shader that we will pass to the pixel shader later
+			InputTexture = ComputeShading->GetTexture();
+		}
+
+		PixelShading->ExecutePixelShader(RenderTarget, InputTexture, FColor::Red, 1.0f);
+		CastedRenderTarget = Cast<UTexture>(RenderTarget);
+	}
 }
 
 void FPointCloudStreamingCore::Initialize(unsigned int pointCount)
@@ -146,6 +167,30 @@ void FPointCloudStreamingCore::Initialize(unsigned int pointCount)
 	mColorTexture->AddToRoot();
 	mColorTexture->UpdateResource();
 	mColorTexture->MipGenSettings = TextureMipGenSettings::TMGS_NoMipmaps;
+
+	// Create shader
+	if (!ComputeShading && currentWorld)
+		ComputeShading = new FComputeShaderUsageExample(1.0f, GetUpperPowerOfTwo(pointsPerAxis), GetUpperPowerOfTwo(pointsPerAxis), currentWorld->Scene->GetFeatureLevel());
+
+	if (!PixelShading && currentWorld)
+		PixelShading = new FPixelShaderUsageExample(FColor::Green, currentWorld->Scene->GetFeatureLevel());
+
+	// Create shader render target
+	if (!RenderTarget) {
+		RenderTarget = NewObject<UTextureRenderTarget2D>();
+		check(RenderTarget);
+		RenderTarget->AddToRoot();
+		RenderTarget->ClearColor = FLinearColor(1.0f, 0.0f, 1.0f);
+		RenderTarget->ClearColor.A = 1.0f;
+		RenderTarget->SRGB = 0;
+		RenderTarget->MipGenSettings = TextureMipGenSettings::TMGS_NoMipmaps;
+		RenderTarget->RenderTargetFormat = ETextureRenderTargetFormat::RTF_RGBA32f;
+		RenderTarget->CompressionSettings = TextureCompressionSettings::TC_VectorDisplacementmap;
+		RenderTarget->InitAutoFormat(GetUpperPowerOfTwo(pointsPerAxis), GetUpperPowerOfTwo(pointsPerAxis));
+		RenderTarget->UpdateResourceImmediate(true);
+		//RenderTarget->InitCustomFormat(pointsPerAxis, pointsPerAxis, EPixelFormat::PF_A32B32G32R32F, false);
+		checkf(RenderTarget != nullptr, TEXT("Unable to create or find valid render target"));
+	}
 
 	mPointPosData.Empty();
 	mPointPosData.AddUninitialized(mPointCount);
@@ -198,6 +243,18 @@ void FPointCloudStreamingCore::UpdateShaderParameter()
 	mDynamicMatInstance->SetVectorParameterValue("maxExtent", mExtent.Max);
 }
 
+unsigned int FPointCloudStreamingCore::GetUpperPowerOfTwo(unsigned int v)
+{
+	v--;
+	v |= v >> 1;
+	v |= v >> 2;
+	v |= v >> 4;
+	v |= v >> 8;
+	v |= v >> 16;
+	v++;
+	return v;
+}
+
 void FPointCloudStreamingCore::FreeData()
 {
 	mPointPosData.Empty();
@@ -218,4 +275,17 @@ FPointCloudStreamingCore::~FPointCloudStreamingCore() {
 	//	delete mPointScalingTexture;
 	//if (mColorTexture)
 	//	delete mColorTexture;
+
+	if (ComputeShading)
+		delete ComputeShading;
+	if (PixelShading)
+		delete PixelShading;
+	if (RenderTarget) {
+		RenderTarget->ReleaseResource();
+		delete RenderTarget;
+	}
+	if (CastedRenderTarget) {
+		CastedRenderTarget->ReleaseResource();
+		delete CastedRenderTarget;
+	}
 }
