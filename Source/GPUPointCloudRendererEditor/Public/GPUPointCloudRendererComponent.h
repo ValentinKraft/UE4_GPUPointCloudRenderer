@@ -108,6 +108,7 @@ private:
 
 public:	
 	void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+	void BeginPlay() override;
 	//void PostEditComponentMove(bool bFinished) override;
 
 };

@@ -35,7 +35,7 @@ UGPUPointCloudRendererComponent::UGPUPointCloudRendererComponent(const FObjectIn
 	if (mPointCloudCore)
 		delete mPointCloudCore;
 	mPointCloudCore = IGPUPointCloudRenderer::Get().CreateStreamingInstance(mPointCloudMaterial);
-	//mPointCloudCore->currentWorld = GetWorld();
+	mPointCloudCore->currentWorld = GetWorld();
 }
 
 UGPUPointCloudRendererComponent::~UGPUPointCloudRendererComponent() {
@@ -132,6 +132,12 @@ void UGPUPointCloudRendererComponent::TickComponent(float DeltaTime, ELevelTick 
 
 	// Update shader properties
 	UpdateShaderProperties();
+}
+
+void UGPUPointCloudRendererComponent::BeginPlay() {
+	Super::BeginPlay();
+	if(mPointCloudCore)
+		mPointCloudCore->currentWorld = GetWorld();
 }
 
 

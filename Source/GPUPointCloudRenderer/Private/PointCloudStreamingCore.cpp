@@ -111,6 +111,11 @@ void FPointCloudStreamingCore::SortPointCloudData() {
 
 	SCOPE_CYCLE_COUNTER(STAT_SortPointCloudData);
 
+	if (!mPointPosTexture || !RenderTarget)
+		return;
+	if (!(mPointPosTexture->Resource->TextureRHI))
+		return;
+
 	// Execute shader
 	if (PixelShading) {
 		FTexture2DRHIRef InputTexture = NULL;
@@ -140,7 +145,7 @@ void FPointCloudStreamingCore::Initialize(unsigned int pointCount)
 	mPointCount = pointsPerAxis * pointsPerAxis;
 
 	// Check if update is neccessary
-	if (mPointPosTexture && mColorTexture && mPointScalingTexture && mUpdateTextureRegion)
+	if (mPointPosTexture && mColorTexture && mPointScalingTexture && mUpdateTextureRegion && ComputeShading && PixelShading)
 		if(mPointPosTexture->GetSizeX() == pointsPerAxis && mColorTexture->GetSizeX() == pointsPerAxis && mPointScalingTexture->GetSizeX() == pointsPerAxis)
 			return;
 
