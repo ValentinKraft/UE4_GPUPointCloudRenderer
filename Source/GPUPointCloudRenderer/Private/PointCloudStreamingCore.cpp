@@ -48,7 +48,7 @@ void FPointCloudStreamingCore::SetInput(TArray<FLinearColor> &pointPositions, TA
 	Initialize(pointPositions.Num());
 
 	ensure(pointPositions.Num() == pointColors.Num());
-	ensure(mColorData.Num() >= pointColors.Num()*4);
+	ensure(mColorData.Num() >= pointColors.Num() * 4);
 
 	for (int i = 0; i < pointColors.Num(); ++i) {
 
@@ -59,7 +59,7 @@ void FPointCloudStreamingCore::SetInput(TArray<FLinearColor> &pointPositions, TA
 	}
 	mColorDataPointer = &mColorData;
 	mPointPosDataPointer = &pointPositions;
-	
+
 	if (sortData)
 		SortPointCloudData();
 	UpdateTextureBuffer();
@@ -113,8 +113,8 @@ void FPointCloudStreamingCore::SortPointCloudData() {
 
 	if (!mPointPosTexture || !RenderTarget)
 		return;
-	if (!(mPointPosTexture->Resource->TextureRHI))
-		return;
+
+	mPointPosTexture->WaitForStreaming();
 
 	// Execute shader
 	if (PixelShading) {
@@ -146,7 +146,7 @@ void FPointCloudStreamingCore::Initialize(unsigned int pointCount)
 
 	// Check if update is neccessary
 	if (mPointPosTexture && mColorTexture && mPointScalingTexture && mUpdateTextureRegion && ComputeShading && PixelShading)
-		if(mPointPosTexture->GetSizeX() == pointsPerAxis && mColorTexture->GetSizeX() == pointsPerAxis && mPointScalingTexture->GetSizeX() == pointsPerAxis)
+		if (mPointPosTexture->GetSizeX() == pointsPerAxis && mColorTexture->GetSizeX() == pointsPerAxis && mPointScalingTexture->GetSizeX() == pointsPerAxis)
 			return;
 
 	// create point cloud positions texture
