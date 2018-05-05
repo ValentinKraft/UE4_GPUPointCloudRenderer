@@ -23,6 +23,7 @@ public:
 	void SetInput(TArray<FLinearColor> &pointPositions, TArray<FColor> &pointColors, bool sortDataEveryFrame);
 	void SetInput(TArray<FVector> &pointPositions, TArray<FColor> &pointColors, bool sortDataEveryFrame);
 	void SetExtent(FBox extent) { mExtent = extent; };
+	void AddInputToExistingData(TArray<FLinearColor> &pointPositions, TArray<uint8> &pointColors);
 
 	UWorld* currentWorld = nullptr;
 	FVector currentCamPos = FVector::ZeroVector;

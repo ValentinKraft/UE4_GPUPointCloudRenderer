@@ -73,6 +73,21 @@ void UGPUPointCloudRendererComponent::SetInputAndConvert1(TArray<FLinearColor> &
 	mPointCloudCore->SetInput(pointPositions, pointColors, sortData);
 }
 
+void UGPUPointCloudRendererComponent::AddInputToExistingData(TArray<FLinearColor> &pointPositions, TArray<uint8> &pointColors) {
+	
+	CHECK_PCR_STATUS
+
+	if (pointPositions.Num() * 4 != pointColors.Num())
+		UE_LOG(GPUPointCloudRenderer, Warning, TEXT("The number of point positions doesn't match the number of point colors."));
+	if (pointPositions.Num() == 0 || pointColors.Num() == 0) {
+		UE_LOG(GPUPointCloudRenderer, Error, TEXT("Empty point position and/or color data."));
+		return;
+	}
+
+	CreateStreamingBaseMesh(8192* 8192);
+	mPointCloudCore->AddInputToExistingData(pointPositions, pointColors);
+}
+
 void UGPUPointCloudRendererComponent::SetInput(TArray<FLinearColor> &pointPositions, TArray<uint8> &pointColors, bool sortData) {
 	
 	CHECK_PCR_STATUS

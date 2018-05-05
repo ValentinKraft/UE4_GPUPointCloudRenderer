@@ -25,6 +25,20 @@ DECLARE_CYCLE_STAT(TEXT("Update Shader Textures"), STAT_UpdateShaderTextures, ST
 // MAIN FUNCTIONS ////
 //////////////////////
 
+void FPointCloudStreamingCore::AddInputToExistingData(TArray<FLinearColor> &pointPositions, TArray<uint8> &pointColors) {
+
+	Initialize(8192*8192);
+
+	check(pointPositions.Num() * 4 == pointColors.Num());
+
+	if (pointColors.Num() < pointPositions.Num() * 4)
+		pointColors.Reserve(pointPositions.Num() * 4);
+
+	mPointPosDataPointer->Append(pointPositions);
+	mColorDataPointer->Append(pointColors);
+
+	UpdateTextureBuffer();
+}
 
 void FPointCloudStreamingCore::SetInput(TArray<FLinearColor> &pointPositions, TArray<uint8> &pointColors, bool sortData) {
 
