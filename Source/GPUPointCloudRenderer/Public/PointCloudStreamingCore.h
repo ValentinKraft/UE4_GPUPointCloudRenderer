@@ -17,13 +17,13 @@ public:
 	//virtual unsigned int GetInstanceId() const { return _instanceId; };
 	unsigned int GetPointCount() { return mPointCount; };
 
-	void Update(float deltaTime);
+	void Update(float deltaTime) { UpdateShaderParameter();	mDeltaTime += deltaTime; };
 	void UpdateDynamicMaterialForStreaming(UMaterialInstanceDynamic* pointCloudShaderDynInstance) { mDynamicMatInstance = pointCloudShaderDynInstance; };
 	void SetInput(TArray<FLinearColor> &pointPositions, TArray<uint8> &pointColors, bool sortDataEveryFrame);
 	void SetInput(TArray<FLinearColor> &pointPositions, TArray<FColor> &pointColors, bool sortDataEveryFrame);
 	void SetInput(TArray<FVector> &pointPositions, TArray<FColor> &pointColors, bool sortDataEveryFrame);
 	void SetExtent(FBox extent) { mExtent = extent; };
-	void AddInputToExistingData(TArray<FLinearColor> &pointPositions, TArray<uint8> &pointColors);
+	void AddInputToExistingData(TArray<FLinearColor> &pointPositions, TArray<uint8> &pointColors, FLinearColor offset = FLinearColor::Black);
 
 	UWorld* currentWorld = nullptr;
 	FVector currentCamPos = FVector::ZeroVector;
@@ -39,6 +39,7 @@ private:
 	class UMaterialInstanceDynamic* mDynamicMatInstance = nullptr;
 	unsigned int mPointCount = 0;
 	FBox mExtent;
+	float mDeltaTime = 0.f;
 
 	// CPU buffers
 	TArray<FLinearColor> mPointPosData;

@@ -25,19 +25,33 @@ DECLARE_CYCLE_STAT(TEXT("Update Shader Textures"), STAT_UpdateShaderTextures, ST
 // MAIN FUNCTIONS ////
 //////////////////////
 
-void FPointCloudStreamingCore::AddInputToExistingData(TArray<FLinearColor> &pointPositions, TArray<uint8> &pointColors) {
+void FPointCloudStreamingCore::AddInputToExistingData(TArray<FLinearColor> &pointPositions, TArray<uint8> &pointColors, FLinearColor offset) {
 
 	Initialize(8192*8192);
+
+	if (mPointPosDataPointer->Num() + pointPositions.Num() >= 8192)
+		return;
+	if (mDeltaTime < 0.2f)
+		return;
 
 	check(pointPositions.Num() * 4 == pointColors.Num());
 
 	if (pointColors.Num() < pointPositions.Num() * 4)
 		pointColors.Reserve(pointPositions.Num() * 4);
 
-	mPointPosDataPointer->Append(pointPositions);
-	mColorDataPointer->Append(pointColors);
+	// Add offset (e.g. tracking position - camera offset)
+	if (offset != FLinearColor::Black)
+		for (int i = 0; i < pointPositions.Num(); ++i)
+			pointPositions[i] += offset;
+
+	mPointPosData.Append(pointPositions);
+	mColorData.Append(pointColors);
+
+	mPointPosDataPointer = &mPointPosData;
+	mColorDataPointer = &mColorData;
 
 	UpdateTextureBuffer();
+	mDeltaTime = 0.f;
 }
 
 void FPointCloudStreamingCore::SetInput(TArray<FLinearColor> &pointPositions, TArray<uint8> &pointColors, bool sortData) {
@@ -109,17 +123,6 @@ void FPointCloudStreamingCore::SetInput(TArray<FVector> &pointPositions, TArray<
 		SortPointCloudData();
 	UpdateTextureBuffer();
 }
-
-void FPointCloudStreamingCore::Update(float deltaTime) {
-
-	UpdateShaderParameter();
-
-	TotalElapsedTime += deltaTime;
-}
-
-///////////////////////
-// OTHER FUNCTIONS ////
-///////////////////////
 
 void FPointCloudStreamingCore::SortPointCloudData() {
 
