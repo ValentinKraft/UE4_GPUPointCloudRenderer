@@ -43,9 +43,9 @@ private:
 
 	// CPU buffers
 	TArray<FLinearColor> mPointPosData;
-	TArray<FLinearColor>* mPointPosDataPointer = nullptr;
+	TArray<FLinearColor>* mPointPosDataPointer = &mPointPosData;
 	TArray<uint8> mColorData;
-	TArray<uint8>* mColorDataPointer = nullptr;
+	TArray<uint8>* mColorDataPointer = &mColorData;
 	TArray<FVector> mPointScalingData;
 
 	// GPU texture buffers

@@ -27,18 +27,17 @@ DECLARE_CYCLE_STAT(TEXT("Update Shader Textures"), STAT_UpdateShaderTextures, ST
 
 void FPointCloudStreamingCore::AddInputToExistingData(TArray<FLinearColor> &pointPositions, TArray<uint8> &pointColors, FLinearColor offset) {
 
-	Initialize(8192*8192);
+	check(pointPositions.Num() * 4 == pointColors.Num());
 
 	if (mPointPosDataPointer->Num() + pointPositions.Num() >= 8192)
 		return;
-	if (mDeltaTime < 0.2f)
+	if (mDeltaTime < 100.f)
 		return;
-
-	check(pointPositions.Num() * 4 == pointColors.Num());
-
 	if (pointColors.Num() < pointPositions.Num() * 4)
 		pointColors.Reserve(pointPositions.Num() * 4);
 
+	Initialize(8192 * 8192);
+	
 	// Add offset (e.g. tracking position - camera offset)
 	if (offset != FLinearColor::Black)
 		for (int i = 0; i < pointPositions.Num(); ++i)
@@ -56,12 +55,12 @@ void FPointCloudStreamingCore::AddInputToExistingData(TArray<FLinearColor> &poin
 
 void FPointCloudStreamingCore::SetInput(TArray<FLinearColor> &pointPositions, TArray<uint8> &pointColors, bool sortData) {
 
-	Initialize(pointPositions.Num());
-
 	check(pointPositions.Num() * 4 == pointColors.Num());
 
 	if (pointColors.Num() < pointPositions.Num() * 4)
 		pointColors.Reserve(pointPositions.Num() * 4);
+
+	Initialize(pointPositions.Num());
 
 	mPointPosDataPointer = &pointPositions;
 	mColorDataPointer = &pointColors;
@@ -73,10 +72,15 @@ void FPointCloudStreamingCore::SetInput(TArray<FLinearColor> &pointPositions, TA
 
 void FPointCloudStreamingCore::SetInput(TArray<FLinearColor> &pointPositions, TArray<FColor> &pointColors, bool sortData) {
 
-	Initialize(pointPositions.Num());
-
 	ensure(pointPositions.Num() == pointColors.Num());
-	ensure(mColorData.Num() >= pointColors.Num() * 4);
+
+	Initialize(pointPositions.Num());	
+
+	if (mColorData.Num() != mPointCount * 4) {
+		mColorData.Empty();
+		mColorData.AddUninitialized(mPointCount * 4); // 4 as we have bgra
+		mColorDataPointer = &mColorData;
+	}
 
 	for (int i = 0; i < pointColors.Num(); ++i) {
 
@@ -85,7 +89,6 @@ void FPointCloudStreamingCore::SetInput(TArray<FLinearColor> &pointPositions, TA
 		mColorData[i * 4 + 2] = pointColors[i].B;
 		mColorData[i * 4 + 3] = pointColors[i].A;
 	}
-	mColorDataPointer = &mColorData;
 	mPointPosDataPointer = &pointPositions;
 
 	if (sortData)
@@ -95,20 +98,29 @@ void FPointCloudStreamingCore::SetInput(TArray<FLinearColor> &pointPositions, TA
 
 void FPointCloudStreamingCore::SetInput(TArray<FVector> &pointPositions, TArray<FColor> &pointColors, bool sortData) {
 
-	Initialize(pointPositions.Num());
-
 	ensure(pointPositions.Num() == pointColors.Num());
-	ensure(mColorData.Num() >= pointColors.Num() * 4);
-	ensure(mPointPosData.Num() >= pointPositions.Num());
 
-	for (int i = 0; i < pointColors.Num(); ++i) {
+	Initialize(pointPositions.Num());
+	
+	if (mPointPosData.Num() != mPointCount) {
+		mPointPosData.Empty();
+		mPointPosData.AddUninitialized(mPointCount);
+		mPointPosDataPointer = &mPointPosData;
+	}
+
+	if (mColorData.Num() != mPointCount * 4) {
+		mColorData.Empty();
+		mColorData.AddUninitialized(mPointCount * 4); // 4 as we have bgra
+		mColorDataPointer = &mColorData;
+	}
+
+	for (int i = 0; i < pointPositions.Num(); ++i) {
 
 		mPointPosData[i].A = pointPositions[i].Z;	//#ToDo: Improve (bottleneck!?)
 		mPointPosData[i].G = pointPositions[i].X;
 		mPointPosData[i].B = pointPositions[i].Y;
 		mPointPosData[i].R = pointPositions[i].Z;
 	}
-	mPointPosDataPointer = &mPointPosData;
 
 	for (int i = 0; i < pointColors.Num(); ++i) {
 
@@ -117,7 +129,6 @@ void FPointCloudStreamingCore::SetInput(TArray<FVector> &pointPositions, TArray<
 		mColorData[i * 4 + 2] = pointColors[i].B;
 		mColorData[i * 4 + 3] = pointColors[i].A;
 	}
-	mColorDataPointer = &mColorData;
 
 	if (sortData)
 		SortPointCloudData();
@@ -217,10 +228,10 @@ void FPointCloudStreamingCore::Initialize(unsigned int pointCount)
 	mPointPosData.Empty();
 	mPointPosData.AddUninitialized(mPointCount);
 	mPointPosDataPointer = &mPointPosData;
-
-	mColorData.Empty();
-	mColorData.AddUninitialized(mPointCount * 4); // 4 as we have bgra
-	mColorDataPointer = &mColorData;
+	if (!mPointPosDataPointer)
+		mPointPosDataPointer = &mPointPosData;
+	if (!mColorDataPointer)
+		mColorDataPointer = &mColorData;
 
 	mPointScalingData.Empty();
 	mPointScalingData.Init(FVector::OneVector, mPointCount);
