@@ -28,6 +28,9 @@ public:
 	UWorld* currentWorld = nullptr;
 	FVector currentCamPos = FVector::ZeroVector;
 
+	float mStreamCaptureSteps = 0.5f;
+	unsigned int mGlobalStreamCounter = 0;
+
 private:
 	void Initialize(unsigned int pointCount);
 	void UpdateTextureBuffer();
@@ -38,8 +41,9 @@ private:
 
 	class UMaterialInstanceDynamic* mDynamicMatInstance = nullptr;
 	unsigned int mPointCount = 0;
+	
 	FBox mExtent;
-	float mDeltaTime = 0.f;
+	float mDeltaTime = 10.f;
 
 	// CPU buffers
 	TArray<FLinearColor> mPointPosData;
