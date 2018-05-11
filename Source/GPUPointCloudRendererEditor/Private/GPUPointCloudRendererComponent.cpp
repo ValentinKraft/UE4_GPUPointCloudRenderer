@@ -84,7 +84,7 @@ void UGPUPointCloudRendererComponent::AddInputToExistingData(TArray<FLinearColor
 		return;
 	}
 
-	CreateStreamingBaseMesh(2048 * 2048);
+	CreateStreamingBaseMesh(MAXTEXRES * MAXTEXRES);
 	auto currentPos = this->GetComponentToWorld().GetTranslation();
 	mPointCloudCore->AddInputToExistingData(pointPositions, pointColors, FLinearColor(currentPos.X, currentPos.Y, currentPos.Z));
 }

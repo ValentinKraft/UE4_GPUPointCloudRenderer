@@ -29,25 +29,25 @@ void FPointCloudStreamingCore::AddInputToExistingData(TArray<FLinearColor> &poin
 
 	check(pointPositions.Num() * 4 == pointColors.Num());
 
-	if (mGlobalStreamCounter + pointPositions.Num() >= 2048 * 2048)
+	if (mGlobalStreamCounter + pointPositions.Num() >= MAXTEXRES * MAXTEXRES)
 		return;
 	if (mDeltaTime < mStreamCaptureSteps)
 		return;
 	//if (pointColors.Num() < pointPositions.Num() * 4)
 	//	pointColors.Reserve(pointPositions.Num() * 4);
 
-	Initialize(2048 * 2048);
+	Initialize(MAXTEXRES * MAXTEXRES);
 
 	// Init data if neccessary
-	if (mPointPosData.Num() != 2048 * 2048) {
+	if (mPointPosData.Num() != MAXTEXRES * MAXTEXRES) {
 		mPointPosData.Empty();
-		mPointPosData.AddUninitialized(2048 * 2048);
+		mPointPosData.AddUninitialized(MAXTEXRES * MAXTEXRES);
 		mPointPosDataPointer = &mPointPosData;
 	}
 
-	if (mColorData.Num() != 2048 * 2048 * 4) {
+	if (mColorData.Num() != MAXTEXRES * MAXTEXRES * 4) {
 		mColorData.Empty();
-		mColorData.AddUninitialized(2048 * 2048 * 4); // 4 as we have bgra
+		mColorData.AddUninitialized(MAXTEXRES * MAXTEXRES * 4); // 4 as we have bgra
 		mColorDataPointer = &mColorData;
 	}
 

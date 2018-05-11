@@ -4,6 +4,8 @@
 
 #pragma once
 
+#define MAXTEXRES 2048
+
 #include "CoreMinimal.h"
 #include "Runtime/Engine/Classes/Engine/Texture2D.h"
 
