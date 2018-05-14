@@ -58,7 +58,7 @@ public:
 
 	/** How many points the PointCloud has */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Points")
-	int32 NumPoints = 512*512;
+	int32 NumPoints = 0;
 
 	/** How wide the PointCloud geometry is */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Points", meta=(ClampMin = "0.01", UIMin = "0.01", UIMax = "50.0"))
