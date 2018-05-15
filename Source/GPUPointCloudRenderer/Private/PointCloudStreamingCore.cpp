@@ -44,7 +44,7 @@ void FPointCloudStreamingCore::AddSnapshot(TArray<FLinearColor> &pointPositions,
 		
 		// Transform point
 		tempPos = FVector(pointPositions[i].G, pointPositions[i].B, pointPositions[i].R);
-		//tempPos = offsetRotation.RotateVector(tempPos);
+		tempPos = offsetRotation.RotateVector(tempPos);
 		tempPos += offsetTranslation;
 
 		// Add current data to buffer

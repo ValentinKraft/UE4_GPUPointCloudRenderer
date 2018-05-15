@@ -85,8 +85,11 @@ void UGPUPointCloudRendererComponent::AddSnapshot(TArray<FLinearColor> &pointPos
 	}
 
 	CreateStreamingBaseMesh(MAXTEXRES * MAXTEXRES);
+
+	// Since the point is later transformed to the local coordinate system, we have to inverse transform it beforehand
 	FMatrix objMatrix = this->GetComponentToWorld().ToMatrixWithScale();
 	offsetTranslation = objMatrix.InverseTransformVector(offsetTranslation);
+
 	mPointCloudCore->AddSnapshot(pointPositions, pointColors, offsetTranslation, offsetRotation);
 }
 
