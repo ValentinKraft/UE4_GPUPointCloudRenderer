@@ -25,7 +25,7 @@ public:
 	void SetInput(TArray<FLinearColor> &pointPositions, TArray<FColor> &pointColors, bool sortDataEveryFrame);
 	void SetInput(TArray<FVector> &pointPositions, TArray<FColor> &pointColors, bool sortDataEveryFrame);
 	void SetExtent(FBox extent) { mExtent = extent; };
-	void AddInputToExistingData(TArray<FLinearColor> &pointPositions, TArray<uint8> &pointColors, FLinearColor offset = FLinearColor::Black);
+	void AddSnapshot(TArray<FLinearColor> &pointPositions, TArray<uint8> &pointColors, FVector offsetTranslation = FVector::ZeroVector, FRotator offsetRotation = FRotator::ZeroRotator);
 
 	UWorld* currentWorld = nullptr;
 	FVector currentCamPos = FVector::ZeroVector;
@@ -35,6 +35,8 @@ public:
 
 private:
 	void Initialize(unsigned int pointCount);
+	void InitColorBuffer();
+	void InitPointPosBuffer();
 	void UpdateTextureBuffer();
 	void UpdateShaderParameter();
 	void SortPointCloudData();

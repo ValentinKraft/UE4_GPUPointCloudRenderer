@@ -73,7 +73,7 @@ void UGPUPointCloudRendererComponent::SetInputAndConvert1(TArray<FLinearColor> &
 	mPointCloudCore->SetInput(pointPositions, pointColors, sortData);
 }
 
-void UGPUPointCloudRendererComponent::AddInputToExistingData(TArray<FLinearColor> &pointPositions, TArray<uint8> &pointColors) {
+void UGPUPointCloudRendererComponent::AddSnapshot(TArray<FLinearColor> &pointPositions, TArray<uint8> &pointColors, FVector offsetTranslation, FRotator offsetRotation) {
 	
 	CHECK_PCR_STATUS
 
@@ -85,8 +85,9 @@ void UGPUPointCloudRendererComponent::AddInputToExistingData(TArray<FLinearColor
 	}
 
 	CreateStreamingBaseMesh(MAXTEXRES * MAXTEXRES);
-	auto currentPos = this->GetComponentToWorld().GetTranslation();
-	mPointCloudCore->AddInputToExistingData(pointPositions, pointColors, FLinearColor(currentPos.X, currentPos.Y, currentPos.Z));
+	FMatrix objMatrix = this->GetComponentToWorld().ToMatrixWithScale();
+	offsetTranslation = objMatrix.InverseTransformVector(offsetTranslation);
+	mPointCloudCore->AddSnapshot(pointPositions, pointColors, offsetTranslation, offsetRotation);
 }
 
 void UGPUPointCloudRendererComponent::SetInput(TArray<FLinearColor> &pointPositions, TArray<uint8> &pointColors, bool sortData) {

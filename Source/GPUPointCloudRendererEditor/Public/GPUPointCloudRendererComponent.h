@@ -79,8 +79,11 @@ public:
 	UFUNCTION(DisplayName = "PCR Set Extent", BlueprintCallable, Category = "GPUPointCloudRenderer", meta = (Keywords = "set extent point cloud"))
 	void SetExtent(FBox extent);
 
-	UFUNCTION(DisplayName = "PCR Add Input To Existing Data", BlueprintCallable, Category = "GPUPointCloudRenderer", meta = (Keywords = "set add input increment point cloud"))
-	void AddInputToExistingData(UPARAM(ref) TArray<FLinearColor> &pointPositions, UPARAM(ref) TArray<uint8> &pointColors);
+	/**
+	* BETA.
+	*/
+	UFUNCTION(DisplayName = "PCR Add Point Cloud Snapshot", BlueprintCallable, Category = "GPUPointCloudRenderer", meta = (Keywords = "set add input increment point cloud collect snapshot kinect"))
+	void AddSnapshot(UPARAM(ref) TArray<FLinearColor> &pointPositions, UPARAM(ref) TArray<uint8> &pointColors, FVector offsetTranslation = FVector::ZeroVector, FRotator offsetRotation = FRotator::ZeroRotator);
 
 private:
 	class FPointCloudStreamingCore* mPointCloudCore = nullptr;

@@ -25,7 +25,7 @@ DECLARE_CYCLE_STAT(TEXT("Update Shader Textures"), STAT_UpdateShaderTextures, ST
 // MAIN FUNCTIONS ////
 //////////////////////
 
-void FPointCloudStreamingCore::AddInputToExistingData(TArray<FLinearColor> &pointPositions, TArray<uint8> &pointColors, FLinearColor offset) {
+void FPointCloudStreamingCore::AddSnapshot(TArray<FLinearColor> &pointPositions, TArray<uint8> &pointColors, FVector offsetTranslation, FRotator offsetRotation) {
 
 	check(pointPositions.Num() * 4 == pointColors.Num());
 
@@ -33,32 +33,27 @@ void FPointCloudStreamingCore::AddInputToExistingData(TArray<FLinearColor> &poin
 		return;
 	if (mDeltaTime < mStreamCaptureSteps)
 		return;
-	//if (pointColors.Num() < pointPositions.Num() * 4)
-	//	pointColors.Reserve(pointPositions.Num() * 4);
 
 	Initialize(MAXTEXRES * MAXTEXRES);
+	InitPointPosBuffer();
+	InitColorBuffer();
 
-	// Init data if neccessary
-	if (mPointPosData.Num() != MAXTEXRES * MAXTEXRES) {
-		mPointPosData.Empty();
-		mPointPosData.AddUninitialized(MAXTEXRES * MAXTEXRES);
-		mPointPosDataPointer = &mPointPosData;
-	}
-
-	if (mColorData.Num() != MAXTEXRES * MAXTEXRES * 4) {
-		mColorData.Empty();
-		mColorData.AddUninitialized(MAXTEXRES * MAXTEXRES * 4); // 4 as we have bgra
-		mColorDataPointer = &mColorData;
-	}
-
-	// Add offset (e.g. tracking position - camera offset)
-	if (offset != FLinearColor::Black)
-		for (int i = 0; i < pointPositions.Num(); ++i)
-			pointPositions[i] += offset;
+	FVector tempPos;
 
 	for (int i = 0; i < pointPositions.Num(); ++i) {
-		if (mPointPosData.IsValidIndex(i))
-			mPointPosData[mGlobalStreamCounter + i] = pointPositions[i];
+		
+		// Transform point
+		tempPos = FVector(pointPositions[i].G, pointPositions[i].B, pointPositions[i].R);
+		//tempPos = offsetRotation.RotateVector(tempPos);
+		tempPos += offsetTranslation;
+
+		// Add current data to buffer
+		if (mPointPosData.IsValidIndex(i)) {
+			mPointPosData[mGlobalStreamCounter + i].A = tempPos.Z;
+			mPointPosData[mGlobalStreamCounter + i].G = tempPos.X;
+			mPointPosData[mGlobalStreamCounter + i].B = tempPos.Y;
+			mPointPosData[mGlobalStreamCounter + i].R = tempPos.Z;
+		}
 		if (mColorData.IsValidIndex(mGlobalStreamCounter + i)) {
 			mColorData[(mGlobalStreamCounter + i) * 4] = pointColors[i * 4];
 			mColorData[(mGlobalStreamCounter + i) * 4 + 1] = pointColors[i * 4 + 1];
@@ -69,8 +64,6 @@ void FPointCloudStreamingCore::AddInputToExistingData(TArray<FLinearColor> &poin
 
 	mGlobalStreamCounter += pointPositions.Num();
 	mPointCount = mGlobalStreamCounter;
-
-	//UE_LOG(PointCloudRenderer, Log, TEXT("Collecting point cloud from Kinect. Current point count: %d"), mGlobalStreamCounter);
 
 	UpdateTextureBuffer();
 	mDeltaTime = 0.f;
@@ -98,12 +91,7 @@ void FPointCloudStreamingCore::SetInput(TArray<FLinearColor> &pointPositions, TA
 	ensure(pointPositions.Num() == pointColors.Num());
 
 	Initialize(pointPositions.Num());
-
-	if (mColorData.Num() != mPointCount * 4) {
-		mColorData.Empty();
-		mColorData.AddUninitialized(mPointCount * 4); // 4 as we have bgra
-		mColorDataPointer = &mColorData;
-	}
+	InitColorBuffer();
 
 	for (int i = 0; i < pointColors.Num(); ++i) {
 
@@ -124,18 +112,8 @@ void FPointCloudStreamingCore::SetInput(TArray<FVector> &pointPositions, TArray<
 	ensure(pointPositions.Num() == pointColors.Num());
 
 	Initialize(pointPositions.Num());
-
-	if (mPointPosData.Num() != mPointCount) {
-		mPointPosData.Empty();
-		mPointPosData.AddUninitialized(mPointCount);
-		mPointPosDataPointer = &mPointPosData;
-	}
-
-	if (mColorData.Num() != mPointCount * 4) {
-		mColorData.Empty();
-		mColorData.AddUninitialized(mPointCount * 4); // 4 as we have bgra
-		mColorDataPointer = &mColorData;
-	}
+	InitPointPosBuffer();
+	InitColorBuffer();
 
 	for (int i = 0; i < pointPositions.Num(); ++i) {
 
@@ -156,6 +134,24 @@ void FPointCloudStreamingCore::SetInput(TArray<FVector> &pointPositions, TArray<
 	if (sortData)
 		SortPointCloudData();
 	UpdateTextureBuffer();
+}
+
+void FPointCloudStreamingCore::InitColorBuffer()
+{
+	if (mColorData.Num() != mPointCount * 4) {
+		mColorData.Empty();
+		mColorData.AddUninitialized(mPointCount * 4); // 4 as we have bgra
+		mColorDataPointer = &mColorData;
+	}
+}
+
+void FPointCloudStreamingCore::InitPointPosBuffer()
+{
+	if (mPointPosData.Num() != mPointCount) {
+		mPointPosData.Empty();
+		mPointPosData.AddUninitialized(mPointCount);
+		mPointPosDataPointer = &mPointPosData;
+	}
 }
 
 void FPointCloudStreamingCore::SortPointCloudData() {
