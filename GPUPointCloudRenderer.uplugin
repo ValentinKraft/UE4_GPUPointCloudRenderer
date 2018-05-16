@@ -27,5 +27,15 @@
       "Type": "Runtime",
       "LoadingPhase": "Default"
     }
+  ],
+  "Plugins": [
+    {
+      "Name": "ComputeShader",
+      "Enabled": true
+    },
+    {
+      "Name": "PixelShader",
+      "Enabled": true
+    }
   ]
 }

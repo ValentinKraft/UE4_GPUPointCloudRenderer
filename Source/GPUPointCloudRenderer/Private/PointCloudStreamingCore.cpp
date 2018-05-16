@@ -244,9 +244,6 @@ void FPointCloudStreamingCore::Initialize(unsigned int pointCount)
 		checkf(RenderTarget != nullptr, TEXT("Unable to create or find valid render target"));
 	}
 
-	mPointPosData.Empty();
-	mPointPosData.AddUninitialized(mPointCount);
-	mPointPosDataPointer = &mPointPosData;
 	if (!mPointPosDataPointer)
 		mPointPosDataPointer = &mPointPosData;
 	if (!mColorDataPointer)
