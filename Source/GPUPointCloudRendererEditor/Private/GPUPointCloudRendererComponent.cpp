@@ -131,14 +131,14 @@ void UGPUPointCloudRendererComponent::SetExtent(FBox extent) {
 	mExtent = extent.ToString();
 }
 
-void UGPUPointCloudRendererComponent::ExportDataToRenderTarget(UTextureRenderTarget2D* rendertarget) {
+void UGPUPointCloudRendererComponent::ExportDataToRenderTarget(UTextureRenderTarget2D* pointPosRT, UTextureRenderTarget2D* colorsRT) {
 
 	CHECK_PCR_STATUS
 
-	if (!rendertarget)
+	if (!pointPosRT || !colorsRT)
 		return;
 	
-	mPointCloudCore->ExportCurrentDataToRenderTarget(rendertarget);
+	mPointCloudCore->ExportCurrentDataToRenderTarget(pointPosRT, colorsRT);
 }
 
 //////////////////////////

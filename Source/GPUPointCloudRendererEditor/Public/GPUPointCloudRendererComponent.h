@@ -90,8 +90,14 @@ public:
 	UFUNCTION(DisplayName = "PCR Add Point Cloud Snapshot", BlueprintCallable, Category = "GPUPointCloudRenderer", meta = (Keywords = "set add input increment point cloud collect snapshot kinect"))
 	void AddSnapshot(UPARAM(ref) TArray<FLinearColor> &pointPositions, UPARAM(ref) TArray<uint8> &pointColors, FVector offsetTranslation = FVector::ZeroVector, FRotator offsetRotation = FRotator::ZeroRotator);
 
+	/**
+	* Writes the current point position and color data to the given rendertarget(s).
+	*
+	* @param	pointPosRT					The rendertarget for the point positions of the current point cloud.
+	* @param	colorsRT					The rendertarget for the point colors of the current point cloud.
+	*/
 	UFUNCTION(DisplayName = "PCR Save Data To Texture", BlueprintCallable, Category = "GPUPointCloudRenderer", meta = (Keywords = "export save data texture rendertarget"))
-	void ExportDataToRenderTarget(UTextureRenderTarget2D* rendertarget);
+	void ExportDataToRenderTarget(UTextureRenderTarget2D* pointPosRT, UTextureRenderTarget2D* colorsRT);
 
 private:
 	class FPointCloudStreamingCore* mPointCloudCore = nullptr;

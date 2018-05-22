@@ -69,10 +69,12 @@ void FPointCloudStreamingCore::AddSnapshot(TArray<FLinearColor> &pointPositions,
 	mDeltaTime = 0.f;
 }
 
-void FPointCloudStreamingCore::ExportCurrentDataToRenderTarget(UTextureRenderTarget2D* rendertarget)
+void FPointCloudStreamingCore::ExportCurrentDataToRenderTarget(UTextureRenderTarget2D* pointPosRT, UTextureRenderTarget2D* colorsRT)
 {
-	if (rendertarget && mPointPosTexture)
-		PixelShading->ExecutePixelShader(rendertarget, mPointPosTexture->Resource->TextureRHI->GetTexture2D(), FColor::Black, 1.0f);
+	if (pointPosRT && mPointPosTexture)
+		PixelShading->ExecutePixelShader(pointPosRT, mPointPosTexture->Resource->TextureRHI->GetTexture2D(), FColor::Black, 1.0f);
+	if (colorsRT && mColorTexture)
+		PixelShading->ExecutePixelShader(colorsRT, mColorTexture->Resource->TextureRHI->GetTexture2D(), FColor::Black, 1.0f);
 }
 
 void FPointCloudStreamingCore::SetInput(TArray<FLinearColor> &pointPositions, TArray<uint8> &pointColors, bool sortData) {
