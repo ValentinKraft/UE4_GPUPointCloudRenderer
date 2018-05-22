@@ -8,8 +8,8 @@
 #include "Engine/World.h"
 #include "App.h"
 #include "Runtime/Engine/Classes/Materials/MaterialInstanceDynamic.h"
-#include "ComputeShaderUsageExample.h"
-#include "PixelShaderUsageExample.h"
+//#include "ComputeShaderUsageExample.h"
+//#include "PixelShaderUsageExample.h"
 
 using namespace std;
 #undef UpdateResource
@@ -158,29 +158,6 @@ void FPointCloudStreamingCore::SortPointCloudData() {
 
 	SCOPE_CYCLE_COUNTER(STAT_SortPointCloudData);
 
-	if (!mPointPosTexture || !RenderTarget)
-		return;
-
-	mPointPosTexture->WaitForStreaming();
-
-	// Execute shader
-	if (PixelShading) {
-		FTexture2DRHIRef InputTexture = NULL;
-
-		if (ComputeShading)
-		{
-			// Send unsorted point position texture to compute shader
-			ComputeShading->SetPointPosTextureReference(mPointPosTexture->Resource->TextureRHI->GetTexture2D());
-
-			ComputeShading->ExecuteComputeShader(TotalElapsedTime);
-
-			// Get the output texture from the compute shader that we will pass to the pixel shader later
-			InputTexture = ComputeShading->GetTexture();
-		}
-
-		PixelShading->ExecutePixelShader(RenderTarget, InputTexture, FColor::Red, 1.0f);
-		CastedRenderTarget = Cast<UTexture>(RenderTarget);
-	}
 }
 
 void FPointCloudStreamingCore::Initialize(unsigned int pointCount)
@@ -192,7 +169,7 @@ void FPointCloudStreamingCore::Initialize(unsigned int pointCount)
 	mPointCount = pointsPerAxis * pointsPerAxis;
 
 	// Check if update is neccessary
-	if (mPointPosTexture && mColorTexture && mPointScalingTexture && mUpdateTextureRegion && ComputeShading && PixelShading)
+	if (mPointPosTexture && mColorTexture && mPointScalingTexture && mUpdateTextureRegion)
 		if (mPointPosTexture->GetSizeX() == pointsPerAxis && mColorTexture->GetSizeX() == pointsPerAxis && mPointScalingTexture->GetSizeX() == pointsPerAxis)
 			return;
 
@@ -219,30 +196,6 @@ void FPointCloudStreamingCore::Initialize(unsigned int pointCount)
 	mColorTexture->AddToRoot();
 	mColorTexture->UpdateResource();
 	mColorTexture->MipGenSettings = TextureMipGenSettings::TMGS_NoMipmaps;
-
-	// Create shader
-	if (!ComputeShading && currentWorld)
-		ComputeShading = new FComputeShaderUsageExample(1.0f, GetUpperPowerOfTwo(pointsPerAxis), GetUpperPowerOfTwo(pointsPerAxis), currentWorld->Scene->GetFeatureLevel());
-
-	if (!PixelShading && currentWorld)
-		PixelShading = new FPixelShaderUsageExample(FColor::Green, currentWorld->Scene->GetFeatureLevel());
-
-	// Create shader render target
-	if (!RenderTarget) {
-		RenderTarget = NewObject<UTextureRenderTarget2D>();
-		check(RenderTarget);
-		RenderTarget->AddToRoot();
-		RenderTarget->ClearColor = FLinearColor(1.0f, 0.0f, 1.0f);
-		RenderTarget->ClearColor.A = 1.0f;
-		RenderTarget->SRGB = 0;
-		RenderTarget->MipGenSettings = TextureMipGenSettings::TMGS_NoMipmaps;
-		RenderTarget->RenderTargetFormat = ETextureRenderTargetFormat::RTF_RGBA32f;
-		RenderTarget->CompressionSettings = TextureCompressionSettings::TC_VectorDisplacementmap;
-		RenderTarget->InitAutoFormat(GetUpperPowerOfTwo(pointsPerAxis), GetUpperPowerOfTwo(pointsPerAxis));
-		RenderTarget->UpdateResourceImmediate(true);
-		//RenderTarget->InitCustomFormat(pointsPerAxis, pointsPerAxis, EPixelFormat::PF_A32B32G32R32F, false);
-		checkf(RenderTarget != nullptr, TEXT("Unable to create or find valid render target"));
-	}
 
 	mPointPosData.Empty();
 	mPointPosData.AddUninitialized(mPointCount);
@@ -300,7 +253,6 @@ void FPointCloudStreamingCore::UpdateShaderParameter()
 
 	mDynamicMatInstance->SetTextureParameterValue("PositionTexture", mPointPosTexture);
 	mDynamicMatInstance->SetTextureParameterValue("ColorTexture", mColorTexture);
-	mDynamicMatInstance->SetTextureParameterValue("CSTexture", CastedRenderTarget);
 	//if (mHasSurfaceReconstructed)
 	//	mDynamicMatInstance->SetTextureParameterValue("ScalingTexture", mPointScalingTexture);
 	mDynamicMatInstance->SetVectorParameterValue("CloudSizeV2", FLinearColor(mPointPosTexture->GetSizeX(), mPointPosTexture->GetSizeY(), 0, 0));
@@ -341,17 +293,4 @@ FPointCloudStreamingCore::~FPointCloudStreamingCore() {
 	//	delete mPointScalingTexture;
 	//if (mColorTexture)
 	//	delete mColorTexture;
-
-	if (ComputeShading)
-		delete ComputeShading;
-	if (PixelShading)
-		delete PixelShading;
-	if (RenderTarget) {
-		RenderTarget->ReleaseResource();
-		//delete RenderTarget;
-	}
-	if (CastedRenderTarget) {
-		CastedRenderTarget->ReleaseResource();
-		//delete CastedRenderTarget;
-	}
 }

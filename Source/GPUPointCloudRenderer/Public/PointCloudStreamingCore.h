@@ -27,9 +27,6 @@ public:
 	void SetExtent(FBox extent) { mExtent = extent; };
 	void AddSnapshot(TArray<FLinearColor> &pointPositions, TArray<uint8> &pointColors, FVector offsetTranslation = FVector::ZeroVector, FRotator offsetRotation = FRotator::ZeroRotator);
 
-	UWorld* currentWorld = nullptr;
-	FVector currentCamPos = FVector::ZeroVector;
-
 	float mStreamCaptureSteps = 0.5f;
 	unsigned int mGlobalStreamCounter = 0;
 
@@ -61,12 +58,5 @@ private:
 	UTexture2D* mPointPosTexture = nullptr;
 	UTexture2D* mPointScalingTexture = nullptr;
 	UTexture2D* mColorTexture = nullptr;
-	
-	// Sorting-related variables
-	class FComputeShaderUsageExample* ComputeShading = nullptr;
-	class FPixelShaderUsageExample* PixelShading = nullptr;
-	class UTextureRenderTarget2D* RenderTarget = nullptr;
-	UTexture* CastedRenderTarget = nullptr;
-	float TotalElapsedTime = 0;
 };
 
