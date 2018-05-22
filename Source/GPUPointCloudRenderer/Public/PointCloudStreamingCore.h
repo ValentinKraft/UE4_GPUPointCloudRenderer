@@ -26,6 +26,7 @@ public:
 	void SetInput(TArray<FVector> &pointPositions, TArray<FColor> &pointColors, bool sortDataEveryFrame);
 	void SetExtent(FBox extent) { mExtent = extent; };
 	void AddSnapshot(TArray<FLinearColor> &pointPositions, TArray<uint8> &pointColors, FVector offsetTranslation = FVector::ZeroVector, FRotator offsetRotation = FRotator::ZeroRotator);
+	void ExportCurrentDataToRenderTarget(UTextureRenderTarget2D* rendertarget);
 
 	UWorld* currentWorld = nullptr;
 	FVector currentCamPos = FVector::ZeroVector;

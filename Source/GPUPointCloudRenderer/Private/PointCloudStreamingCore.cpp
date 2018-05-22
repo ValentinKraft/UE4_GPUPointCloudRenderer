@@ -38,21 +38,21 @@ void FPointCloudStreamingCore::AddSnapshot(TArray<FLinearColor> &pointPositions,
 	InitPointPosBuffer();
 	InitColorBuffer();
 
-	FVector tempPos;
+	FVector transformedPos;
 
 	for (int i = 0; i < pointPositions.Num(); ++i) {
 		
 		// Transform point
-		tempPos = FVector(pointPositions[i].G, pointPositions[i].B, pointPositions[i].R);
-		tempPos = offsetRotation.RotateVector(tempPos);
-		tempPos += offsetTranslation;
+		transformedPos = FVector(pointPositions[i].G, pointPositions[i].B, pointPositions[i].R);
+		transformedPos = offsetRotation.RotateVector(transformedPos);
+		transformedPos += offsetTranslation;
 
 		// Add current data to buffer
 		if (mPointPosData.IsValidIndex(i)) {
-			mPointPosData[mGlobalStreamCounter + i].A = tempPos.Z;
-			mPointPosData[mGlobalStreamCounter + i].G = tempPos.X;
-			mPointPosData[mGlobalStreamCounter + i].B = tempPos.Y;
-			mPointPosData[mGlobalStreamCounter + i].R = tempPos.Z;
+			mPointPosData[mGlobalStreamCounter + i].A = transformedPos.Z;
+			mPointPosData[mGlobalStreamCounter + i].G = transformedPos.X;
+			mPointPosData[mGlobalStreamCounter + i].B = transformedPos.Y;
+			mPointPosData[mGlobalStreamCounter + i].R = transformedPos.Z;
 		}
 		if (mColorData.IsValidIndex(mGlobalStreamCounter + i)) {
 			mColorData[(mGlobalStreamCounter + i) * 4] = pointColors[i * 4];
@@ -67,6 +67,12 @@ void FPointCloudStreamingCore::AddSnapshot(TArray<FLinearColor> &pointPositions,
 
 	UpdateTextureBuffer();
 	mDeltaTime = 0.f;
+}
+
+void FPointCloudStreamingCore::ExportCurrentDataToRenderTarget(UTextureRenderTarget2D* rendertarget)
+{
+	if (rendertarget && mPointPosTexture)
+		PixelShading->ExecutePixelShader(rendertarget, mPointPosTexture->Resource->TextureRHI->GetTexture2D(), FColor::Black, 1.0f);
 }
 
 void FPointCloudStreamingCore::SetInput(TArray<FLinearColor> &pointPositions, TArray<uint8> &pointColors, bool sortData) {
@@ -345,6 +351,7 @@ FPointCloudStreamingCore::~FPointCloudStreamingCore() {
 		delete PixelShading;
 	if (RenderTarget) {
 		RenderTarget->ReleaseResource();
+		//RenderTarget = nullptr;
 		//delete RenderTarget;
 	}
 	if (CastedRenderTarget) {

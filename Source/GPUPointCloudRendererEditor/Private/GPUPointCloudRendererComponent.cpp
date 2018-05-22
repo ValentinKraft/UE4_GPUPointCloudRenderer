@@ -131,6 +131,16 @@ void UGPUPointCloudRendererComponent::SetExtent(FBox extent) {
 	mExtent = extent.ToString();
 }
 
+void UGPUPointCloudRendererComponent::ExportDataToRenderTarget(UTextureRenderTarget2D* rendertarget) {
+
+	CHECK_PCR_STATUS
+
+	if (!rendertarget)
+		return;
+	
+	mPointCloudCore->ExportCurrentDataToRenderTarget(rendertarget);
+}
+
 //////////////////////////
 // STANDARD FUNCTIONS ////
 //////////////////////////
@@ -155,11 +165,12 @@ void UGPUPointCloudRendererComponent::TickComponent(float DeltaTime, ELevelTick 
 }
 
 void UGPUPointCloudRendererComponent::BeginPlay() {
+	
 	Super::BeginPlay();
+
 	if(mPointCloudCore)
 		mPointCloudCore->currentWorld = GetWorld();
 }
-
 
 ////////////////////////
 // HELPER FUNCTIONS ////

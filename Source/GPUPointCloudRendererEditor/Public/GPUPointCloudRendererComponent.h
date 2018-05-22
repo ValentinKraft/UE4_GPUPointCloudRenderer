@@ -90,6 +90,9 @@ public:
 	UFUNCTION(DisplayName = "PCR Add Point Cloud Snapshot", BlueprintCallable, Category = "GPUPointCloudRenderer", meta = (Keywords = "set add input increment point cloud collect snapshot kinect"))
 	void AddSnapshot(UPARAM(ref) TArray<FLinearColor> &pointPositions, UPARAM(ref) TArray<uint8> &pointColors, FVector offsetTranslation = FVector::ZeroVector, FRotator offsetRotation = FRotator::ZeroRotator);
 
+	UFUNCTION(DisplayName = "PCR Export Data To Rendertarget", BlueprintCallable, Category = "GPUPointCloudRenderer", meta = (Keywords = "export save data rendertarget"))
+	void ExportDataToRenderTarget(UTextureRenderTarget2D* rendertarget);
+
 private:
 	class FPointCloudStreamingCore* mPointCloudCore = nullptr;
 
