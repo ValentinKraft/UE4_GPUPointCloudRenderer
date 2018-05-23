@@ -41,7 +41,7 @@ void FPointCloudStreamingCore::AddSnapshot(TArray<FLinearColor> &pointPositions,
 	FVector transformedPos;
 
 	for (int i = 0; i < pointPositions.Num(); ++i) {
-		
+
 		// Transform point
 		transformedPos = FVector(pointPositions[i].G, pointPositions[i].B, pointPositions[i].R);
 		transformedPos = offsetRotation.RotateVector(transformedPos);
@@ -69,10 +69,14 @@ void FPointCloudStreamingCore::AddSnapshot(TArray<FLinearColor> &pointPositions,
 	mDeltaTime = 0.f;
 }
 
-void FPointCloudStreamingCore::ExportCurrentDataToRenderTarget(UTextureRenderTarget2D* pointPosRT, UTextureRenderTarget2D* colorsRT)
-{
+void FPointCloudStreamingCore::SavePointPosDataToTexture(UTextureRenderTarget2D* pointPosRT) {
+
 	if (pointPosRT && mPointPosTexture)
 		PixelShading->ExecutePixelShader(pointPosRT, mPointPosTexture->Resource->TextureRHI->GetTexture2D(), FColor::Black, 1.0f);
+}
+
+void FPointCloudStreamingCore::SaveColorDataToTexture(UTextureRenderTarget2D* colorsRT) {
+
 	if (colorsRT && mColorTexture)
 		PixelShading->ExecutePixelShader(colorsRT, mColorTexture->Resource->TextureRHI->GetTexture2D(), FColor::Black, 1.0f);
 }

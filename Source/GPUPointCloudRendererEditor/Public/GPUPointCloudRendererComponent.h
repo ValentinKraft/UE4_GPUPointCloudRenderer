@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 
 #include "GPUPointCloudRendererComponent.generated.h"
@@ -97,7 +96,7 @@ public:
 	* @param	colorsRT					The rendertarget for the point colors of the current point cloud.
 	*/
 	UFUNCTION(DisplayName = "PCR Save Data To Texture", BlueprintCallable, Category = "GPUPointCloudRenderer", meta = (Keywords = "export save data texture rendertarget"))
-	void ExportDataToRenderTarget(UTextureRenderTarget2D* pointPosRT, UTextureRenderTarget2D* colorsRT);
+	void SaveDataToTexture(UTextureRenderTarget2D* pointPosRT, UTextureRenderTarget2D* colorsRT);
 
 private:
 	class FPointCloudStreamingCore* mPointCloudCore = nullptr;
@@ -121,8 +120,10 @@ private:
 	float mDistanceScalingStart = 1000.f;
 	float mMaxDistanceScaling = 3.f;
 	bool mShouldOverrideColor = false;
+	class UTextureRenderTarget2D* colorsTempRT = nullptr;
 
 	void CreateStreamingBaseMesh(int32 pointCount = 1);
+	void SaveColorDataToTextureHelper();
 	void UpdateShaderProperties();
 	//void PostEditChangeProperty(FPropertyChangedEvent &PropertyChangedEvent);
 

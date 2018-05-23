@@ -3,6 +3,7 @@
 **************************************************************************************************/
 
 #include "GPUPointCloudRendererComponent.h"
+#include "CoreMinimal.h"
 #include "IGPUPointCloudRenderer.h"
 #include "PointCloudStreamingCore.h"
 #include "PointCloudComponent.h"
@@ -131,14 +132,19 @@ void UGPUPointCloudRendererComponent::SetExtent(FBox extent) {
 	mExtent = extent.ToString();
 }
 
-void UGPUPointCloudRendererComponent::ExportDataToRenderTarget(UTextureRenderTarget2D* pointPosRT, UTextureRenderTarget2D* colorsRT) {
+void UGPUPointCloudRendererComponent::SaveDataToTexture(UTextureRenderTarget2D* pointPosRT, UTextureRenderTarget2D* colorsRT) {
 
 	CHECK_PCR_STATUS
 
 	if (!pointPosRT || !colorsRT)
 		return;
 	
-	mPointCloudCore->ExportCurrentDataToRenderTarget(pointPosRT, colorsRT);
+	mPointCloudCore->SavePointPosDataToTexture(pointPosRT);
+
+	FTimerHandle UnusedHandle;
+	GetOwner()->GetWorldTimerManager().SetTimer(UnusedHandle, this, &UGPUPointCloudRendererComponent::SaveColorDataToTextureHelper, 0.1, false);
+
+	colorsTempRT = colorsRT;
 }
 
 //////////////////////////
@@ -200,6 +206,12 @@ void UGPUPointCloudRendererComponent::CreateStreamingBaseMesh(int32 pointCount)
 	// Update material
 	mPointCloudMaterial = BaseMesh->CreateAndSetMaterialInstanceDynamic(0);
 	mPointCloudCore->UpdateDynamicMaterialForStreaming(mPointCloudMaterial);
+}
+
+void UGPUPointCloudRendererComponent::SaveColorDataToTextureHelper() {
+
+	if(mPointCloudCore && colorsTempRT)
+		mPointCloudCore->SaveColorDataToTexture(colorsTempRT);
 }
 
 
