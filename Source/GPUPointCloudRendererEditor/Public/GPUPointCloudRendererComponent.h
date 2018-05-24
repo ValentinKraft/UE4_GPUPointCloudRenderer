@@ -115,12 +115,13 @@ private:
 	/// Streaming-specific variables
 	UPROPERTY()
 	UMaterialInterface* mStreamingBaseMat = nullptr;
+	UPROPERTY()
+	class UTextureRenderTarget2D* colorsTempRT = nullptr;
 	float mFalloff = 2.0f;
 	float mScaling = 1.0f;
 	float mDistanceScalingStart = 1000.f;
 	float mMaxDistanceScaling = 3.f;
 	bool mShouldOverrideColor = false;
-	class UTextureRenderTarget2D* colorsTempRT = nullptr;
 
 	void CreateStreamingBaseMesh(int32 pointCount = 1);
 	void SaveColorDataToTextureHelper();
