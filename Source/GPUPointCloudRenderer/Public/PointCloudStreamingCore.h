@@ -21,13 +21,14 @@ public:
 
 	void Update(float deltaTime) { UpdateShaderParameter();	mDeltaTime += deltaTime; };
 	void UpdateDynamicMaterialForStreaming(UMaterialInstanceDynamic* pointCloudShaderDynInstance) { mDynamicMatInstance = pointCloudShaderDynInstance; };
-	void SetInput(TArray<FLinearColor> &pointPositions, TArray<uint8> &pointColors, bool sortDataEveryFrame);
-	void SetInput(TArray<FLinearColor> &pointPositions, TArray<FColor> &pointColors, bool sortDataEveryFrame);
-	void SetInput(TArray<FVector> &pointPositions, TArray<FColor> &pointColors, bool sortDataEveryFrame);
+	void SetInput(TArray<FLinearColor> &pointPositions, TArray<uint8> &pointColors);
+	void SetInput(TArray<FLinearColor> &pointPositions, TArray<FColor> &pointColors);
+	void SetInput(TArray<FVector> &pointPositions, TArray<FColor> &pointColors);
 	void SetExtent(FBox extent) { mExtent = extent; };
 	void AddSnapshot(TArray<FLinearColor> &pointPositions, TArray<uint8> &pointColors, FVector offsetTranslation = FVector::ZeroVector, FRotator offsetRotation = FRotator::ZeroRotator);
 	void SavePointPosDataToTexture(UTextureRenderTarget2D* pointPosRT);
 	void SaveColorDataToTexture(UTextureRenderTarget2D* colorsRT);
+	void SortPointCloudData();
 
 	UWorld* currentWorld = nullptr;
 	FVector currentCamPos = FVector::ZeroVector;
@@ -41,7 +42,6 @@ private:
 	void InitPointPosBuffer();
 	void UpdateTextureBuffer();
 	void UpdateShaderParameter();
-	void SortPointCloudData();
 	void FreeData();
 	unsigned int GetUpperPowerOfTwo(unsigned int v);
 

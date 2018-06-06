@@ -81,7 +81,7 @@ void FPointCloudStreamingCore::SaveColorDataToTexture(UTextureRenderTarget2D* co
 		PixelShading->ExecutePixelShader(colorsRT, mColorTexture->Resource->TextureRHI->GetTexture2D(), FColor::Black, 1.0f);
 }
 
-void FPointCloudStreamingCore::SetInput(TArray<FLinearColor> &pointPositions, TArray<uint8> &pointColors, bool sortData) {
+void FPointCloudStreamingCore::SetInput(TArray<FLinearColor> &pointPositions, TArray<uint8> &pointColors) {
 
 	check(pointPositions.Num() * 4 == pointColors.Num());
 
@@ -94,12 +94,9 @@ void FPointCloudStreamingCore::SetInput(TArray<FLinearColor> &pointPositions, TA
 	mColorDataPointer = &pointColors;
 
 	UpdateTextureBuffer();
-
-	if (sortData)
-		SortPointCloudData();
 }
 
-void FPointCloudStreamingCore::SetInput(TArray<FLinearColor> &pointPositions, TArray<FColor> &pointColors, bool sortData) {
+void FPointCloudStreamingCore::SetInput(TArray<FLinearColor> &pointPositions, TArray<FColor> &pointColors) {
 
 	ensure(pointPositions.Num() == pointColors.Num());
 
@@ -116,12 +113,9 @@ void FPointCloudStreamingCore::SetInput(TArray<FLinearColor> &pointPositions, TA
 	mPointPosDataPointer = &pointPositions;
 
 	UpdateTextureBuffer();
-
-	if (sortData)
-		SortPointCloudData();
 }
 
-void FPointCloudStreamingCore::SetInput(TArray<FVector> &pointPositions, TArray<FColor> &pointColors, bool sortData) {
+void FPointCloudStreamingCore::SetInput(TArray<FVector> &pointPositions, TArray<FColor> &pointColors) {
 
 	ensure(pointPositions.Num() == pointColors.Num());
 
@@ -146,9 +140,6 @@ void FPointCloudStreamingCore::SetInput(TArray<FVector> &pointPositions, TArray<
 	}
 
 	UpdateTextureBuffer();
-
-	if (sortData)
-		SortPointCloudData();
 }
 
 void FPointCloudStreamingCore::InitColorBuffer()
@@ -186,6 +177,7 @@ void FPointCloudStreamingCore::SortPointCloudData() {
 		{
 			// Send unsorted point position texture to compute shader
 			ComputeShading->SetPointPosTextureReference(mPointPosTexture->Resource->TextureRHI->GetTexture2D());
+			ComputeShading->SetPointPosDataReference(mPointPosDataPointer);
 
 			ComputeShading->ExecuteComputeShader(TotalElapsedTime);
 
