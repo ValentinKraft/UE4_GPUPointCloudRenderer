@@ -175,10 +175,10 @@ void FPointCloudStreamingCore::SortPointCloudData() {
 
 		if (ComputeShading)
 		{
-			// Send unsorted point position texture to compute shader
-			ComputeShading->SetPointPosTextureReference(mPointPosTexture->Resource->TextureRHI->GetTexture2D());
+			// Send unsorted point position data to compute shader
 			ComputeShading->SetPointPosDataReference(mPointPosDataPointer);
 
+			// Execute Sorting Compute Shader
 			ComputeShading->ExecuteComputeShader(TotalElapsedTime);
 
 			// Get the output texture from the compute shader that we will pass to the pixel shader later
