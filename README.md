@@ -1,8 +1,12 @@
 **Unreal Engine GPU Point Cloud Renderer**
 
 GPU-based Plugin for Real-Time rendering of dynamic and massive point cloud data in Unreal.
-Current Unreal Version: *UE4.18*.
 
+Currently supported Unreal Versions:
+* UE4.18
+* UE4.19 (see other branch)
+
+The ComputeShader-powered version is still in development.
 
 __Basics Tutorial:__
 
