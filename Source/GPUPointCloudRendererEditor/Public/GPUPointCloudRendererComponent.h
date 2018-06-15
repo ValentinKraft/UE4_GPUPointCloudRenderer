@@ -127,6 +127,7 @@ private:
 	bool mShouldOverrideColor = false;
 
 	void CreateStreamingBaseMesh(int32 pointCount = 1);
+	void UpdateCameraPositionForSorting();
 	void SaveColorDataToTextureHelper();
 	void UpdateShaderProperties();
 	//void PostEditChangeProperty(FPropertyChangedEvent &PropertyChangedEvent);

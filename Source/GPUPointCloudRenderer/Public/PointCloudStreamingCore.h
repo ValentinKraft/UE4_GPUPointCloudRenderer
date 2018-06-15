@@ -31,6 +31,7 @@ public:
 	void SortPointCloudData();
 
 	UWorld* currentWorld = nullptr;
+	// The current camera position ! in object space ! of the point cloud proxy mesh.
 	FVector currentCamPos = FVector::ZeroVector;
 
 	float mStreamCaptureSteps = 0.5f;

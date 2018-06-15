@@ -179,7 +179,7 @@ void FPointCloudStreamingCore::SortPointCloudData() {
 			ComputeShading->SetPointPosDataReference(mPointPosDataPointer);
 
 			// Execute Sorting Compute Shader
-			ComputeShading->ExecuteComputeShader(TotalElapsedTime);
+			ComputeShading->ExecuteComputeShader(FVector4(currentCamPos));
 
 			// Get the output texture from the compute shader that we will pass to the pixel shader later
 			InputTexture = ComputeShading->GetTexture();

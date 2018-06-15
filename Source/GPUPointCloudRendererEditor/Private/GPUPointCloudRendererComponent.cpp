@@ -162,10 +162,6 @@ void UGPUPointCloudRendererComponent::SortPointCloudForDepth() {
 void UGPUPointCloudRendererComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-	
-	// Update sprites if neccessary //#ToDo: better update function?
-	//if (mShouldUpdateEveryFrame) 
-	//	UpdateSprites();
 
 	// Update core
 	if (mPointCloudCore) {
@@ -175,7 +171,10 @@ void UGPUPointCloudRendererComponent::TickComponent(float DeltaTime, ELevelTick 
 
 	// Update shader properties
 	UpdateShaderProperties();
+
+	UpdateCameraPositionForSorting();
 }
+
 
 void UGPUPointCloudRendererComponent::BeginPlay() {
 	
@@ -219,6 +218,23 @@ void UGPUPointCloudRendererComponent::SaveColorDataToTextureHelper() {
 
 	if(mPointCloudCore && colorsTempRT)
 		mPointCloudCore->SaveColorDataToTexture(colorsTempRT);
+}
+
+void UGPUPointCloudRendererComponent::UpdateCameraPositionForSorting()
+{
+	FRotator rot;
+	FVector camPos;
+
+	// Get current camera position
+	if (GEngine)
+		GEngine->GetFirstLocalPlayerController(GetWorld())->PlayerCameraManager->GetCameraViewPoint(camPos, rot);
+
+	// Transform in object space of proxy mesh
+	FMatrix streamingMeshMatrix = this->GetComponentToWorld().ToMatrixWithScale();
+	camPos = streamingMeshMatrix.InverseTransformPosition(camPos);
+
+	if (mPointCloudCore)
+		mPointCloudCore->currentCamPos = camPos;
 }
 
 
