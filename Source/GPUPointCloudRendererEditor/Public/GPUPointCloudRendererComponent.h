@@ -6,6 +6,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "Components/SceneComponent.h"
 
 #include "GPUPointCloudRendererComponent.generated.h"
 
@@ -95,18 +96,24 @@ private:
 
 	UPROPERTY(VisibleAnywhere, Category = "GPUPointCloudRenderer")
 	int32 mPointCount = 0;
+
 	UPROPERTY(VisibleAnywhere, Category = "GPUPointCloudRenderer")
 	FString mExtent = "No data.";
+
 	UPROPERTY(VisibleAnywhere, Category = "GPUPointCloudRenderer")
 	class UMaterialInstanceDynamic* mPointCloudMaterial = nullptr;
+
 	UPROPERTY(VisibleAnywhere, Category = "GPUPointCloudRenderer")
 	float mSplatSize = 1.0f;
+
 	UPROPERTY(VisibleAnywhere, Category = "GPUPointCloudRenderer")
 	float mPointCloudScaling = 1.0f;
 
 	/// Streaming-specific variables
 	UPROPERTY()
-	UMaterialInterface* mStreamingBaseMat = nullptr;
+	class UMaterialInterface* mStreamingBaseMat = nullptr;
+
+
 	float mFalloff = 2.0f;
 	float mScaling = 1.0f;
 	float mDistanceScalingStart = 1000.f;

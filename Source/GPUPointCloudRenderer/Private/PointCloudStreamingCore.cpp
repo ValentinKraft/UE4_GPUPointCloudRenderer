@@ -179,7 +179,7 @@ void FPointCloudStreamingCore::Initialize(unsigned int pointCount)
 	mPointPosTexture->SRGB = 0;
 	mPointPosTexture->AddToRoot();
 	mPointPosTexture->UpdateResource();
-	mPointPosTexture->MipGenSettings = TextureMipGenSettings::TMGS_NoMipmaps;
+	//mPointPosTexture->MipGenSettings = TextureMipGenSettings::TMGS_NoMipmaps;
 
 	// create point cloud scalings texture
 	mPointScalingTexture = UTexture2D::CreateTransient(pointsPerAxis, pointsPerAxis, EPixelFormat::PF_A32B32G32R32F);
@@ -187,7 +187,7 @@ void FPointCloudStreamingCore::Initialize(unsigned int pointCount)
 	mPointScalingTexture->SRGB = 0;
 	mPointScalingTexture->AddToRoot();
 	mPointScalingTexture->UpdateResource();
-	mPointScalingTexture->MipGenSettings = TextureMipGenSettings::TMGS_NoMipmaps;
+	//mPointScalingTexture->MipGenSettings = TextureMipGenSettings::TMGS_NoMipmaps;
 
 	// create color texture
 	mColorTexture = UTexture2D::CreateTransient(pointsPerAxis, pointsPerAxis, EPixelFormat::PF_B8G8R8A8);
@@ -195,7 +195,7 @@ void FPointCloudStreamingCore::Initialize(unsigned int pointCount)
 	mColorTexture->SRGB = 1;
 	mColorTexture->AddToRoot();
 	mColorTexture->UpdateResource();
-	mColorTexture->MipGenSettings = TextureMipGenSettings::TMGS_NoMipmaps;
+	//mColorTexture->MipGenSettings = TextureMipGenSettings::TMGS_NoMipmaps;
 
 	mPointPosData.Empty();
 	mPointPosData.AddUninitialized(mPointCount);

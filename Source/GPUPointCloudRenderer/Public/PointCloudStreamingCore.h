@@ -8,19 +8,20 @@
 
 #include "CoreMinimal.h"
 #include "Runtime/Engine/Classes/Engine/Texture2D.h"
+#include "Engine/World.h"
 
 DECLARE_STATS_GROUP(TEXT("GPUPointCloudRenderer"), STATGROUP_GPUPCR, STATCAT_Advanced);
 
 class GPUPOINTCLOUDRENDERER_API FPointCloudStreamingCore
 {
 public:
-	FPointCloudStreamingCore(UMaterialInstanceDynamic* pointCloudShaderDynInstance = nullptr) { mDynamicMatInstance = pointCloudShaderDynInstance; };
+	FPointCloudStreamingCore(class UMaterialInstanceDynamic* pointCloudShaderDynInstance = nullptr) { mDynamicMatInstance = pointCloudShaderDynInstance; };
 	~FPointCloudStreamingCore();
 	//virtual unsigned int GetInstanceId() const { return _instanceId; };
 	unsigned int GetPointCount() { return mPointCount; };
 
 	void Update(float deltaTime) { UpdateShaderParameter();	mDeltaTime += deltaTime; };
-	void UpdateDynamicMaterialForStreaming(UMaterialInstanceDynamic* pointCloudShaderDynInstance) { mDynamicMatInstance = pointCloudShaderDynInstance; };
+	void UpdateDynamicMaterialForStreaming(class UMaterialInstanceDynamic* pointCloudShaderDynInstance) { mDynamicMatInstance = pointCloudShaderDynInstance; };
 	void SetInput(TArray<FLinearColor> &pointPositions, TArray<uint8> &pointColors, bool sortDataEveryFrame);
 	void SetInput(TArray<FLinearColor> &pointPositions, TArray<FColor> &pointColors, bool sortDataEveryFrame);
 	void SetInput(TArray<FVector> &pointPositions, TArray<FColor> &pointColors, bool sortDataEveryFrame);
