@@ -1,6 +1,7 @@
 **Unreal Engine GPU Point Cloud Renderer**
 
 GPU-based Plugin for Real-Time rendering of dynamic and massive point cloud data in Unreal.
+
 __This plugin is only for rendering point clouds and does NOT load point cloud files or visualises Kinect data.__
 __For loading PCD files, processing point clouds with PCL or fetching data from a Kinect, another plugin will follow soon.__
 
