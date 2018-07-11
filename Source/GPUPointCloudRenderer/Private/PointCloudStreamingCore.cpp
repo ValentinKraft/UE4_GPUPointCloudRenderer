@@ -166,6 +166,7 @@ void FPointCloudStreamingCore::Initialize(unsigned int pointCount)
 		return;
 
 	int32 pointsPerAxis = FMath::CeilToInt(FMath::Sqrt(pointCount));
+	if (pointsPerAxis % 2 == 1) pointsPerAxis++;
 	mPointCount = pointsPerAxis * pointsPerAxis;
 
 	// Check if update is neccessary
@@ -175,7 +176,7 @@ void FPointCloudStreamingCore::Initialize(unsigned int pointCount)
 
 	// create point cloud positions texture
 	mPointPosTexture = UTexture2D::CreateTransient(pointsPerAxis, pointsPerAxis, EPixelFormat::PF_A32B32G32R32F);
-	mPointPosTexture->CompressionSettings = TextureCompressionSettings::TC_VectorDisplacementmap;
+	mPointPosTexture->CompressionSettings = TextureCompressionSettings::TC_HDR;
 	mPointPosTexture->SRGB = 0;
 	mPointPosTexture->AddToRoot();
 	mPointPosTexture->UpdateResource();
@@ -185,7 +186,7 @@ void FPointCloudStreamingCore::Initialize(unsigned int pointCount)
 
 	// create point cloud scalings texture
 	mPointScalingTexture = UTexture2D::CreateTransient(pointsPerAxis, pointsPerAxis, EPixelFormat::PF_A32B32G32R32F);
-	mPointScalingTexture->CompressionSettings = TextureCompressionSettings::TC_VectorDisplacementmap;
+	mPointScalingTexture->CompressionSettings = TextureCompressionSettings::TC_HDR;
 	mPointScalingTexture->SRGB = 0;
 	mPointScalingTexture->AddToRoot();
 	mPointScalingTexture->UpdateResource();
