@@ -261,7 +261,8 @@ void FPointCloudStreamingCore::UpdateShaderParameter()
 	mDynamicMatInstance->SetTextureParameterValue("ColorTexture", mColorTexture);
 	//if (mHasSurfaceReconstructed)
 	//	mDynamicMatInstance->SetTextureParameterValue("ScalingTexture", mPointScalingTexture);
-	mDynamicMatInstance->SetVectorParameterValue("CloudSizeV2", FLinearColor(mPointPosTexture->GetSizeX(), mPointPosTexture->GetSizeY(), 0, 0));
+	//mDynamicMatInstance->SetVectorParameterValue("CloudSizeV2", FVector((float)mPointPosTexture->GetSizeX(), (float)mPointPosTexture->GetSizeY(), 0.0f));
+	mDynamicMatInstance->SetScalarParameterValue("CloudSizeV2", (float)mPointPosTexture->GetSizeX());
 	mDynamicMatInstance->SetVectorParameterValue("minExtent", mExtent.Min);
 	mDynamicMatInstance->SetVectorParameterValue("maxExtent", mExtent.Max);
 }
