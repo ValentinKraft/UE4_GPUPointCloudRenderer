@@ -204,7 +204,7 @@ void UGPUPointCloudRendererComponent::UpdateShaderProperties()
 	mPointCloudMaterial->SetVectorParameterValue("ObjScale", this->GetComponentScale() * mScaling);
 	mPointCloudMaterial->SetScalarParameterValue("FalloffExpo", mFalloff);
 	mPointCloudMaterial->SetScalarParameterValue("SplatSize", mSplatSize);
-	mPointCloudMaterial->SetScalarParameterValue("ScalingStartDistance", mDistanceScalingStart);
-	mPointCloudMaterial->SetScalarParameterValue("MaxDistanceScaling", mMaxDistanceScaling);
+	mPointCloudMaterial->SetScalarParameterValue("DistanceScaling", mDistanceScalingStart);
+	mPointCloudMaterial->SetScalarParameterValue("DistanceFalloff", mMaxDistanceScaling);
 	mPointCloudMaterial->SetScalarParameterValue("ShouldOverrideColor", (int)mShouldOverrideColor);
 }
