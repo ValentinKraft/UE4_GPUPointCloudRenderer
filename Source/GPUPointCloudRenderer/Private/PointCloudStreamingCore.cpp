@@ -309,7 +309,7 @@ void FPointCloudStreamingCore::UpdateShaderParameter()
 		mDynamicMatInstance->SetTextureParameterValue("PositionTexture", CastedRenderTarget);
 		mDynamicMatInstance->SetVectorParameterValue("CloudSizeV2", FLinearColor(RenderTarget->SizeX, RenderTarget->SizeY, 0, 0));
 	}
-	else {
+	else if(!mWasSorted){
 		mDynamicMatInstance->SetTextureParameterValue("PositionTexture", mPointPosTexture);
 		mDynamicMatInstance->SetVectorParameterValue("CloudSizeV2", FLinearColor(mPointPosTexture->GetSizeX(), mPointPosTexture->GetSizeY(), 0, 0));
 	}
