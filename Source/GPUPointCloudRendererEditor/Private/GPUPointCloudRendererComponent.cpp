@@ -123,7 +123,7 @@ void UGPUPointCloudRendererComponent::AddSnapshot(TArray<FLinearColor> &pointPos
 		return;
 	}
 
-	CreateStreamingBaseMesh(MAXTEXRES * MAXTEXRES);
+	CreateStreamingBaseMesh(PCR_MAXTEXRES * PCR_MAXTEXRES);
 
 	// Since the point is later transformed to the local coordinate system, we have to inverse transform it beforehand
 	FMatrix objMatrix = this->GetComponentToWorld().ToMatrixWithScale();
@@ -151,7 +151,8 @@ void UGPUPointCloudRendererComponent::SortPointCloudForDepth() {
 	
 	CHECK_PCR_STATUS
 
-	mPointCloudCore->SortPointCloudData();
+	if(!mPointCloudCore->SortPointCloudData())
+		UE_LOG(GPUPointCloudRenderer, Error, TEXT("Could not sort the given data. Please mind the maximum point count for sorting (%d)"), PCR_MAX_SORT_COUNT );
 }
 
 //////////////////////////

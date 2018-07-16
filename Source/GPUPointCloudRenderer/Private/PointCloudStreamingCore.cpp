@@ -8,7 +8,6 @@
 #include "Engine/World.h"
 #include "App.h"
 #include "Runtime/Engine/Classes/Materials/MaterialInstanceDynamic.h"
-#include "ComputeShaderUsageExample.h"
 #include "PixelShaderUsageExample.h"
 
 using namespace std;
@@ -29,12 +28,12 @@ void FPointCloudStreamingCore::AddSnapshot(TArray<FLinearColor> &pointPositions,
 
 	check(pointPositions.Num() * 4 == pointColors.Num());
 
-	if (mGlobalStreamCounter + pointPositions.Num() >= MAXTEXRES * MAXTEXRES)
+	if (mGlobalStreamCounter + pointPositions.Num() >= PCR_MAXTEXRES * PCR_MAXTEXRES)
 		return;
 	if (mDeltaTime < mStreamCaptureSteps)
 		return;
 
-	Initialize(MAXTEXRES * MAXTEXRES);
+	Initialize(PCR_MAXTEXRES * PCR_MAXTEXRES);
 	InitPointPosBuffer();
 	InitColorBuffer();
 
@@ -160,12 +159,14 @@ void FPointCloudStreamingCore::InitPointPosBuffer()
 	}
 }
 
-void FPointCloudStreamingCore::SortPointCloudData() {
+bool FPointCloudStreamingCore::SortPointCloudData() {
 
 	SCOPE_CYCLE_COUNTER(STAT_SortPointCloudData);
 
 	if (!mPointPosTexture || !RenderTarget)
-		return;
+		return false;
+	if (mPointCount > PCR_MAX_SORT_COUNT)
+		return false;
 
 	mPointPosTexture->WaitForStreaming();
 
@@ -188,6 +189,8 @@ void FPointCloudStreamingCore::SortPointCloudData() {
 		PixelShading->ExecutePixelShader(RenderTarget, InputTexture, FColor::Red, 1.0f);
 		CastedRenderTarget = Cast<UTexture>(RenderTarget);
 	}
+
+	return mWasSorted = true;
 }
 
 void FPointCloudStreamingCore::Initialize(unsigned int pointCount)
@@ -267,6 +270,7 @@ void FPointCloudStreamingCore::Initialize(unsigned int pointCount)
 	mUpdateTextureRegion = new FUpdateTextureRegion2D(0, 0, 0, 0, pointsPerAxis, pointsPerAxis);
 
 	mGlobalStreamCounter = 0;
+	mWasSorted = false;
 }
 
 void FPointCloudStreamingCore::UpdateTextureBuffer()
@@ -301,10 +305,11 @@ void FPointCloudStreamingCore::UpdateShaderParameter()
 	if(CastedRenderTarget)
 		CastedRenderTarget->WaitForStreaming();
 
-	mDynamicMatInstance->SetTextureParameterValue("PositionTexture", mPointPosTexture);
+	if (CastedRenderTarget && mWasSorted)
+		mDynamicMatInstance->SetTextureParameterValue("PositionTexture", CastedRenderTarget);
+	else
+		mDynamicMatInstance->SetTextureParameterValue("PositionTexture", mPointPosTexture);
 	mDynamicMatInstance->SetTextureParameterValue("ColorTexture", mColorTexture);
-	if (CastedRenderTarget)
-		mDynamicMatInstance->SetTextureParameterValue("CSTexture", CastedRenderTarget);
 	//if (mHasSurfaceReconstructed)
 	//	mDynamicMatInstance->SetTextureParameterValue("ScalingTexture", mPointScalingTexture);
 	mDynamicMatInstance->SetVectorParameterValue("CloudSizeV2", FLinearColor(mPointPosTexture->GetSizeX(), mPointPosTexture->GetSizeY(), 0, 0));

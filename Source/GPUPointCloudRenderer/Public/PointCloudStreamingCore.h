@@ -4,10 +4,12 @@
 
 #pragma once
 
-#define MAXTEXRES 2048
-
 #include "CoreMinimal.h"
+#include "ComputeShaderUsageExample.h"
 #include "Runtime/Engine/Classes/Engine/Texture2D.h"
+
+#define PCR_MAXTEXRES 2048
+#define PCR_MAX_SORT_COUNT NUM_ELEMENTS
 
 DECLARE_STATS_GROUP(TEXT("GPUPointCloudRenderer"), STATGROUP_GPUPCR, STATCAT_Advanced);
 
@@ -28,7 +30,7 @@ public:
 	void AddSnapshot(TArray<FLinearColor> &pointPositions, TArray<uint8> &pointColors, FVector offsetTranslation = FVector::ZeroVector, FRotator offsetRotation = FRotator::ZeroRotator);
 	void SavePointPosDataToTexture(UTextureRenderTarget2D* pointPosRT);
 	void SaveColorDataToTexture(UTextureRenderTarget2D* colorsRT);
-	void SortPointCloudData();
+	bool SortPointCloudData();
 
 	UWorld* currentWorld = nullptr;
 	// The current camera position ! in object space ! of the point cloud proxy mesh.
@@ -51,6 +53,7 @@ private:
 	
 	FBox mExtent;
 	float mDeltaTime = 10.f;
+	bool mWasSorted = false;
 
 	// CPU buffers
 	TArray<FLinearColor> mPointPosData;
@@ -70,6 +73,5 @@ private:
 	class FPixelShaderUsageExample* PixelShading = nullptr;
 	class UTextureRenderTarget2D* RenderTarget = nullptr;
 	UTexture* CastedRenderTarget = nullptr;
-	float TotalElapsedTime = 0;
 };
 
