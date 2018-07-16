@@ -314,6 +314,7 @@ void FPointCloudStreamingCore::UpdateShaderParameter()
 		mDynamicMatInstance->SetVectorParameterValue("CloudSizeV2", FLinearColor(mPointPosTexture->GetSizeX(), mPointPosTexture->GetSizeY(), 0, 0));
 	}
 	mDynamicMatInstance->SetTextureParameterValue("ColorTexture", mColorTexture);
+	mDynamicMatInstance->SetScalarParameterValue("ColorTextureSize", mColorTexture->GetSizeX());
 	//if (mHasSurfaceReconstructed)
 	//	mDynamicMatInstance->SetTextureParameterValue("ScalingTexture", mPointScalingTexture);
 	
