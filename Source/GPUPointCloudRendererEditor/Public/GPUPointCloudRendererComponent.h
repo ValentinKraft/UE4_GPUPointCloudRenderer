@@ -29,12 +29,12 @@ public:
 	* @param	cloudScaling				The scaling factor of the whole point cloud. Scaling can be also changed by the component scaling in the editor, but not during Run-Time.
 	* @param	falloff						The softness of the point's edge.
 	* @param	splatSize					The splat size.
-	* @param	distanceScalingStart		The distance from the camera, where the scaling of the points start to increase.
-	* @param	maxDistanceScaling			Maximal scaling value (set to 1 if you want to disable scaling by distance).
-	* @param	overrideColor				Overrides the point cloud colors with the given color.
+	* @param	distanceScaling				The distance from the camera, where the scaling of the points start to increase.
+	* @param	distanceFalloff				The scaling falloff depending on the distance to the camera (1=linear, 2=quadratic).
+	* @param	overrideColor				Overrides the point cloud colors with the given colormap.
 	*/
 	UFUNCTION(DisplayName = "PCR Set Dynamic Point Cloud Properties", BlueprintCallable, Category = "GPUPointCloudRenderer", meta = (Keywords = "point cloud update set properties"))
-	void SetDynamicProperties(float cloudScaling = 1.0f, float falloff = 1.0f, float splatSize = 1.0f, float distanceScalingStart = 1000.f, float maxDistanceScaling = 3.f, bool overrideColor = false);
+	void SetDynamicProperties(float cloudScaling = 1.0f, float falloff = 1.0f, float splatSize = 1.0f, float distanceScaling = 1000.f, float distanceFalloff = 1.1f, bool overrideColor = false);
 
 	/**
 	* Send your own, custom point data stream to the renderer. Could be used for a kinect point stream or similar. Can be called every frame. Point positions have to be encoded as a array of LinearColors with the following mapping:
@@ -109,8 +109,8 @@ private:
 	UMaterialInterface* mStreamingBaseMat = nullptr;
 	float mFalloff = 2.0f;
 	float mScaling = 1.0f;
-	float mDistanceScalingStart = 1000.f;
-	float mMaxDistanceScaling = 3.f;
+	float mDistanceScaling = 1000.f;
+	float mDistanceFalloff = 3.f;
 	bool mShouldOverrideColor = false;
 
 	void CreateStreamingBaseMesh(int32 pointCount = 1);

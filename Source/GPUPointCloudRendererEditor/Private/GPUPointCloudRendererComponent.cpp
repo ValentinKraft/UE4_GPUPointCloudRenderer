@@ -47,13 +47,13 @@ UGPUPointCloudRendererComponent::~UGPUPointCloudRendererComponent() {
 //////////////////////
 
 
-void UGPUPointCloudRendererComponent::SetDynamicProperties(float cloudScaling, float falloff, float splatSize, float distanceScalingStart, float maxDistanceScaling, bool overrideColor) {
+void UGPUPointCloudRendererComponent::SetDynamicProperties(float cloudScaling, float falloff, float splatSize, float distanceScaling, float distanceFalloff, bool overrideColor) {
 	
 	mFalloff = falloff;
 	mScaling = cloudScaling;
 	mSplatSize = splatSize;
-	mDistanceScalingStart = distanceScalingStart;
-	mMaxDistanceScaling = maxDistanceScaling;
+	mDistanceScaling = distanceScaling;
+	mDistanceFalloff = distanceFalloff;
 	mShouldOverrideColor = overrideColor;
 }
 
@@ -204,7 +204,7 @@ void UGPUPointCloudRendererComponent::UpdateShaderProperties()
 	mPointCloudMaterial->SetVectorParameterValue("ObjScale", this->GetComponentScale() * mScaling);
 	mPointCloudMaterial->SetScalarParameterValue("FalloffExpo", mFalloff);
 	mPointCloudMaterial->SetScalarParameterValue("SplatSize", mSplatSize);
-	mPointCloudMaterial->SetScalarParameterValue("DistanceScaling", mDistanceScalingStart);
-	mPointCloudMaterial->SetScalarParameterValue("DistanceFalloff", mMaxDistanceScaling);
+	mPointCloudMaterial->SetScalarParameterValue("DistanceScaling", mDistanceScaling);
+	mPointCloudMaterial->SetScalarParameterValue("DistanceFalloff", mDistanceFalloff);
 	mPointCloudMaterial->SetScalarParameterValue("ShouldOverrideColor", (int)mShouldOverrideColor);
 }
