@@ -18,6 +18,7 @@
 #include "Engine/Engine.h"
 #include "DynamicMeshBuilder.h"
 
+const float sqrt3 = FMath::Sqrt(3);
 
 /** Vertex Buffer */
 class FPointCloudVertexBuffer : public FVertexBuffer
@@ -163,9 +164,8 @@ public:
 
         // construct equilateral triangle with x, y, z as center and normal facing z
         float a = triangleSize; // side lenght
-        float sqrt3 = FMath::Sqrt(3);
         float r = sqrt3 / 6 * a; // radius of inscribed circle
-        float h_minus_r = a / sqrt3; // from center to tip. height - r
+        //float h_minus_r = a / sqrt3; // from center to tip. height - r
 
         FDynamicMeshVertex v1;
         v1.Position = FVector(x - a / 2.f, y - r, z+0);
@@ -419,6 +419,7 @@ void UPointCloudComponent::setNumPoints(int numPoints) {
     Points.Reset();
     Points.AddUninitialized(NumPoints);
 
+	// Build up primitive mesh stack
     for (int32 ParticleIdx = 0; ParticleIdx<NumPoints; ParticleIdx++)
     {
         FPointCloudParticle& Particle = Points[ParticleIdx];
