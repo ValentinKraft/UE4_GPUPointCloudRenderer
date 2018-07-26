@@ -172,11 +172,11 @@ public:
         v1.Color = Color;
         v1.TextureCoordinate = FVector2D(- 1 / 2.f, - sqrt3 / 6);
         FDynamicMeshVertex v2;
-        v2.Position = FVector(x + a / 2.f, y - r, z+1);
+        v2.Position = FVector(x + a / 2.f, y - r, z+0);
         v2.Color = Color;
         v2.TextureCoordinate = FVector2D(1 / 2.f, -sqrt3 / 6);
         FDynamicMeshVertex v3;
-        v3.Position = FVector(x, y + a / sqrt3, z+2);
+        v3.Position = FVector(x, y + a / sqrt3, z+0);
         v3.Color = Color;
         v3.TextureCoordinate = FVector2D(0, 1/sqrt3);
 
