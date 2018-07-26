@@ -5,7 +5,7 @@
 #include "GPUPointCloudRendererComponent.h"
 #include "IGPUPointCloudRenderer.h"
 #include "PointCloudStreamingCore.h"
-#include "PointCloudComponent.h"
+#include "PointCloudMeshBuilder.h"
 #include "ConstructorHelpers.h"
 
 
