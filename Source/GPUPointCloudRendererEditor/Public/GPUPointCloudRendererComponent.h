@@ -21,7 +21,7 @@ public:
 	~UGPUPointCloudRendererComponent();
 
 	UPROPERTY()
-	class UPointCloudComponent* BaseMesh;
+	class UPointCloudMeshBuilder* BaseMesh;
 
 	/**
 	* For dynamic point clouds only. When you want to change properties, then you'll have to call this function (during Run-Time or in construction script). Sets the given point cloud properties and updates the point cloud. Can be called every frame.
