@@ -9,7 +9,7 @@
 #include "Engine/EngineTypes.h"
 #include "Components/MeshComponent.h"
 #include "Components/InstancedStaticMeshComponent.h"
-#include "PointCloudComponent.generated.h"
+#include "PointCloudMeshBuilder.generated.h"
 
 class FPrimitiveSceneProxy;
 
@@ -26,7 +26,7 @@ struct FPointCloudParticle
 
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class GPUPOINTCLOUDRENDEREREDITOR_API UPointCloudComponent : public UInstancedStaticMeshComponent
+class GPUPOINTCLOUDRENDEREREDITOR_API UPointCloudMeshBuilder : public UInstancedStaticMeshComponent
 {
     GENERATED_UCLASS_BODY()
 

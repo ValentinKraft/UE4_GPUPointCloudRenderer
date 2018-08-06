@@ -5,7 +5,7 @@
 #include "GPUPointCloudRendererComponent.h"
 #include "IGPUPointCloudRenderer.h"
 #include "PointCloudStreamingCore.h"
-#include "PointCloudComponent.h"
+#include "PointCloudMeshBuilder.h"
 #include "ConstructorHelpers.h"
 
 
@@ -47,13 +47,13 @@ UGPUPointCloudRendererComponent::~UGPUPointCloudRendererComponent() {
 //////////////////////
 
 
-void UGPUPointCloudRendererComponent::SetDynamicProperties(float cloudScaling, float falloff, float splatSize, float distanceScalingStart, float maxDistanceScaling, bool overrideColor) {
+void UGPUPointCloudRendererComponent::SetDynamicProperties(float cloudScaling, float falloff, float splatSize, float distanceScaling, float distanceFalloff, bool overrideColor) {
 	
 	mFalloff = falloff;
 	mScaling = cloudScaling;
 	mSplatSize = splatSize;
-	mDistanceScalingStart = distanceScalingStart;
-	mMaxDistanceScaling = maxDistanceScaling;
+	mDistanceScaling = distanceScaling;
+	mDistanceFalloff = distanceFalloff;
 	mShouldOverrideColor = overrideColor;
 }
 
@@ -176,7 +176,7 @@ void UGPUPointCloudRendererComponent::CreateStreamingBaseMesh(int32 pointCount)
 		return;
 
 	// Create base mesh
-	BaseMesh = NewObject<UPointCloudComponent>(this, FName("PointCloud Mesh"));
+	BaseMesh = NewObject<UPointCloudMeshBuilder>(this, FName("PointCloud Mesh"));
 	BaseMesh->NumPoints = pointCount;
 	BaseMesh->triangleSize = 1.0f;	// splat size is set in the shader
 	BaseMesh->RegisterComponent();
@@ -204,7 +204,7 @@ void UGPUPointCloudRendererComponent::UpdateShaderProperties()
 	mPointCloudMaterial->SetVectorParameterValue("ObjScale", this->GetComponentScale() * mScaling);
 	mPointCloudMaterial->SetScalarParameterValue("FalloffExpo", mFalloff);
 	mPointCloudMaterial->SetScalarParameterValue("SplatSize", mSplatSize);
-	mPointCloudMaterial->SetScalarParameterValue("ScalingStartDistance", mDistanceScalingStart);
-	mPointCloudMaterial->SetScalarParameterValue("MaxDistanceScaling", mMaxDistanceScaling);
+	mPointCloudMaterial->SetScalarParameterValue("DistanceScaling", mDistanceScaling);
+	mPointCloudMaterial->SetScalarParameterValue("DistanceFalloff", mDistanceFalloff);
 	mPointCloudMaterial->SetScalarParameterValue("ShouldOverrideColor", (int)mShouldOverrideColor);
 }
