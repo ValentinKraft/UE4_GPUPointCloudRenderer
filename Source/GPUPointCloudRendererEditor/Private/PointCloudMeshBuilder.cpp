@@ -423,7 +423,7 @@ void UPointCloudMeshBuilder::setNumPoints(int numPoints) {
     for (int32 ParticleIdx = 0; ParticleIdx<NumPoints; ParticleIdx++)
     {
         FPointCloudParticle& Particle = Points[ParticleIdx];
-        const FVector InitialPosition = FVector(0, 0, ParticleIdx * 3);
+        const FVector InitialPosition = FVector(0, 0, ParticleIdx / 10.0f);
 
         Particle.Position = InitialPosition;
     }
