@@ -47,7 +47,7 @@ public:
 	* @param	pointColors					Array of your point colors.
 	*/
 	UFUNCTION(DisplayName = "PCR Set/Stream Input (FLinearColor/FColor)", BlueprintCallable, Category = "GPUPointCloudRenderer", meta = (Keywords = "set kinect custom own dynamic point cloud streaming input"))
-	void SetInputAndConvert1(UPARAM(ref) TArray<FLinearColor> &pointPositions, UPARAM(ref) TArray<FColor> &pointColors, bool sortDataEveryFrame = false);
+	void SetInputAndConvert1(UPARAM(ref) TArray<FLinearColor> &pointPositions, UPARAM(ref) TArray<FColor> &pointColors);
 
 	/**
 	* Send your own, custom point data stream to the renderer. Could be used for a kinect point stream or similar. Can be called every frame. Point positions have to be encoded as a array of LinearColors with the following mapping:
@@ -60,7 +60,7 @@ public:
 	* @param	pointColors					Array of your point colors (BGRA-encoded).
 	*/
 	UFUNCTION(DisplayName = "PCR Set/Stream Input FAST", BlueprintCallable, Category = "GPUPointCloudRenderer", meta = (Keywords = "set kinect custom own dynamic point cloud streaming input"))
-	void SetInput(UPARAM(ref) TArray<FLinearColor> &pointPositions, UPARAM(ref) TArray<uint8> &pointColors, bool sortDataEveryFrame = false);
+	void SetInput(UPARAM(ref) TArray<FLinearColor> &pointPositions, UPARAM(ref) TArray<uint8> &pointColors);
 
 	/**
 	* Send your own, custom point data stream to the renderer. Could be used for a kinect point stream or similar. Can be called every frame.
@@ -69,7 +69,7 @@ public:
 	* @param	pointColors					Array of your point colors.
 	*/
 	UFUNCTION(DisplayName = "PCR Set/Stream Input (FVector/FColor)", BlueprintCallable, Category = "GPUPointCloudRenderer", meta = (Keywords = "set kinect custom own dynamic point cloud streaming input"))
-	void SetInputAndConvert2(UPARAM(ref) TArray<FVector> &pointPositions, UPARAM(ref) TArray<FColor> &pointColors, bool sortDataEveryFrame = false);
+	void SetInputAndConvert2(UPARAM(ref) TArray<FVector> &pointPositions, UPARAM(ref) TArray<FColor> &pointColors);
 
 	/**
 	* Sets the extents of the point cloud. Needed for proper coloring with a gradient.

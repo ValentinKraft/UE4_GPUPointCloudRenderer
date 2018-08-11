@@ -57,7 +57,7 @@ void UGPUPointCloudRendererComponent::SetDynamicProperties(float cloudScaling, f
 	mShouldOverrideColor = overrideColor;
 }
 
-void UGPUPointCloudRendererComponent::SetInputAndConvert1(TArray<FLinearColor> &pointPositions, TArray<FColor> &pointColors, bool sortData) {
+void UGPUPointCloudRendererComponent::SetInputAndConvert1(TArray<FLinearColor> &pointPositions, TArray<FColor> &pointColors) {
 	
 	CHECK_PCR_STATUS
 
@@ -69,7 +69,7 @@ void UGPUPointCloudRendererComponent::SetInputAndConvert1(TArray<FLinearColor> &
 	}
 
 	CreateStreamingBaseMesh(pointPositions.Num());
-	mPointCloudCore->SetInput(pointPositions, pointColors, sortData);
+	mPointCloudCore->SetInput(pointPositions, pointColors);
 }
 
 void UGPUPointCloudRendererComponent::AddSnapshot(TArray<FLinearColor> &pointPositions, TArray<uint8> &pointColors, FVector offsetTranslation, FRotator offsetRotation) {
@@ -92,7 +92,7 @@ void UGPUPointCloudRendererComponent::AddSnapshot(TArray<FLinearColor> &pointPos
 	mPointCloudCore->AddSnapshot(pointPositions, pointColors, offsetTranslation, offsetRotation);
 }
 
-void UGPUPointCloudRendererComponent::SetInput(TArray<FLinearColor> &pointPositions, TArray<uint8> &pointColors, bool sortData) {
+void UGPUPointCloudRendererComponent::SetInput(TArray<FLinearColor> &pointPositions, TArray<uint8> &pointColors) {
 	
 	CHECK_PCR_STATUS
 
@@ -104,10 +104,10 @@ void UGPUPointCloudRendererComponent::SetInput(TArray<FLinearColor> &pointPositi
 	}
 
 	CreateStreamingBaseMesh(pointPositions.Num());
-	mPointCloudCore->SetInput(pointPositions, pointColors, sortData);
+	mPointCloudCore->SetInput(pointPositions, pointColors);
 }
 
-void UGPUPointCloudRendererComponent::SetInputAndConvert2(TArray<FVector> &pointPositions, TArray<FColor> &pointColors, bool sortData) {
+void UGPUPointCloudRendererComponent::SetInputAndConvert2(TArray<FVector> &pointPositions, TArray<FColor> &pointColors) {
 	
 	CHECK_PCR_STATUS
 
@@ -119,7 +119,7 @@ void UGPUPointCloudRendererComponent::SetInputAndConvert2(TArray<FVector> &point
 	}
 
 	CreateStreamingBaseMesh(pointPositions.Num());
-	mPointCloudCore->SetInput(pointPositions, pointColors, sortData);
+	mPointCloudCore->SetInput(pointPositions, pointColors);
 }
 
 void UGPUPointCloudRendererComponent::SetExtent(FBox extent) {
