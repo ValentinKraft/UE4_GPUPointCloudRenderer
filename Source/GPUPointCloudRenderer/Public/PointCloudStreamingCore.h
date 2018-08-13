@@ -8,13 +8,14 @@
 
 #include "CoreMinimal.h"
 #include "Runtime/Engine/Classes/Engine/Texture2D.h"
+#include "Engine/World.h"
 
 DECLARE_STATS_GROUP(TEXT("GPUPointCloudRenderer"), STATGROUP_GPUPCR, STATCAT_Advanced);
 
 class GPUPOINTCLOUDRENDERER_API FPointCloudStreamingCore
 {
 public:
-	FPointCloudStreamingCore(UMaterialInstanceDynamic* pointCloudShaderDynInstance = nullptr) { mDynamicMatInstance = pointCloudShaderDynInstance; };
+	FPointCloudStreamingCore(class UMaterialInstanceDynamic* pointCloudShaderDynInstance = nullptr) { mDynamicMatInstance = pointCloudShaderDynInstance; };
 	~FPointCloudStreamingCore();
 	//virtual unsigned int GetInstanceId() const { return _instanceId; };
 	unsigned int GetPointCount() { return mPointCount; };
@@ -24,6 +25,7 @@ public:
 	bool SetInput(TArray<FLinearColor> &pointPositions, TArray<uint8> &pointColors, bool sortDataEveryFrame);
 	bool SetInput(TArray<FLinearColor> &pointPositions, TArray<FColor> &pointColors, bool sortDataEveryFrame);
 	bool SetInput(TArray<FVector> &pointPositions, TArray<FColor> &pointColors, bool sortDataEveryFrame);
+
 	void SetExtent(FBox extent) { mExtent = extent; };
 	void AddSnapshot(TArray<FLinearColor> &pointPositions, TArray<uint8> &pointColors, FVector offsetTranslation = FVector::ZeroVector, FRotator offsetRotation = FRotator::ZeroRotator);
 

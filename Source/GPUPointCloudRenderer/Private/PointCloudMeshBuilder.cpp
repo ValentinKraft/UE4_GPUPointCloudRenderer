@@ -2,6 +2,7 @@
 * Written by Valentin Kraft <valentin.kraft@online.de>, http://www.valentinkraft.de, 2018
 **************************************************************************************************/
 
+#include "CoreMinimal.h"
 #include "PointCloudMeshBuilder.h"
 #include "EngineGlobals.h"
 #include "PrimitiveViewRelevance.h"

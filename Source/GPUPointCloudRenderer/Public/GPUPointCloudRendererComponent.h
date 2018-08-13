@@ -13,7 +13,7 @@
 DECLARE_LOG_CATEGORY_EXTERN(GPUPointCloudRenderer, Log, All);
 
 UCLASS( ClassGroup=Rendering, meta=(BlueprintSpawnableComponent), hideCategories = (Object, LOD, Physics, Collision))
-class GPUPOINTCLOUDRENDEREREDITOR_API UGPUPointCloudRendererComponent : public USceneComponent
+class GPUPOINTCLOUDRENDERER_API UGPUPointCloudRendererComponent : public USceneComponent
 {
 	GENERATED_BODY()
 
@@ -30,9 +30,9 @@ public:
 	* @param	cloudScaling				The scaling factor of the whole point cloud. Scaling can be also changed by the component scaling in the editor, but not during Run-Time.
 	* @param	falloff						The softness of the point's edge.
 	* @param	splatSize					The splat size.
-	* @param	distanceScaling				The distance from the camera, where the scaling of the points start to increase.
-	* @param	distanceFalloff				The scaling falloff depending on the distance to the camera (1=linear, 2=quadratic).
-	* @param	overrideColor				Overrides the point cloud colors with the given colormap.
+	* @param	distanceScalingStart		The distance from the camera, where the scaling of the points start to increase.
+	* @param	maxDistanceScaling			Maximal scaling value (set to 1 if you want to disable scaling by distance).
+	* @param	overrideColor				Overrides the point cloud colors with the given color.
 	*/
 	UFUNCTION(DisplayName = "PCR Set Dynamic Point Cloud Properties", BlueprintCallable, Category = "GPUPointCloudRenderer", meta = (Keywords = "point cloud update set properties"))
 	void SetDynamicProperties(float cloudScaling = 1.0f, float falloff = 1.0f, float splatSize = 1.0f, float distanceScaling = 1000.f, float distanceFalloff = 1.1f, bool overrideColor = false);

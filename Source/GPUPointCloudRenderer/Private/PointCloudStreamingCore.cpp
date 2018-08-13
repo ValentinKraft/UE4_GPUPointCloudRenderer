@@ -169,8 +169,6 @@ void FPointCloudStreamingCore::Initialize(unsigned int pointCount)
 		return;
 
 	int32 pointsPerAxis = FMath::CeilToInt(FMath::Sqrt(pointCount));
-	// Ensure even sized textures to avoid inaccuracies
-	if (pointsPerAxis % 2 == 1) pointsPerAxis++;
 	mPointCount = pointsPerAxis * pointsPerAxis;
 
 	// Check if update is neccessary
@@ -180,33 +178,27 @@ void FPointCloudStreamingCore::Initialize(unsigned int pointCount)
 
 	// create point cloud positions texture
 	mPointPosTexture = UTexture2D::CreateTransient(pointsPerAxis, pointsPerAxis, EPixelFormat::PF_A32B32G32R32F);
-	mPointPosTexture->CompressionSettings = TextureCompressionSettings::TC_HDR;
+	mPointPosTexture->CompressionSettings = TextureCompressionSettings::TC_VectorDisplacementmap;
 	mPointPosTexture->SRGB = 0;
 	mPointPosTexture->AddToRoot();
 	mPointPosTexture->UpdateResource();
-#if WITH_EDITOR 
-	mPointPosTexture->MipGenSettings = TextureMipGenSettings::TMGS_NoMipmaps;
-#endif
+	//mPointPosTexture->MipGenSettings = TextureMipGenSettings::TMGS_NoMipmaps;
 
 	// create point cloud scalings texture
 	mPointScalingTexture = UTexture2D::CreateTransient(pointsPerAxis, pointsPerAxis, EPixelFormat::PF_A32B32G32R32F);
-	mPointScalingTexture->CompressionSettings = TextureCompressionSettings::TC_HDR;
+	mPointScalingTexture->CompressionSettings = TextureCompressionSettings::TC_VectorDisplacementmap;
 	mPointScalingTexture->SRGB = 0;
 	mPointScalingTexture->AddToRoot();
 	mPointScalingTexture->UpdateResource();
-#if WITH_EDITOR 
-	mPointScalingTexture->MipGenSettings = TextureMipGenSettings::TMGS_NoMipmaps;
-#endif
+	//mPointScalingTexture->MipGenSettings = TextureMipGenSettings::TMGS_NoMipmaps;
 
 	// create color texture
 	mColorTexture = UTexture2D::CreateTransient(pointsPerAxis, pointsPerAxis, EPixelFormat::PF_B8G8R8A8);
-	mColorTexture->CompressionSettings = TextureCompressionSettings::TC_Default;
+	mColorTexture->CompressionSettings = TextureCompressionSettings::TC_VectorDisplacementmap;
 	mColorTexture->SRGB = 1;
 	mColorTexture->AddToRoot();
 	mColorTexture->UpdateResource();
-#if WITH_EDITOR 
-	mColorTexture->MipGenSettings = TextureMipGenSettings::TMGS_NoMipmaps;
-#endif
+	//mColorTexture->MipGenSettings = TextureMipGenSettings::TMGS_NoMipmaps;
 
 	mPointPosData.Empty();
 	mPointPosData.AddUninitialized(mPointCount);
