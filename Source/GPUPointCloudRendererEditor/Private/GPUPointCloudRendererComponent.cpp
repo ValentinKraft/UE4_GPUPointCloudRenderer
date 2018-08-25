@@ -6,7 +6,7 @@
 #include "CoreMinimal.h"
 #include "IGPUPointCloudRenderer.h"
 #include "PointCloudStreamingCore.h"
-#include "PointCloudComponent.h"
+#include "PointCloudMeshBuilder.h"
 #include "ConstructorHelpers.h"
 
 
@@ -36,7 +36,6 @@ UGPUPointCloudRendererComponent::UGPUPointCloudRendererComponent(const FObjectIn
 	if (mPointCloudCore)
 		delete mPointCloudCore;
 	mPointCloudCore = IGPUPointCloudRenderer::Get().CreateStreamingInstance(mPointCloudMaterial);
-	mPointCloudCore->currentWorld = GetWorld();
 }
 
 UGPUPointCloudRendererComponent::~UGPUPointCloudRendererComponent() {
@@ -49,13 +48,13 @@ UGPUPointCloudRendererComponent::~UGPUPointCloudRendererComponent() {
 //////////////////////
 
 
-void UGPUPointCloudRendererComponent::SetDynamicProperties(float cloudScaling, float falloff, float splatSize, float distanceScalingStart, float maxDistanceScaling, bool overrideColor) {
+void UGPUPointCloudRendererComponent::SetDynamicProperties(float cloudScaling, float falloff, float splatSize, float distanceScaling, float distanceFalloff, bool overrideColor) {
 	
 	mFalloff = falloff;
 	mScaling = cloudScaling;
 	mSplatSize = splatSize;
-	mDistanceScalingStart = distanceScalingStart;
-	mMaxDistanceScaling = maxDistanceScaling;
+	mDistanceScaling = distanceScaling;
+	mDistanceFalloff = distanceFalloff;
 	mShouldOverrideColor = overrideColor;
 }
 
@@ -89,7 +88,7 @@ void UGPUPointCloudRendererComponent::SetInput(TArray<FLinearColor> &pointPositi
 	mPointCloudCore->SetInput(pointPositions, pointColors);
 }
 
-void UGPUPointCloudRendererComponent::SetInputAndConvert2(TArray<FVector> &pointPositions, TArray<FColor> &pointColors) {
+void UGPUPointCloudRendererComponent::SetInput(TArray<FLinearColor> &pointPositions, TArray<uint8> &pointColors) {
 	
 	CHECK_PCR_STATUS
 
@@ -104,7 +103,7 @@ void UGPUPointCloudRendererComponent::SetInputAndConvert2(TArray<FVector> &point
 	mPointCloudCore->SetInput(pointPositions, pointColors);
 }
 
-void UGPUPointCloudRendererComponent::SetExtent(FBox extent) {
+void UGPUPointCloudRendererComponent::SetInputAndConvert2(TArray<FVector> &pointPositions, TArray<FColor> &pointColors) {
 	
 	CHECK_PCR_STATUS
 
@@ -123,13 +122,8 @@ void UGPUPointCloudRendererComponent::AddSnapshot(TArray<FLinearColor> &pointPos
 		return;
 	}
 
-	CreateStreamingBaseMesh(PCR_MAXTEXRES * PCR_MAXTEXRES);
-
-	// Since the point is later transformed to the local coordinate system, we have to inverse transform it beforehand
-	FMatrix objMatrix = this->GetComponentToWorld().ToMatrixWithScale();
-	offsetTranslation = objMatrix.InverseTransformVector(offsetTranslation);
-
-	mPointCloudCore->AddSnapshot(pointPositions, pointColors, offsetTranslation, offsetRotation);
+	CreateStreamingBaseMesh(pointPositions.Num());
+	mPointCloudCore->SetInput(pointPositions, pointColors);
 }
 
 void UGPUPointCloudRendererComponent::SaveDataToTexture(UTextureRenderTarget2D* pointPosRT, UTextureRenderTarget2D* colorsRT) {
@@ -193,25 +187,24 @@ void UGPUPointCloudRendererComponent::BeginPlay() {
 void UGPUPointCloudRendererComponent::CreateStreamingBaseMesh(int32 pointCount)
 {
 	CHECK_PCR_STATUS
-	//SCOPE_CYCLE_COUNTER(STAT_CreateDynamicBaseMesh);
 
 	//Check if update is neccessary
-	if (BaseMesh && BaseMesh->NumPoints == pointCount)
+	if (mBaseMesh && mBaseMesh->NumPoints == pointCount)
 		return;
 	if (pointCount == 0)
 		return;
 
 	// Create base mesh
-	BaseMesh = NewObject<UPointCloudComponent>(this, FName("PointCloud Mesh"));
-	BaseMesh->NumPoints = pointCount;
-	BaseMesh->triangleSize = 1.0f;	// splat size is set in the shader
-	BaseMesh->RegisterComponent();
-	BaseMesh->AttachToComponent(this, FAttachmentTransformRules::KeepRelativeTransform);
-	BaseMesh->SetMaterial(0, mStreamingBaseMat);
-	BaseMesh->SetAbsolute(false, true, true);	// Disable scaling for the mesh - the scaling vector is transferred via a shader parameter in UpdateShaderProperties()
+	mBaseMesh = NewObject<UPointCloudMeshBuilder>(this, FName("PointCloud Mesh"));
+	mBaseMesh->NumPoints = pointCount;
+	mBaseMesh->triangleSize = 1.0f;	// splat size is set in the shader
+	mBaseMesh->RegisterComponent();
+	mBaseMesh->AttachToComponent(this, FAttachmentTransformRules::KeepRelativeTransform);
+	mBaseMesh->SetMaterial(0, mStreamingBaseMat);
+	mBaseMesh->SetAbsolute(false, true, true);	// Disable scaling for the mesh - the scaling vector is transferred via a shader parameter in UpdateShaderProperties()
 
 	// Update material
-	mPointCloudMaterial = BaseMesh->CreateAndSetMaterialInstanceDynamic(0);
+	mPointCloudMaterial = mBaseMesh->CreateAndSetMaterialInstanceDynamic(0);
 	mPointCloudCore->UpdateDynamicMaterialForStreaming(mPointCloudMaterial);
 }
 
@@ -241,8 +234,6 @@ void UGPUPointCloudRendererComponent::UpdateCameraPositionForSorting()
 
 void UGPUPointCloudRendererComponent::UpdateShaderProperties()
 {
-	//SCOPE_CYCLE_COUNTER(STAT_UpdateShaderParameter);
-
 	if (!mPointCloudMaterial)
 		return;
 
@@ -253,7 +244,7 @@ void UGPUPointCloudRendererComponent::UpdateShaderProperties()
 	mPointCloudMaterial->SetVectorParameterValue("ObjScale", this->GetComponentScale() * mScaling);
 	mPointCloudMaterial->SetScalarParameterValue("FalloffExpo", mFalloff);
 	mPointCloudMaterial->SetScalarParameterValue("SplatSize", mSplatSize);
-	mPointCloudMaterial->SetScalarParameterValue("ScalingStartDistance", mDistanceScalingStart);
-	mPointCloudMaterial->SetScalarParameterValue("MaxDistanceScaling", mMaxDistanceScaling);
+	mPointCloudMaterial->SetScalarParameterValue("DistanceScaling", mDistanceScaling);
+	mPointCloudMaterial->SetScalarParameterValue("DistanceFalloff", mDistanceFalloff);
 	mPointCloudMaterial->SetScalarParameterValue("ShouldOverrideColor", (int)mShouldOverrideColor);
 }

@@ -2,7 +2,7 @@
 * Written by Valentin Kraft <valentin.kraft@online.de>, http://www.valentinkraft.de, 2018
 **************************************************************************************************/
 
-#include "PointCloudComponent.h"
+#include "PointCloudMeshBuilder.h"
 #include "EngineGlobals.h"
 #include "PrimitiveViewRelevance.h"
 #include "RenderResource.h"
@@ -18,6 +18,7 @@
 #include "Engine/Engine.h"
 #include "DynamicMeshBuilder.h"
 
+const float sqrt3 = FMath::Sqrt(3);
 
 /** Vertex Buffer */
 class FPointCloudVertexBuffer : public FVertexBuffer
@@ -104,7 +105,7 @@ class FPointCloudSceneProxy : public FPrimitiveSceneProxy
 {
 public:
 
-	FPointCloudSceneProxy(UPointCloudComponent* Component)
+	FPointCloudSceneProxy(UPointCloudMeshBuilder* Component)
 			: FPrimitiveSceneProxy(Component)
 			, Material(NULL)
 			, DynamicData(NULL)
@@ -163,20 +164,19 @@ public:
 
         // construct equilateral triangle with x, y, z as center and normal facing z
         float a = triangleSize; // side lenght
-        float sqrt3 = FMath::Sqrt(3);
         float r = sqrt3 / 6 * a; // radius of inscribed circle
-        float h_minus_r = a / sqrt3; // from center to tip. height - r
+        //float h_minus_r = a / sqrt3; // from center to tip. height - r
 
         FDynamicMeshVertex v1;
         v1.Position = FVector(x - a / 2.f, y - r, z+0);
         v1.Color = Color;
         v1.TextureCoordinate = FVector2D(- 1 / 2.f, - sqrt3 / 6);
         FDynamicMeshVertex v2;
-        v2.Position = FVector(x + a / 2.f, y - r, z+1);
+        v2.Position = FVector(x + a / 2.f, y - r, z+0);
         v2.Color = Color;
         v2.TextureCoordinate = FVector2D(1 / 2.f, -sqrt3 / 6);
         FDynamicMeshVertex v3;
-        v3.Position = FVector(x, y + a / sqrt3, z+2);
+        v3.Position = FVector(x, y + a / sqrt3, z+0);
         v3.Color = Color;
         v3.TextureCoordinate = FVector2D(0, 1/sqrt3);
 
@@ -350,14 +350,14 @@ private:
 	float PointCloudWidth;
     float triangleSize;
 
-    UPointCloudComponent* mComponent;
+    UPointCloudMeshBuilder* mComponent;
 };
 
 
 
 //////////////////////////////////////////////////////////////////////////
 
-UPointCloudComponent::UPointCloudComponent( const FObjectInitializer& ObjectInitializer )
+UPointCloudMeshBuilder::UPointCloudMeshBuilder( const FObjectInitializer& ObjectInitializer )
 		: Super( ObjectInitializer )
 {
 	PrimaryComponentTick.bCanEverTick = true;
@@ -376,19 +376,19 @@ UPointCloudComponent::UPointCloudComponent( const FObjectInitializer& ObjectInit
     SetSimulatePhysics(false);
 }
 
-FPrimitiveSceneProxy* UPointCloudComponent::CreateSceneProxy()
+FPrimitiveSceneProxy* UPointCloudMeshBuilder::CreateSceneProxy()
 {
     auto sceneProxy = new FPointCloudSceneProxy(this);
     //UE_LOG(LogTemp, Warning, TEXT("created SceneProxy: %d"), sceneProxy);
 	return sceneProxy;
 }
 
-int32 UPointCloudComponent::GetNumMaterials() const
+int32 UPointCloudMeshBuilder::GetNumMaterials() const
 {
 	return 1;
 }
 
-void UPointCloudComponent::GetUsedMaterials(TArray<UMaterialInterface*>& OutMaterials, bool bGetDebugMaterials) const
+void UPointCloudMeshBuilder::GetUsedMaterials(TArray<UMaterialInterface*>& OutMaterials, bool bGetDebugMaterials) const
 {
 	for (int32 ElementIndex = 0; ElementIndex < GetNumMaterials(); ElementIndex++)
 	{
@@ -399,19 +399,19 @@ void UPointCloudComponent::GetUsedMaterials(TArray<UMaterialInterface*>& OutMate
 	}
 }
 
-void UPointCloudComponent::InitializeComponent()
+void UPointCloudMeshBuilder::InitializeComponent()
 {
     Super::InitializeComponent();
     //setNumPoints(NumPoints);
 }
 
-void UPointCloudComponent::OnRegister()
+void UPointCloudMeshBuilder::OnRegister()
 {
 	Super::OnRegister();
     setNumPoints(NumPoints);
 }
 
-void UPointCloudComponent::setNumPoints(int numPoints) {
+void UPointCloudMeshBuilder::setNumPoints(int numPoints) {
     NumPoints = numPoints;
 
     //UE_LOG(LogTemp, Warning, TEXT("mySceneProxy: %d"), SceneProxy);
@@ -419,29 +419,30 @@ void UPointCloudComponent::setNumPoints(int numPoints) {
     Points.Reset();
     Points.AddUninitialized(NumPoints);
 
+	// Build up primitive mesh stack
     for (int32 ParticleIdx = 0; ParticleIdx<NumPoints; ParticleIdx++)
     {
         FPointCloudParticle& Particle = Points[ParticleIdx];
-        const FVector InitialPosition = FVector(0, 0, ParticleIdx * 3);
+        const FVector InitialPosition = FVector(0, 0, ParticleIdx / 10.0f);
 
         Particle.Position = InitialPosition;
     }
 }
 
 
-void UPointCloudComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction)
+void UPointCloudMeshBuilder::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 };
 
-void UPointCloudComponent::CreateRenderState_Concurrent()
+void UPointCloudMeshBuilder::CreateRenderState_Concurrent()
 {
 	Super::CreateRenderState_Concurrent();
 
 	SendRenderDynamicData_Concurrent();
 }
 
-void UPointCloudComponent::SendRenderDynamicData_Concurrent()
+void UPointCloudMeshBuilder::SendRenderDynamicData_Concurrent()
 {
 	if(SceneProxy)
 	{
@@ -469,7 +470,7 @@ void UPointCloudComponent::SendRenderDynamicData_Concurrent()
 	}
 }
 
-FBoxSphereBounds UPointCloudComponent::CalcBounds(const FTransform& LocalToWorld) const
+FBoxSphereBounds UPointCloudMeshBuilder::CalcBounds(const FTransform& LocalToWorld) const
 {
 	//#ToDo
 

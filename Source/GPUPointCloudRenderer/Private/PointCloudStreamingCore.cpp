@@ -8,13 +8,12 @@
 #include "Engine/World.h"
 #include "App.h"
 #include "Runtime/Engine/Classes/Materials/MaterialInstanceDynamic.h"
+#include "ComputeShaderUsageExample.h"
 #include "PixelShaderUsageExample.h"
 
 using namespace std;
 #undef UpdateResource
 
-DECLARE_CYCLE_STAT(TEXT("Generate Random Cloud"), STAT_GenerateRandomCloud, STATGROUP_GPUPCR);
-DECLARE_CYCLE_STAT(TEXT("Fill CPU Buffer"), STAT_FillCPUBuffer, STATGROUP_GPUPCR);
 DECLARE_CYCLE_STAT(TEXT("Update Texture Regions"), STAT_UpdateTextureRegions, STATGROUP_GPUPCR);
 DECLARE_CYCLE_STAT(TEXT("Sort Point Cloud Data"), STAT_SortPointCloudData, STATGROUP_GPUPCR);
 DECLARE_CYCLE_STAT(TEXT("Update Shader Textures"), STAT_UpdateShaderTextures, STATGROUP_GPUPCR);
@@ -92,10 +91,10 @@ void FPointCloudStreamingCore::SetInput(TArray<FLinearColor> &pointPositions, TA
 	mPointPosDataPointer = &pointPositions;
 	mColorDataPointer = &pointColors;
 
-	UpdateTextureBuffer();
+	return UpdateTextureBuffer();
 }
 
-void FPointCloudStreamingCore::SetInput(TArray<FLinearColor> &pointPositions, TArray<FColor> &pointColors) {
+bool FPointCloudStreamingCore::SetInput(TArray<FLinearColor> &pointPositions, TArray<FColor> &pointColors, bool sortData) {
 
 	ensure(pointPositions.Num() == pointColors.Num());
 
@@ -111,10 +110,10 @@ void FPointCloudStreamingCore::SetInput(TArray<FLinearColor> &pointPositions, TA
 	}
 	mPointPosDataPointer = &pointPositions;
 
-	UpdateTextureBuffer();
+	return UpdateTextureBuffer();
 }
 
-void FPointCloudStreamingCore::SetInput(TArray<FVector> &pointPositions, TArray<FColor> &pointColors) {
+bool FPointCloudStreamingCore::SetInput(TArray<FVector> &pointPositions, TArray<FColor> &pointColors, bool sortData) {
 
 	ensure(pointPositions.Num() == pointColors.Num());
 
@@ -138,7 +137,7 @@ void FPointCloudStreamingCore::SetInput(TArray<FVector> &pointPositions, TArray<
 		mColorData[i * 4 + 3] = pointColors[i].A;
 	}
 
-	UpdateTextureBuffer();
+	return UpdateTextureBuffer();
 }
 
 void FPointCloudStreamingCore::InitColorBuffer()
@@ -199,36 +198,44 @@ void FPointCloudStreamingCore::Initialize(unsigned int pointCount)
 		return;
 
 	int32 pointsPerAxis = FMath::CeilToInt(FMath::Sqrt(pointCount));
+	// Ensure even sized textures to avoid inaccuracies
+	if (pointsPerAxis % 2 == 1) pointsPerAxis++;
 	mPointCount = pointsPerAxis * pointsPerAxis;
 
 	// Check if update is neccessary
-	if (mPointPosTexture && mColorTexture && mPointScalingTexture && mUpdateTextureRegion && ComputeShading && PixelShading)
+	if (mPointPosTexture && mColorTexture && mPointScalingTexture && mUpdateTextureRegion)
 		if (mPointPosTexture->GetSizeX() == pointsPerAxis && mColorTexture->GetSizeX() == pointsPerAxis && mPointScalingTexture->GetSizeX() == pointsPerAxis)
 			return;
 
 	// create point cloud positions texture
 	mPointPosTexture = UTexture2D::CreateTransient(pointsPerAxis, pointsPerAxis, EPixelFormat::PF_A32B32G32R32F);
-	mPointPosTexture->CompressionSettings = TextureCompressionSettings::TC_VectorDisplacementmap;
+	mPointPosTexture->CompressionSettings = TextureCompressionSettings::TC_HDR;
 	mPointPosTexture->SRGB = 0;
 	mPointPosTexture->AddToRoot();
 	mPointPosTexture->UpdateResource();
+#if WITH_EDITOR 
 	mPointPosTexture->MipGenSettings = TextureMipGenSettings::TMGS_NoMipmaps;
+#endif
 
 	// create point cloud scalings texture
 	mPointScalingTexture = UTexture2D::CreateTransient(pointsPerAxis, pointsPerAxis, EPixelFormat::PF_A32B32G32R32F);
-	mPointScalingTexture->CompressionSettings = TextureCompressionSettings::TC_VectorDisplacementmap;
+	mPointScalingTexture->CompressionSettings = TextureCompressionSettings::TC_HDR;
 	mPointScalingTexture->SRGB = 0;
 	mPointScalingTexture->AddToRoot();
 	mPointScalingTexture->UpdateResource();
+#if WITH_EDITOR 
 	mPointScalingTexture->MipGenSettings = TextureMipGenSettings::TMGS_NoMipmaps;
+#endif
 
 	// create color texture
 	mColorTexture = UTexture2D::CreateTransient(pointsPerAxis, pointsPerAxis, EPixelFormat::PF_B8G8R8A8);
-	mColorTexture->CompressionSettings = TextureCompressionSettings::TC_VectorDisplacementmap;
+	mColorTexture->CompressionSettings = TextureCompressionSettings::TC_Default;
 	mColorTexture->SRGB = 1;
 	mColorTexture->AddToRoot();
 	mColorTexture->UpdateResource();
+#if WITH_EDITOR 
 	mColorTexture->MipGenSettings = TextureMipGenSettings::TMGS_NoMipmaps;
+#endif
 
 	// Create shader
 	if (!ComputeShading && currentWorld)
@@ -254,6 +261,8 @@ void FPointCloudStreamingCore::Initialize(unsigned int pointCount)
 		checkf(RenderTarget != nullptr, TEXT("Unable to create or find valid render target"));
 	}
 
+	mPointPosData.Empty();
+	mPointPosData.AddUninitialized(mPointCount);
 	if (!mPointPosDataPointer)
 		mPointPosDataPointer = &mPointPosData;
 	if (!mColorDataPointer)
@@ -273,16 +282,18 @@ void FPointCloudStreamingCore::Initialize(unsigned int pointCount)
 	mWasSorted = false;
 }
 
-void FPointCloudStreamingCore::UpdateTextureBuffer()
+bool FPointCloudStreamingCore::UpdateTextureBuffer()
 {
 	SCOPE_CYCLE_COUNTER(STAT_UpdateTextureRegions);
 
 	if (!mColorDataPointer || !mPointPosDataPointer || !mPointPosTexture || !mColorTexture || !mPointScalingTexture)
-		return;
+		return false;
+	if (&mPointPosDataPointer == nullptr || &mColorDataPointer == nullptr)
+		return false;
 	if (mColorDataPointer->Num() == 0 || mPointPosDataPointer->Num() == 0)
-		return;
+		return false;
 	if (mColorDataPointer->Num() > mColorTexture->GetSizeX() * mColorTexture->GetSizeY() * 4 || mPointPosDataPointer->Num() > mPointPosTexture->GetSizeX()*mPointPosTexture->GetSizeY())
-		return;
+		return false;
 
 	mPointPosTexture->WaitForStreaming();
 	mColorTexture->WaitForStreaming();
@@ -292,6 +303,11 @@ void FPointCloudStreamingCore::UpdateTextureBuffer()
 	mColorTexture->UpdateTextureRegions(0, 1, mUpdateTextureRegion, mColorTexture->GetSizeX() * sizeof(uint8) * 4, 4, mColorDataPointer->GetData());
 	//if(mHasSurfaceReconstructed)
 	//	mPointScalingTexture->UpdateTextureRegions(0, 1, mUpdateTextureRegion, mPointPosTexture->GetSizeX() * sizeof(FVector), sizeof(FVector), (uint8*)mPointScalingData.GetData());
+
+	mPointPosTexture->WaitForStreaming();
+	mColorTexture->WaitForStreaming();
+
+	return true;
 }
 
 void FPointCloudStreamingCore::UpdateShaderParameter()
@@ -317,7 +333,7 @@ void FPointCloudStreamingCore::UpdateShaderParameter()
 	mDynamicMatInstance->SetScalarParameterValue("ColorTextureSize", mColorTexture->GetSizeX());
 	//if (mHasSurfaceReconstructed)
 	//	mDynamicMatInstance->SetTextureParameterValue("ScalingTexture", mPointScalingTexture);
-	
+	mDynamicMatInstance->SetScalarParameterValue("TextureSize", (float)mPointPosTexture->GetSizeX());
 	mDynamicMatInstance->SetVectorParameterValue("minExtent", mExtent.Min);
 	mDynamicMatInstance->SetVectorParameterValue("maxExtent", mExtent.Max);
 }
