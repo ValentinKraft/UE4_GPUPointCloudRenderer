@@ -138,10 +138,6 @@ void UGPUPointCloudRendererComponent::SetExtent(FBox extent) {
 void UGPUPointCloudRendererComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-	
-	// Update sprites if neccessary //#ToDo: better update function?
-	//if (mShouldUpdateEveryFrame) 
-	//	UpdateSprites();
 
 	// Update core
 	if (mPointCloudCore) {
@@ -167,33 +163,30 @@ void UGPUPointCloudRendererComponent::BeginPlay() {
 void UGPUPointCloudRendererComponent::CreateStreamingBaseMesh(int32 pointCount)
 {
 	CHECK_PCR_STATUS
-	//SCOPE_CYCLE_COUNTER(STAT_CreateDynamicBaseMesh);
 
 	//Check if update is neccessary
-	if (BaseMesh && BaseMesh->NumPoints == pointCount)
+	if (mBaseMesh && mBaseMesh->NumPoints == pointCount)
 		return;
 	if (pointCount == 0)
 		return;
 
 	// Create base mesh
-	BaseMesh = NewObject<UPointCloudMeshBuilder>(this, FName("PointCloud Mesh"));
-	BaseMesh->NumPoints = pointCount;
-	BaseMesh->triangleSize = 1.0f;	// splat size is set in the shader
-	BaseMesh->RegisterComponent();
-	BaseMesh->AttachToComponent(this, FAttachmentTransformRules::KeepRelativeTransform);
-	BaseMesh->SetMaterial(0, mStreamingBaseMat);
-	BaseMesh->SetAbsolute(false, true, true);	// Disable scaling for the mesh - the scaling vector is transferred via a shader parameter in UpdateShaderProperties()
+	mBaseMesh = NewObject<UPointCloudMeshBuilder>(this, FName("PointCloud Mesh"));
+	mBaseMesh->NumPoints = pointCount;
+	mBaseMesh->triangleSize = 1.0f;	// splat size is set in the shader
+	mBaseMesh->RegisterComponent();
+	mBaseMesh->AttachToComponent(this, FAttachmentTransformRules::KeepRelativeTransform);
+	mBaseMesh->SetMaterial(0, mStreamingBaseMat);
+	mBaseMesh->SetAbsolute(false, true, true);	// Disable scaling for the mesh - the scaling vector is transferred via a shader parameter in UpdateShaderProperties()
 
 	// Update material
-	mPointCloudMaterial = BaseMesh->CreateAndSetMaterialInstanceDynamic(0);
+	mPointCloudMaterial = mBaseMesh->CreateAndSetMaterialInstanceDynamic(0);
 	mPointCloudCore->UpdateDynamicMaterialForStreaming(mPointCloudMaterial);
 }
 
 
 void UGPUPointCloudRendererComponent::UpdateShaderProperties()
 {
-	//SCOPE_CYCLE_COUNTER(STAT_UpdateShaderParameter);
-
 	if (!mPointCloudMaterial)
 		return;
 

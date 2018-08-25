@@ -14,8 +14,6 @@
 using namespace std;
 #undef UpdateResource
 
-DECLARE_CYCLE_STAT(TEXT("Generate Random Cloud"), STAT_GenerateRandomCloud, STATGROUP_GPUPCR);
-DECLARE_CYCLE_STAT(TEXT("Fill CPU Buffer"), STAT_FillCPUBuffer, STATGROUP_GPUPCR);
 DECLARE_CYCLE_STAT(TEXT("Update Texture Regions"), STAT_UpdateTextureRegions, STATGROUP_GPUPCR);
 DECLARE_CYCLE_STAT(TEXT("Sort Point Cloud Data"), STAT_SortPointCloudData, STATGROUP_GPUPCR);
 DECLARE_CYCLE_STAT(TEXT("Update Shader Textures"), STAT_UpdateShaderTextures, STATGROUP_GPUPCR);
