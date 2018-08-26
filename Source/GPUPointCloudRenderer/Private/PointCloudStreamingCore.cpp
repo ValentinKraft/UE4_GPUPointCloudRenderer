@@ -177,10 +177,8 @@ bool FPointCloudStreamingCore::SortPointCloudData() {
 		{
 			// Send unsorted point position data to compute shader
 			mComputeShader->SetPointPosDataReference(mPointPosDataPointer);
-
 			// Execute Sorting Compute Shader
 			mComputeShader->ExecuteComputeShader(FVector4(currentCamPos));
-
 			// Get the output texture from the compute shader that we will pass to the pixel shader later
 			InputTexture = mComputeShader->GetTexture();
 		}
@@ -364,12 +362,12 @@ FPointCloudStreamingCore::~FPointCloudStreamingCore() {
 
 	FreeData();
 
-	//if (mPointPosTexture)
-	//	delete mPointPosTexture;
-	//if (mPointScalingTexture)
-	//	delete mPointScalingTexture;
-	//if (mColorTexture)
-	//	delete mColorTexture;
+	if (mPointPosTexture)
+		delete mPointPosTexture;
+	if (mPointScalingTexture)
+		delete mPointScalingTexture;
+	if (mColorTexture)
+		delete mColorTexture;
 
 	if (mComputeShader)
 		delete mComputeShader;
@@ -377,11 +375,10 @@ FPointCloudStreamingCore::~FPointCloudStreamingCore() {
 		delete mPixelShader;
 	if (mComputeShaderRT) {
 		mComputeShaderRT->ReleaseResource();
-		//mComputeShaderRT = nullptr;
-		//delete mComputeShaderRT;
+		mComputeShaderRT = nullptr;
 	}
 	if (mCastedRT) {
 		mCastedRT->ReleaseResource();
-		//delete mCastedRT;
+		mCastedRT = nullptr;
 	}
 }
