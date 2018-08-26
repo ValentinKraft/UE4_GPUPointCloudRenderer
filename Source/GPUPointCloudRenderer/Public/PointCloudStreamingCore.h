@@ -23,9 +23,9 @@ public:
 
 	void Update(float deltaTime) { UpdateShaderParameter();	mDeltaTime += deltaTime; };
 	void UpdateDynamicMaterialForStreaming(UMaterialInstanceDynamic* pointCloudShaderDynInstance) { mDynamicMatInstance = pointCloudShaderDynInstance; };
-	bool SetInput(TArray<FLinearColor> &pointPositions, TArray<uint8> &pointColors, bool sortDataEveryFrame = false);
-	bool SetInput(TArray<FLinearColor> &pointPositions, TArray<FColor> &pointColors, bool sortDataEveryFrame = false);
-	bool SetInput(TArray<FVector> &pointPositions, TArray<FColor> &pointColors, bool sortDataEveryFrame = false);
+	bool SetInput(TArray<FLinearColor> &pointPositions, TArray<uint8> &pointColors);
+	bool SetInput(TArray<FLinearColor> &pointPositions, TArray<FColor> &pointColors);
+	bool SetInput(TArray<FVector> &pointPositions, TArray<FColor> &pointColors);
 	void SetExtent(FBox extent) { mExtent = extent; };
 	void AddSnapshot(TArray<FLinearColor> &pointPositions, TArray<uint8> &pointColors, FVector offsetTranslation = FVector::ZeroVector, FRotator offsetRotation = FRotator::ZeroRotator);
 	void SavePointPosDataToTexture(UTextureRenderTarget2D* pointPosRT);
@@ -69,9 +69,9 @@ private:
 	UTexture2D* mColorTexture = nullptr;
 	
 	// Sorting-related variables
-	class FComputeShaderUsageExample* ComputeShading = nullptr;
-	class FPixelShaderUsageExample* PixelShading = nullptr;
-	class UTextureRenderTarget2D* RenderTarget = nullptr;
-	UTexture* CastedRenderTarget = nullptr;
+	class FComputeShader* mComputeShader = nullptr;
+	class FPixelShader* mPixelShader = nullptr;
+	class UTextureRenderTarget2D* mComputeShaderRT = nullptr;
+	UTexture* mCastedRT = nullptr;
 };
 

@@ -73,6 +73,26 @@ void UGPUPointCloudRendererComponent::SetInputAndConvert1(TArray<FLinearColor> &
 	mPointCloudCore->SetInput(pointPositions, pointColors);
 }
 
+void UGPUPointCloudRendererComponent::AddSnapshot(TArray<FLinearColor> &pointPositions, TArray<uint8> &pointColors, FVector offsetTranslation, FRotator offsetRotation) {
+
+	CHECK_PCR_STATUS
+
+		if (pointPositions.Num() * 4 != pointColors.Num())
+			UE_LOG(GPUPointCloudRenderer, Warning, TEXT("The number of point positions doesn't match the number of point colors."));
+	if (pointPositions.Num() == 0 || pointColors.Num() == 0) {
+		UE_LOG(GPUPointCloudRenderer, Error, TEXT("Empty point position and/or color data."));
+		return;
+	}
+
+	CreateStreamingBaseMesh(PCR_MAXTEXRES * PCR_MAXTEXRES);
+
+	// Since the point is later transformed to the local coordinate system, we have to inverse transform it beforehand
+	FMatrix objMatrix = this->GetComponentToWorld().ToMatrixWithScale();
+	offsetTranslation = objMatrix.InverseTransformVector(offsetTranslation);
+
+	mPointCloudCore->AddSnapshot(pointPositions, pointColors, offsetTranslation, offsetRotation);
+}
+
 void UGPUPointCloudRendererComponent::SetInput(TArray<FLinearColor> &pointPositions, TArray<uint8> &pointColors) {
 	
 	CHECK_PCR_STATUS
@@ -88,7 +108,7 @@ void UGPUPointCloudRendererComponent::SetInput(TArray<FLinearColor> &pointPositi
 	mPointCloudCore->SetInput(pointPositions, pointColors);
 }
 
-void UGPUPointCloudRendererComponent::SetInput(TArray<FLinearColor> &pointPositions, TArray<uint8> &pointColors) {
+void UGPUPointCloudRendererComponent::SetInputAndConvert2(TArray<FVector> &pointPositions, TArray<FColor> &pointColors) {
 	
 	CHECK_PCR_STATUS
 
@@ -103,27 +123,12 @@ void UGPUPointCloudRendererComponent::SetInput(TArray<FLinearColor> &pointPositi
 	mPointCloudCore->SetInput(pointPositions, pointColors);
 }
 
-void UGPUPointCloudRendererComponent::SetInputAndConvert2(TArray<FVector> &pointPositions, TArray<FColor> &pointColors) {
-	
+void UGPUPointCloudRendererComponent::SetExtent(FBox extent) {
+
 	CHECK_PCR_STATUS
 
 	mPointCloudCore->SetExtent(extent);
 	mExtent = extent.ToString();
-}
-
-void UGPUPointCloudRendererComponent::AddSnapshot(TArray<FLinearColor> &pointPositions, TArray<uint8> &pointColors, FVector offsetTranslation, FRotator offsetRotation) {
-
-	CHECK_PCR_STATUS
-
-	if (pointPositions.Num() * 4 != pointColors.Num())
-		UE_LOG(GPUPointCloudRenderer, Warning, TEXT("The number of point positions doesn't match the number of point colors."));
-	if (pointPositions.Num() == 0 || pointColors.Num() == 0) {
-		UE_LOG(GPUPointCloudRenderer, Error, TEXT("Empty point position and/or color data."));
-		return;
-	}
-
-	CreateStreamingBaseMesh(pointPositions.Num());
-	mPointCloudCore->SetInput(pointPositions, pointColors);
 }
 
 void UGPUPointCloudRendererComponent::SaveDataToTexture(UTextureRenderTarget2D* pointPosRT, UTextureRenderTarget2D* colorsRT) {

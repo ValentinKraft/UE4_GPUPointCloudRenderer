@@ -70,16 +70,16 @@ void FPointCloudStreamingCore::AddSnapshot(TArray<FLinearColor> &pointPositions,
 void FPointCloudStreamingCore::SavePointPosDataToTexture(UTextureRenderTarget2D* pointPosRT) {
 
 	if (pointPosRT && mPointPosTexture)
-		PixelShading->ExecutePixelShader(pointPosRT, mPointPosTexture->Resource->TextureRHI->GetTexture2D(), FColor::Black, 1.0f);
+		mPixelShader->ExecutePixelShader(pointPosRT, mPointPosTexture->Resource->TextureRHI->GetTexture2D(), FColor::Black, 1.0f);
 }
 
 void FPointCloudStreamingCore::SaveColorDataToTexture(UTextureRenderTarget2D* colorsRT) {
 
 	if (colorsRT && mColorTexture)
-		PixelShading->ExecutePixelShader(colorsRT, mColorTexture->Resource->TextureRHI->GetTexture2D(), FColor::Black, 1.0f);
+		mPixelShader->ExecutePixelShader(colorsRT, mColorTexture->Resource->TextureRHI->GetTexture2D(), FColor::Black, 1.0f);
 }
 
-void FPointCloudStreamingCore::SetInput(TArray<FLinearColor> &pointPositions, TArray<uint8> &pointColors) {
+bool FPointCloudStreamingCore::SetInput(TArray<FLinearColor> &pointPositions, TArray<uint8> &pointColors) {
 
 	check(pointPositions.Num() * 4 == pointColors.Num());
 
@@ -94,7 +94,7 @@ void FPointCloudStreamingCore::SetInput(TArray<FLinearColor> &pointPositions, TA
 	return UpdateTextureBuffer();
 }
 
-bool FPointCloudStreamingCore::SetInput(TArray<FLinearColor> &pointPositions, TArray<FColor> &pointColors, bool sortData) {
+bool FPointCloudStreamingCore::SetInput(TArray<FLinearColor> &pointPositions, TArray<FColor> &pointColors) {
 
 	ensure(pointPositions.Num() == pointColors.Num());
 
@@ -113,7 +113,7 @@ bool FPointCloudStreamingCore::SetInput(TArray<FLinearColor> &pointPositions, TA
 	return UpdateTextureBuffer();
 }
 
-bool FPointCloudStreamingCore::SetInput(TArray<FVector> &pointPositions, TArray<FColor> &pointColors, bool sortData) {
+bool FPointCloudStreamingCore::SetInput(TArray<FVector> &pointPositions, TArray<FColor> &pointColors) {
 
 	ensure(pointPositions.Num() == pointColors.Num());
 
@@ -162,7 +162,7 @@ bool FPointCloudStreamingCore::SortPointCloudData() {
 
 	SCOPE_CYCLE_COUNTER(STAT_SortPointCloudData);
 
-	if (!mPointPosTexture || !RenderTarget)
+	if (!mPointPosTexture || !mComputeShaderRT)
 		return false;
 	if (mPointCount > PCR_MAX_SORT_COUNT)
 		return false;
@@ -170,23 +170,23 @@ bool FPointCloudStreamingCore::SortPointCloudData() {
 	mPointPosTexture->WaitForStreaming();
 
 	// Execute shader
-	if (PixelShading) {
+	if (mPixelShader) {
 		FTexture2DRHIRef InputTexture = NULL;
 
-		if (ComputeShading)
+		if (mComputeShader)
 		{
 			// Send unsorted point position data to compute shader
-			ComputeShading->SetPointPosDataReference(mPointPosDataPointer);
+			mComputeShader->SetPointPosDataReference(mPointPosDataPointer);
 
 			// Execute Sorting Compute Shader
-			ComputeShading->ExecuteComputeShader(FVector4(currentCamPos));
+			mComputeShader->ExecuteComputeShader(FVector4(currentCamPos));
 
 			// Get the output texture from the compute shader that we will pass to the pixel shader later
-			InputTexture = ComputeShading->GetTexture();
+			InputTexture = mComputeShader->GetTexture();
 		}
 
-		PixelShading->ExecutePixelShader(RenderTarget, InputTexture, FColor::Red, 1.0f);
-		CastedRenderTarget = Cast<UTexture>(RenderTarget);
+		mPixelShader->ExecutePixelShader(mComputeShaderRT, InputTexture, FColor::Red, 1.0f);
+		mCastedRT = Cast<UTexture>(mComputeShaderRT);
 	}
 
 	return mWasSorted = true;
@@ -238,27 +238,27 @@ void FPointCloudStreamingCore::Initialize(unsigned int pointCount)
 #endif
 
 	// Create shader
-	if (!ComputeShading && currentWorld)
-		ComputeShading = new FComputeShaderUsageExample(1.0f, GetUpperPowerOfTwo(pointsPerAxis), GetUpperPowerOfTwo(pointsPerAxis), currentWorld->Scene->GetFeatureLevel());
+	if (!mComputeShader && currentWorld)
+		mComputeShader = new FComputeShader(1.0f, GetUpperPowerOfTwo(pointsPerAxis), GetUpperPowerOfTwo(pointsPerAxis), currentWorld->Scene->GetFeatureLevel());
 
-	if (!PixelShading && currentWorld)
-		PixelShading = new FPixelShaderUsageExample(FColor::Green, currentWorld->Scene->GetFeatureLevel());
+	if (!mPixelShader && currentWorld)
+		mPixelShader = new FPixelShader(FColor::Green, currentWorld->Scene->GetFeatureLevel());
 
 	// Create shader render target
-	if (!RenderTarget) {
-		RenderTarget = NewObject<UTextureRenderTarget2D>();
-		check(RenderTarget);
-		RenderTarget->AddToRoot();
-		RenderTarget->ClearColor = FLinearColor(1.0f, 0.0f, 1.0f);
-		RenderTarget->ClearColor.A = 1.0f;
-		RenderTarget->SRGB = 0;
-		RenderTarget->MipGenSettings = TextureMipGenSettings::TMGS_NoMipmaps;
-		RenderTarget->RenderTargetFormat = ETextureRenderTargetFormat::RTF_RGBA32f;
-		RenderTarget->CompressionSettings = TextureCompressionSettings::TC_VectorDisplacementmap;
-		RenderTarget->InitAutoFormat(GetUpperPowerOfTwo(pointsPerAxis), GetUpperPowerOfTwo(pointsPerAxis));
-		RenderTarget->UpdateResourceImmediate(true);
-		//RenderTarget->InitCustomFormat(pointsPerAxis, pointsPerAxis, EPixelFormat::PF_A32B32G32R32F, false);
-		checkf(RenderTarget != nullptr, TEXT("Unable to create or find valid render target"));
+	if (!mComputeShaderRT) {
+		mComputeShaderRT = NewObject<UTextureRenderTarget2D>();
+		check(mComputeShaderRT);
+		mComputeShaderRT->AddToRoot();
+		mComputeShaderRT->ClearColor = FLinearColor(1.0f, 0.0f, 1.0f);
+		mComputeShaderRT->ClearColor.A = 1.0f;
+		mComputeShaderRT->SRGB = 0;
+		mComputeShaderRT->MipGenSettings = TextureMipGenSettings::TMGS_NoMipmaps;
+		mComputeShaderRT->RenderTargetFormat = ETextureRenderTargetFormat::RTF_RGBA32f;
+		mComputeShaderRT->CompressionSettings = TextureCompressionSettings::TC_VectorDisplacementmap;
+		mComputeShaderRT->InitAutoFormat(GetUpperPowerOfTwo(pointsPerAxis), GetUpperPowerOfTwo(pointsPerAxis));
+		mComputeShaderRT->UpdateResourceImmediate(true);
+		//mComputeShaderRT->InitCustomFormat(pointsPerAxis, pointsPerAxis, EPixelFormat::PF_A32B32G32R32F, false);
+		checkf(mComputeShaderRT != nullptr, TEXT("Unable to create or find valid render target"));
 	}
 
 	mPointPosData.Empty();
@@ -318,12 +318,12 @@ void FPointCloudStreamingCore::UpdateShaderParameter()
 		return;
 	if (!mDynamicMatInstance)
 		return;
-	if(CastedRenderTarget)
-		CastedRenderTarget->WaitForStreaming();
+	if(mCastedRT)
+		mCastedRT->WaitForStreaming();
 
-	if (CastedRenderTarget && mWasSorted) {
-		mDynamicMatInstance->SetTextureParameterValue("PositionTexture", CastedRenderTarget);
-		mDynamicMatInstance->SetVectorParameterValue("CloudSizeV2", FLinearColor(RenderTarget->SizeX, RenderTarget->SizeY, 0, 0));
+	if (mCastedRT && mWasSorted) {
+		mDynamicMatInstance->SetTextureParameterValue("PositionTexture", mCastedRT);
+		mDynamicMatInstance->SetVectorParameterValue("CloudSizeV2", FLinearColor(mComputeShaderRT->SizeX, mComputeShaderRT->SizeY, 0, 0));
 	}
 	else if(!mWasSorted){
 		mDynamicMatInstance->SetTextureParameterValue("PositionTexture", mPointPosTexture);
@@ -372,17 +372,17 @@ FPointCloudStreamingCore::~FPointCloudStreamingCore() {
 	//if (mColorTexture)
 	//	delete mColorTexture;
 
-	if (ComputeShading)
-		delete ComputeShading;
-	if (PixelShading)
-		delete PixelShading;
-	if (RenderTarget) {
-		RenderTarget->ReleaseResource();
-		//RenderTarget = nullptr;
-		//delete RenderTarget;
+	if (mComputeShader)
+		delete mComputeShader;
+	if (mPixelShader)
+		delete mPixelShader;
+	if (mComputeShaderRT) {
+		mComputeShaderRT->ReleaseResource();
+		//mComputeShaderRT = nullptr;
+		//delete mComputeShaderRT;
 	}
-	if (CastedRenderTarget) {
-		CastedRenderTarget->ReleaseResource();
-		//delete CastedRenderTarget;
+	if (mCastedRT) {
+		mCastedRT->ReleaseResource();
+		//delete mCastedRT;
 	}
 }
