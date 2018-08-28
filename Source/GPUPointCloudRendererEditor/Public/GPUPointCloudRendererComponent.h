@@ -33,7 +33,7 @@ public:
 	* @param	overrideColor				Overrides the point cloud colors with the given colormap.
 	*/
 	UFUNCTION(DisplayName = "PCR Set Dynamic Point Cloud Properties", BlueprintCallable, Category = "GPUPointCloudRenderer", meta = (Keywords = "point cloud update set properties"))
-	void SetDynamicProperties(float cloudScaling = 1.0f, float falloff = 1.0f, float splatSize = 1.0f, float distanceScaling = 1000.f, float distanceFalloff = 1.1f, bool overrideColor = false);
+	void SetDynamicProperties(float cloudScaling = 1.0f, float falloff = 1.0f, float splatSize = 1.0f, float distanceScaling = 1000.f, float distanceFalloff = 1.0f, bool overrideColor = false);
 
 	/**
 	* Send your own, custom point data stream to the renderer. Could be used for a kinect point stream or similar. Can be called every frame. Point positions have to be encoded as a array of LinearColors with the following mapping:
@@ -113,17 +113,16 @@ private:
 	UPROPERTY(VisibleAnywhere, Category = "GPUPointCloudRenderer")
 	float mSplatSize = 1.0f;
 	UPROPERTY(VisibleAnywhere, Category = "GPUPointCloudRenderer")
-	float mPointCloudScaling = 1.0f;
+	float mCloudScaling = 1.0f;
 
 	/// Streaming-specific variables
 	UPROPERTY()
 	UMaterialInterface* mStreamingBaseMat = nullptr;
 	UPROPERTY()
 	class UTextureRenderTarget2D* colorsTempRT = nullptr;
-	float mFalloff = 2.0f;
-	float mScaling = 1.0f;
+	float mSplatFalloff = 2.0f;
 	float mDistanceScaling = 1000.f;
-	float mDistanceFalloff = 3.f;
+	float mDistanceFalloff = 1.f;
 	bool mShouldOverrideColor = false;
 
 	void CreateStreamingBaseMesh(int32 pointCount = 1);
