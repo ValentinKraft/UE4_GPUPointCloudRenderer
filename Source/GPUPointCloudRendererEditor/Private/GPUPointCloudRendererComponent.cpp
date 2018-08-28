@@ -49,8 +49,8 @@ UGPUPointCloudRendererComponent::~UGPUPointCloudRendererComponent() {
 
 void UGPUPointCloudRendererComponent::SetDynamicProperties(float cloudScaling, float falloff, float splatSize, float distanceScaling, float distanceFalloff, bool overrideColor) {
 	
-	mFalloff = falloff;
-	mScaling = cloudScaling;
+	mSplatFalloff = falloff;
+	mCloudScaling = cloudScaling;
 	mSplatSize = splatSize;
 	mDistanceScaling = distanceScaling;
 	mDistanceFalloff = distanceFalloff;
@@ -194,8 +194,8 @@ void UGPUPointCloudRendererComponent::UpdateShaderProperties()
 	mPointCloudMaterial->SetVectorParameterValue("ObjTransformMatrixXAxis", streamingMeshMatrix.GetUnitAxis(EAxis::X));
 	mPointCloudMaterial->SetVectorParameterValue("ObjTransformMatrixYAxis", streamingMeshMatrix.GetUnitAxis(EAxis::Y));
 	mPointCloudMaterial->SetVectorParameterValue("ObjTransformMatrixZAxis", streamingMeshMatrix.GetUnitAxis(EAxis::Z));
-	mPointCloudMaterial->SetVectorParameterValue("ObjScale", this->GetComponentScale() * mScaling);
-	mPointCloudMaterial->SetScalarParameterValue("FalloffExpo", mFalloff);
+	mPointCloudMaterial->SetVectorParameterValue("ObjScale", this->GetComponentScale() * mCloudScaling);
+	mPointCloudMaterial->SetScalarParameterValue("FalloffExpo", mSplatFalloff);
 	mPointCloudMaterial->SetScalarParameterValue("SplatSize", mSplatSize);
 	mPointCloudMaterial->SetScalarParameterValue("DistanceScaling", mDistanceScaling);
 	mPointCloudMaterial->SetScalarParameterValue("DistanceFalloff", mDistanceFalloff);
