@@ -362,13 +362,6 @@ FPointCloudStreamingCore::~FPointCloudStreamingCore() {
 
 	FreeData();
 
-	if (mPointPosTexture)
-		delete mPointPosTexture;
-	if (mPointScalingTexture)
-		delete mPointScalingTexture;
-	if (mColorTexture)
-		delete mColorTexture;
-
 	if (mComputeShader)
 		delete mComputeShader;
 	if (mPixelShader)
