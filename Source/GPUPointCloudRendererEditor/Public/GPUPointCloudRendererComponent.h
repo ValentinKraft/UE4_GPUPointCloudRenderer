@@ -56,7 +56,7 @@ public:
 	Red Channel : Z-values;
 	*
 	* @param	pointPositions				Array of your point positions. Please mind the mapping: Alpha Channel : Z-values, Green Channel : X-values, Blue Channel : Y-values, Red Channel : Z-values.
-	* @param	pointColors					Array of your point colors (BGRA-encoded).
+	* @param	pointColors					Array of your point colors (RGBA-encoded).
 	*/
 	UFUNCTION(DisplayName = "PCR Set/Stream Input FAST", BlueprintCallable, Category = "GPUPointCloudRenderer", meta = (Keywords = "set kinect custom own dynamic point cloud streaming input"))
 	void SetInput(UPARAM(ref) TArray<FLinearColor> &pointPositions, UPARAM(ref) TArray<uint8> &pointColors);
@@ -82,7 +82,7 @@ public:
 	* Creates a large datasets and adds the given data as a "snapshot" to it. Can be used to collect different point cloud datasets into one large set (e.g. collecting a 360°-View with several captures of the environment etc.).
 	*
 	* @param	pointPositions				Array of your point positions.
-	* @param	pointColors					Array of your point colors (BGRA-encoded).
+	* @param	pointColors					Array of your point colors (RGBA-encoded).
 	* @param	offsetTranslation			The World-Space offset translation the given point cloud should be saved with.
 	* @param	offsetRotation				The World-Space offset rotation the given point cloud should be saved with.
 	*/
