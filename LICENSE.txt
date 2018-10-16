@@ -1,0 +1,17 @@
+
+LICENSE
+
+Note that all assets, including the source code, in this archive are subject to 
+the European Union Public Licence (EUPL; see https://joinup.ec.europa.eu/collection/eupl )
+in its latest version (whatever the latest version this is at the time of reading this),
+which is compatible to many other open-source licenses
+(see https://en.wikipedia.org/wiki/Comparison_of_free_and_open-source_software_licenses ).
+
+Note also that if you would like to use the assets and/or software commercially, 
+please get in touch with us (zach@cs.uni-bremen.de)
+to obtain the assets under a different license
+(a.k.a. selling exception ; see http://www.gnu.org/philosophy/selling-exceptions.en.html ).
+
+If you use some of the assets or software from this archive to produce a publication,
+you must give credit and put a reference in your publication.
+
