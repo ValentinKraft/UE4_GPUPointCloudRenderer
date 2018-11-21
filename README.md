@@ -15,10 +15,10 @@ __Basics Tutorial:__
 
 [![Tutorial](https://img.youtube.com/vi/95rdEG5H8sI/0.jpg)](https://www.youtube.com/watch?v=95rdEG5H8sI)
 
-__Demo:__
+__Demo - Huge static point cloud:__
 
 [![Demo](https://img.youtube.com/vi/5LH6IZdmxK4/0.jpg)](https://www.youtube.com/watch?v=5LH6IZdmxK4)
 
-__Kinect Demo:__
+__Demo - Kinect live stream:__
 
 [![Demo](https://img.youtube.com/vi/LZwG054LC4A/0.jpg)](https://www.youtube.com/watch?v=LZwG054LC4A)
