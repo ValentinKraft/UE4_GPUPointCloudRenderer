@@ -45,6 +45,7 @@ private:
 	void InitPointPosBuffer();
 	bool UpdateTextureBuffer();
 	void UpdateShaderParameter();
+	void WaitForTextureUpdates();
 	void FreeData();
 	unsigned int GetUpperPowerOfTwo(unsigned int v);
 
@@ -71,7 +72,11 @@ private:
 	// Sorting-related variables
 	class FComputeShader* mComputeShader = nullptr;
 	class FPixelShader* mPixelShader = nullptr;
+	class FPixelShader* mPixelShader2 = nullptr;
 	class UTextureRenderTarget2D* mComputeShaderRT = nullptr;
+	class UTextureRenderTarget2D* mComputeShaderRT2 = nullptr;
 	UTexture* mCastedRT = nullptr;
+	UTexture* mCastedColorRT = nullptr;
+
 };
 
