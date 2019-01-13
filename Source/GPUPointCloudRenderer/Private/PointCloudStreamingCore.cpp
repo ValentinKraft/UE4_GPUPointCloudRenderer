@@ -172,6 +172,9 @@ bool FPointCloudStreamingCore::SortPointCloudData() {
 	// Execute shader
 	if (mPixelShader && mComputeShader) {
 
+		ensure(mPointPosDataPointer);
+		ensure(mColorDataPointer);
+
 		// Send unsorted point position data and point color data to compute shader
 		mComputeShader->SetPointPosDataReference(mPointPosDataPointer);
 		mComputeShader->SetPointColorDataReference(mColorDataPointer);
@@ -267,12 +270,12 @@ void FPointCloudStreamingCore::Initialize(unsigned int pointCount)
 		mComputeShaderRT2 = NewObject<UTextureRenderTarget2D>();
 		check(mComputeShaderRT2);
 		mComputeShaderRT2->AddToRoot();
-		mComputeShaderRT2->ClearColor = FLinearColor(1.0f, 0.0f, 1.0f);
+		mComputeShaderRT2->ClearColor = FColor(1.0f, 0.0f, 1.0f);
 		mComputeShaderRT2->ClearColor.A = 1.0f;
-		mComputeShaderRT2->SRGB = 0;
+		mComputeShaderRT2->SRGB = 1;
 		mComputeShaderRT2->MipGenSettings = TextureMipGenSettings::TMGS_NoMipmaps;
-		mComputeShaderRT2->RenderTargetFormat = ETextureRenderTargetFormat::RTF_RGBA32f;
-		mComputeShaderRT2->CompressionSettings = TextureCompressionSettings::TC_VectorDisplacementmap;
+		mComputeShaderRT2->RenderTargetFormat = ETextureRenderTargetFormat::RTF_RGBA8;
+		mComputeShaderRT2->CompressionSettings = TextureCompressionSettings::TC_Default;
 		mComputeShaderRT2->InitAutoFormat(GetUpperPowerOfTwo(pointsPerAxis), GetUpperPowerOfTwo(pointsPerAxis));
 		mComputeShaderRT2->UpdateResourceImmediate();
 		//mComputeShaderRT->InitCustomFormat(pointsPerAxis, pointsPerAxis, EPixelFormat::PF_A32B32G32R32F, false);
