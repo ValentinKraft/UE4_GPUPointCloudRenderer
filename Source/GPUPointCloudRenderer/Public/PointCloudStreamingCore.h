@@ -41,17 +41,30 @@ public:
 
 private:
 	void Initialize(unsigned int pointCount);
+	void ResetPointData(const int32 &pointsPerAxis);
+	void CreateShader(const int32 &pointsPerAxis);
+	void CreateTextures(const int32 &pointsPerAxis);
 	void InitColorBuffer();
 	void InitPointPosBuffer();
 	bool UpdateTextureBuffer();
 	void UpdateShaderParameter();
 	void WaitForTextureUpdates();
 	void FreeData();
-	unsigned int GetUpperPowerOfTwo(unsigned int v);
+	unsigned int GetUpperPowerOfTwo(unsigned int v)
+	{
+		v--;
+		v |= v >> 1;
+		v |= v >> 2;
+		v |= v >> 4;
+		v |= v >> 8;
+		v |= v >> 16;
+		v++;
+		return v;
+	}
 
+	// General variables
 	class UMaterialInstanceDynamic* mDynamicMatInstance = nullptr;
 	unsigned int mPointCount = 0;
-	
 	FBox mExtent;
 	float mDeltaTime = 10.f;
 	bool mWasSorted = false;
@@ -59,24 +72,24 @@ private:
 	// CPU buffers
 	TArray<FLinearColor> mPointPosData;
 	TArray<FLinearColor>* mPointPosDataPointer = &mPointPosData;
-	TArray<uint8> mColorData;
-	TArray<uint8>* mColorDataPointer = &mColorData;
+	TArray<uint8> mPointColorData;
+	TArray<uint8>* mPointColorDataPointer = &mPointColorData;
 	TArray<FVector> mPointScalingData;
 
 	// GPU texture buffers
 	struct FUpdateTextureRegion2D* mUpdateTextureRegion = nullptr;
 	UTexture2D* mPointPosTexture = nullptr;
 	UTexture2D* mPointScalingTexture = nullptr;
-	UTexture2D* mColorTexture = nullptr;
+	UTexture2D* mPointColorTexture = nullptr;
 	
 	// Sorting-related variables
 	class FComputeShader* mComputeShader = nullptr;
 	class FPixelShader* mPixelShader = nullptr;
 	class FPixelShader* mPixelShader2 = nullptr;
-	class UTextureRenderTarget2D* mComputeShaderRT = nullptr;
-	class UTextureRenderTarget2D* mComputeShaderRT2 = nullptr;
-	UTexture* mCastedRT = nullptr;
-	UTexture* mCastedColorRT = nullptr;
+	class UTextureRenderTarget2D* mPointPosRT = nullptr;
+	class UTextureRenderTarget2D* mPointColorRT = nullptr;
+	UTexture* mSortedPointPosTex = nullptr;
+	UTexture* mSortedPointColorTex = nullptr;
 
 };
 
