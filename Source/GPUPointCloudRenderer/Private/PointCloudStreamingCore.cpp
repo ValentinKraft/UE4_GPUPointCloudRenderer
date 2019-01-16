@@ -353,19 +353,22 @@ void FPointCloudStreamingCore::UpdateShaderParameter()
 
 	WaitForTextureUpdates();
 
-	if (mWasSorted && mSortedPointColorTex && mSortedPointPosTex) {
-		mDynamicMatInstance->SetTextureParameterValue("PositionTexture", mSortedPointPosTex);
-		mDynamicMatInstance->SetScalarParameterValue("TextureSize", mPointPosRT->SizeX);
+	// Set unsorted textures as fallback
+	mDynamicMatInstance->SetTextureParameterValue("PositionTexture", mPointPosTexture);
+	mDynamicMatInstance->SetScalarParameterValue("TextureSize", mPointPosTexture->GetSizeX());
+	mDynamicMatInstance->SetTextureParameterValue("ColorTexture", mPointColorTexture);
+	mDynamicMatInstance->SetScalarParameterValue("ColorTextureSize", mPointColorTexture->GetSizeX());
 
-		mDynamicMatInstance->SetTextureParameterValue("ColorTexture", mSortedPointColorTex);
-		mDynamicMatInstance->SetScalarParameterValue("ColorTextureSize", mPointColorRT->SizeX);
-	}
-	else if (!mWasSorted) {
-		mDynamicMatInstance->SetTextureParameterValue("PositionTexture", mPointPosTexture);
-		mDynamicMatInstance->SetScalarParameterValue("TextureSize", mPointPosTexture->GetSizeX());
-
-		mDynamicMatInstance->SetTextureParameterValue("ColorTexture", mPointColorTexture);
-		mDynamicMatInstance->SetScalarParameterValue("ColorTextureSize", mPointColorTexture->GetSizeX());
+	// Optionally, update with sorted textures
+	if (mWasSorted && mComputeShader) {
+		if (mComputeShader->GetSortedPointPosTexture()) {
+			mDynamicMatInstance->SetTextureParameterValue("PositionTexture", mSortedPointPosTex);
+			mDynamicMatInstance->SetScalarParameterValue("TextureSize", mPointPosRT->SizeX);
+		}
+		if (mComputeShader->GetSortedPointColorsTexture()) {
+			mDynamicMatInstance->SetTextureParameterValue("ColorTexture", mSortedPointColorTex);
+			mDynamicMatInstance->SetScalarParameterValue("ColorTextureSize", mPointColorRT->SizeX);
+		}
 	}
 
 	//if (mHasSurfaceReconstructed)
@@ -421,4 +424,8 @@ FPointCloudStreamingCore::~FPointCloudStreamingCore() {
 	if (mSortedPointPosTex)
 		mSortedPointPosTex->ReleaseResource();
 	mSortedPointPosTex = nullptr;
+
+	if (mSortedPointColorTex)
+		mSortedPointColorTex->ReleaseResource();
+	mSortedPointColorTex = nullptr;
 }
