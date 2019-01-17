@@ -230,6 +230,7 @@ void UGPUPointCloudRendererComponent::UpdateCameraPositionForSorting()
 
 	// Transform in object space of proxy mesh
 	FMatrix streamingMeshMatrix = this->GetComponentToWorld().ToMatrixWithScale();
+	streamingMeshMatrix = streamingMeshMatrix.ApplyScale(mCloudScaling);
 	camPos = streamingMeshMatrix.InverseTransformPosition(camPos);
 
 	if (mPointCloudCore)
