@@ -51,8 +51,14 @@ class FPointCloudVertexFactory : public FLocalVertexFactory
 {
 public:
 
-	FPointCloudVertexFactory()
-	{}
+	FPointCloudVertexFactory(ERHIFeatureLevel::Type InFeatureLevel) : FLocalVertexFactory(InFeatureLevel, "FSplineMeshVertexFactory")
+	{
+		bSupportsManualVertexFetch = false;
+	}
+
+	SIZE_T GetTypeHash() {
+		return 0;
+	}
 
 
 	/** Initialization */
@@ -113,6 +119,7 @@ public:
 			, NumPoints(Component->NumPoints)
 			, PointCloudWidth(Component->PointCloudWidth)
             , triangleSize(Component->triangleSize)
+			, VertexFactory(ERHIFeatureLevel::SM4)
 	{
         mComponent = Component;
 
@@ -157,6 +164,10 @@ public:
 		return GetRequiredVertexCount();
 	}
 
+	SIZE_T GetTypeHash() const override {
+		return 0;
+	}
+
     inline static TArray<FDynamicMeshVertex> triangle(const FVector& Point, const FColor& Color, const float triangleSize) {
         float x = Point.X;
         float y = Point.Y;
@@ -167,18 +178,18 @@ public:
         float r = sqrt3 / 6 * a; // radius of inscribed circle
         //float h_minus_r = a / sqrt3; // from center to tip. height - r
 
-        FDynamicMeshVertex v1;
-        v1.Position = FVector(x - a / 2.f, y - r, z+0);
-        v1.Color = Color;
-        v1.TextureCoordinate = FVector2D(- 1 / 2.f, - sqrt3 / 6);
-        FDynamicMeshVertex v2;
-        v2.Position = FVector(x + a / 2.f, y - r, z+0);
-        v2.Color = Color;
-        v2.TextureCoordinate = FVector2D(1 / 2.f, -sqrt3 / 6);
-        FDynamicMeshVertex v3;
-        v3.Position = FVector(x, y + a / sqrt3, z+0);
-        v3.Color = Color;
-        v3.TextureCoordinate = FVector2D(0, 1/sqrt3);
+        FDynamicMeshVertex v1 = FDynamicMeshVertex(
+			FVector(x - a / 2.f, y - r, z + 0),
+			FVector2D(-1 / 2.f, -sqrt3 / 6),
+			Color);
+		FDynamicMeshVertex v2 = FDynamicMeshVertex(
+			FVector(x + a / 2.f, y - r, z + 0),
+			FVector2D(1 / 2.f, -sqrt3 / 6),
+			Color);
+		FDynamicMeshVertex v3 = FDynamicMeshVertex(
+			FVector(x, y + a / sqrt3, z + 0),
+			FVector2D(0, 1 / sqrt3),
+			Color);
 
         // TODO: set for each vertex
         //Vert.SetTangents(ForwardDir, OutDir ^ ForwardDir, OutDir);
