@@ -181,7 +181,7 @@ void UGPUPointCloudRendererComponent::CreateStreamingBaseMesh(int32 pointCount)
 	mBaseMesh->SetMaterial(0, mStreamingBaseMat);
 	mBaseMesh->SetAbsolute(false, true, true);	// Disable scaling for the mesh - the scaling vector is transferred via a shader parameter in UpdateShaderProperties()
 	mBaseMesh->bNeverDistanceCull = true;
-	mBaseMesh->SetCustomBounds(mPointCloudCore->GetExtent());
+	//mBaseMesh->SetCustomBounds(mPointCloudCore->GetExtent());
 
 	// Update material
 	mPointCloudMaterial = mBaseMesh->CreateAndSetMaterialInstanceDynamic(0);
