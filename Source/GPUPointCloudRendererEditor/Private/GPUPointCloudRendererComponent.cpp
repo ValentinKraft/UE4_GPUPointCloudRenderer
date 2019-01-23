@@ -5,7 +5,6 @@
 #include "GPUPointCloudRendererComponent.h"
 #include "IGPUPointCloudRenderer.h"
 #include "PointCloudStreamingCore.h"
-#include "PointCloudMeshBuilder.h"
 #include "ConstructorHelpers.h"
 
 
@@ -21,6 +20,7 @@ if (!mPointCloudCore) {																	\
 	return;																				\
 }
 
+//const float sqrt3 = FMath::Sqrt(3);
 
 UGPUPointCloudRendererComponent::UGPUPointCloudRendererComponent(const FObjectInitializer& ObjectInitializer)
 {
@@ -165,15 +165,25 @@ void UGPUPointCloudRendererComponent::CreateStreamingBaseMesh(int32 pointCount)
 	CHECK_PCR_STATUS
 
 	//Check if update is neccessary
-	if (mBaseMesh && mBaseMesh->NumPoints == pointCount)
-		return;
+	//if (mBaseMesh && mBaseMesh->NumPoints == pointCount)
+	//	return;
 	if (pointCount == 0)
 		return;
 
+	mBaseMesh = NewObject<UCustomMeshComponent>(this, FName("PointCloud Mesh"));
+
 	// Create base mesh
-	mBaseMesh = NewObject<UPointCloudMeshBuilder>(this, FName("PointCloud Mesh"));
-	mBaseMesh->NumPoints = pointCount;
-	mBaseMesh->triangleSize = 1.0f;	// splat size is set in the shader
+	TArray<FCustomMeshTriangle> triangles;
+	BuildTriangleStack(triangles, pointCount);
+	mBaseMesh->SetCustomMeshTriangles(triangles);
+
+	FBoxSphereBounds NewBounds;
+	NewBounds.Origin = this->GetComponentToWorld().GetLocation();
+	NewBounds.BoxExtent = FVector(INT_MAX, INT_MAX, INT_MAX);
+	NewBounds.SphereRadius = (float)INT_MAX;
+	mBaseMesh->Bounds = NewBounds;
+	mBaseMesh->bNeverDistanceCull = true;
+
 	mBaseMesh->RegisterComponent();
 	mBaseMesh->AttachToComponent(this, FAttachmentTransformRules::KeepRelativeTransform);
 	mBaseMesh->SetMaterial(0, mStreamingBaseMat);
@@ -184,6 +194,30 @@ void UGPUPointCloudRendererComponent::CreateStreamingBaseMesh(int32 pointCount)
 	mPointCloudCore->UpdateDynamicMaterialForStreaming(mPointCloudMaterial);
 }
 
+void UGPUPointCloudRendererComponent::BuildTriangleStack(TArray<FCustomMeshTriangle> &triangles, const int32 &pointCount)
+{
+	triangles.SetNumUninitialized(pointCount);
+
+	// construct equilateral triangle with x, y, z as center and normal facing z
+	float a = 1.0f; // side lenght
+	float sqrt3 = FMath::Sqrt(3);
+	float r = sqrt3 / 6 * a; // radius of inscribed circle
+							 //float h_minus_r = a / sqrt3; // from center to tip. height - r
+	float x = 0;
+	float y = 0;
+
+	for (int i = 0; i < pointCount; i++) {
+
+		float z = 0.1000000000f * floorf((float)i + 0.5f);
+
+		FCustomMeshTriangle t;
+		t.Vertex2 = FVector(x - a / 2.f, y - r, z);
+		t.Vertex1 = FVector(x + a / 2.f, y - r, z);
+		t.Vertex0 = FVector(x, y + a / sqrt3, z);
+
+		triangles[i] = t;
+	}
+}
 
 void UGPUPointCloudRendererComponent::UpdateShaderProperties()
 {
