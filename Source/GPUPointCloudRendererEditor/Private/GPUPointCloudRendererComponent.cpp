@@ -167,27 +167,21 @@ void UGPUPointCloudRendererComponent::CreateStreamingBaseMesh(int32 pointCount)
 	//Check if update is neccessary
 	//if (mBaseMesh && mBaseMesh->NumPoints == pointCount)
 	//	return;
-	if (pointCount == 0)
+	if (pointCount == 0 || !mPointCloudCore)
 		return;
 
-	mBaseMesh = NewObject<UCustomMeshComponent>(this, FName("PointCloud Mesh"));
+	mBaseMesh = NewObject<UPointCloudMeshComponent>(this, FName("PointCloud Mesh"));
 
 	// Create base mesh
 	TArray<FCustomMeshTriangle> triangles;
 	BuildTriangleStack(triangles, pointCount);
 	mBaseMesh->SetCustomMeshTriangles(triangles);
-
-	FBoxSphereBounds NewBounds;
-	NewBounds.Origin = this->GetComponentToWorld().GetLocation();
-	NewBounds.BoxExtent = FVector(INT_MAX, INT_MAX, INT_MAX);
-	NewBounds.SphereRadius = (float)INT_MAX;
-	mBaseMesh->Bounds = NewBounds;
-	mBaseMesh->bNeverDistanceCull = true;
-
 	mBaseMesh->RegisterComponent();
 	mBaseMesh->AttachToComponent(this, FAttachmentTransformRules::KeepRelativeTransform);
 	mBaseMesh->SetMaterial(0, mStreamingBaseMat);
 	mBaseMesh->SetAbsolute(false, true, true);	// Disable scaling for the mesh - the scaling vector is transferred via a shader parameter in UpdateShaderProperties()
+	mBaseMesh->bNeverDistanceCull = true;
+	mBaseMesh->SetCustomBounds(mPointCloudCore->GetExtent());
 
 	// Update material
 	mPointCloudMaterial = mBaseMesh->CreateAndSetMaterialInstanceDynamic(0);

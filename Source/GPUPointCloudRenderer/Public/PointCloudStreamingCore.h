@@ -18,6 +18,7 @@ public:
 	~FPointCloudStreamingCore();
 	//virtual unsigned int GetInstanceId() const { return _instanceId; };
 	unsigned int GetPointCount() { return mPointCount; };
+	FBox GetExtent() { return mExtent; };
 
 	void Update(float deltaTime) { UpdateShaderParameter();	mDeltaTime += deltaTime; };
 	void UpdateDynamicMaterialForStreaming(UMaterialInstanceDynamic* pointCloudShaderDynInstance) { mDynamicMatInstance = pointCloudShaderDynInstance; };
@@ -42,8 +43,7 @@ private:
 
 	class UMaterialInstanceDynamic* mDynamicMatInstance = nullptr;
 	unsigned int mPointCount = 0;
-	
-	FBox mExtent;
+	FBox mExtent = FBox(FVector::ZeroVector, FVector::ZeroVector);
 	float mDeltaTime = 10.f;
 
 	// CPU buffers

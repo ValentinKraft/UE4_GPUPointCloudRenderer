@@ -12,6 +12,49 @@
 
 DECLARE_LOG_CATEGORY_EXTERN(GPUPointCloudRenderer, Log, All);
 
+UCLASS(ClassGroup = Rendering, meta = (BlueprintSpawnableComponent), hideCategories = (Object, LOD, Physics, Collision))
+class GPUPOINTCLOUDRENDEREREDITOR_API UPointCloudMeshComponent : public UCustomMeshComponent
+{	
+	GENERATED_BODY()
+
+public:
+	bool SetCustomBounds(FBox boundingBox) { 
+
+		if (boundingBox.Min == FVector::ZeroVector && boundingBox.Max == FVector::ZeroVector)
+			return false;
+
+		mCustomBounds = boundingBox;
+		mUseCustomBounds = true;
+
+		return true;
+	}
+
+private:
+	//~ Begin USceneComponent Interface.
+	virtual FBoxSphereBounds CalcBounds(const FTransform& LocalToWorld) const override {
+
+		FBoxSphereBounds NewBounds;
+
+		if (mUseCustomBounds) {
+			NewBounds.Origin = mCustomBounds.GetCenter();
+			NewBounds.BoxExtent = mCustomBounds.GetExtent();
+			float r = NewBounds.BoxExtent.GetMax();
+			NewBounds.SphereRadius = FMath::Sqrt(3.0f*r);
+		}
+		else {
+			NewBounds.Origin = this->GetComponentToWorld().GetLocation();
+			NewBounds.BoxExtent = FVector(INT_MAX / 10.0f, INT_MAX / 10.0f, INT_MAX / 10.0f);
+			NewBounds.SphereRadius = (float)INT_MAX / 10.0f;
+		}
+		
+		return NewBounds;
+	};
+	//~ Begin USceneComponent Interface.
+
+	bool mUseCustomBounds = false;
+	FBox mCustomBounds = FBox(FVector::ZeroVector, FVector::ZeroVector);
+};
+
 UCLASS( ClassGroup=Rendering, meta=(BlueprintSpawnableComponent), hideCategories = (Object, LOD, Physics, Collision))
 class GPUPOINTCLOUDRENDEREREDITOR_API UGPUPointCloudRendererComponent : public USceneComponent
 {
@@ -22,7 +65,7 @@ public:
 	~UGPUPointCloudRendererComponent();
 
 	UPROPERTY()
-	class UCustomMeshComponent* mBaseMesh;
+	class UPointCloudMeshComponent* mBaseMesh;
 
 	/**
 	* For dynamic point clouds only. When you want to change properties, then you'll have to call this function (during Run-Time or in construction script). Sets the given point cloud properties and updates the point cloud. Can be called every frame.
