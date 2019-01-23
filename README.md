@@ -7,7 +7,6 @@ __For loading PCD files, processing point clouds with PCL or fetching data from 
 
 Currently supported Unreal Versions:
 * __UE4.21__
-* UE4.18 (see other branch)
 * UE4.19 (see other branch)
 
 The ComputeShader-powered version for proper in-place depth-ordering of the points is still in development (see other branch).
