@@ -6,7 +6,8 @@ __This plugin is only for rendering point clouds and does NOT load point cloud f
 __For loading PCD files, processing point clouds with PCL or fetching data from a Kinect, another plugin will follow soon.__
 
 Currently supported Unreal Versions:
-* UE4.18
+__* UE4.21__
+* UE4.18 (see other branch)
 * UE4.19 (see other branch)
 
 The ComputeShader-powered version for proper in-place depth-ordering of the points is still in development (see other branch).
