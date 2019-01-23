@@ -23,6 +23,7 @@ public class GPUPointCloudRendererEditor : ModuleRules
                     "GPUPointCloudRenderer",
                     "ShaderCore",
                     "RenderCore",
+                    "CustomMeshComponent",
                     "RHI"
                 }
             );

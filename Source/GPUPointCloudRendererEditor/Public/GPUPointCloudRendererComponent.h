@@ -5,6 +5,7 @@
 #pragma once
 
 #include "Components/ActorComponent.h"
+#include "CustomMeshComponent.h"
 
 #include "GPUPointCloudRendererComponent.generated.h"
 
@@ -20,7 +21,7 @@ public:
 	~UGPUPointCloudRendererComponent();
 
 	UPROPERTY()
-	class UPointCloudMeshBuilder* mBaseMesh;
+	class UCustomMeshComponent* mBaseMesh;
 
 	/**
 	* For dynamic point clouds only. When you want to change properties, then you'll have to call this function (during Run-Time or in construction script). Sets the given point cloud properties and updates the point cloud. Can be called every frame.
@@ -126,6 +127,7 @@ private:
 	bool mShouldOverrideColor = false;
 
 	void CreateStreamingBaseMesh(int32 pointCount = 1);
+	void BuildTriangleStack(TArray<FCustomMeshTriangle> &triangles, const int32 &pointCount);
 	void UpdateCameraPositionForSorting();
 	void SaveColorDataToTextureHelper();
 	void UpdateShaderProperties();
