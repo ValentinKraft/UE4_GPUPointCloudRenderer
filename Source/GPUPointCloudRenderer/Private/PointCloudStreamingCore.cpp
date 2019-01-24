@@ -67,7 +67,7 @@ void FPointCloudStreamingCore::AddSnapshot(TArray<FLinearColor> &pointPositions,
 	mDeltaTime = 0.f;
 }
 
-bool FPointCloudStreamingCore::SetInput(TArray<FLinearColor> &pointPositions, TArray<uint8> &pointColors, bool sortData) {
+bool FPointCloudStreamingCore::SetInput(TArray<FLinearColor> &pointPositions, TArray<uint8> &pointColors) {
 
 	check(pointPositions.Num() * 4 == pointColors.Num());
 
@@ -87,7 +87,7 @@ bool FPointCloudStreamingCore::SetInput(TArray<FLinearColor> &pointPositions, TA
 	return UpdateTextureBuffer();
 }
 
-bool FPointCloudStreamingCore::SetInput(TArray<FLinearColor> &pointPositions, TArray<FColor> &pointColors, bool sortData) {
+bool FPointCloudStreamingCore::SetInput(TArray<FLinearColor> &pointPositions, TArray<FColor> &pointColors) {
 
 	ensure(pointPositions.Num() == pointColors.Num());
 
@@ -110,7 +110,7 @@ bool FPointCloudStreamingCore::SetInput(TArray<FLinearColor> &pointPositions, TA
 	return UpdateTextureBuffer();
 }
 
-bool FPointCloudStreamingCore::SetInput(TArray<FVector> &pointPositions, TArray<FColor> &pointColors, bool sortData) {
+bool FPointCloudStreamingCore::SetInput(TArray<FVector> &pointPositions, TArray<FColor> &pointColors) {
 
 	ensure(pointPositions.Num() == pointColors.Num());
 
@@ -133,9 +133,6 @@ bool FPointCloudStreamingCore::SetInput(TArray<FVector> &pointPositions, TArray<
 		mPointColorData[i * 4 + 2] = pointColors[i].B;
 		mPointColorData[i * 4 + 3] = pointColors[i].A;
 	}
-
-	if (sortData)
-		SortPointCloudData();
 	
 	return UpdateTextureBuffer();
 }
