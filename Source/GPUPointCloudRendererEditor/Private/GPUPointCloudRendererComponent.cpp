@@ -202,7 +202,7 @@ void UGPUPointCloudRendererComponent::BuildTriangleStack(TArray<FCustomMeshTrian
 
 	for (int i = 0; i < pointCount; i++) {
 
-		float z = 0.1000000000f * floorf((float)i + 0.5f);
+		double z = i / 10.0f;
 
 		FCustomMeshTriangle t;
 		t.Vertex2 = FVector(x - a / 2.f, y - r, z);

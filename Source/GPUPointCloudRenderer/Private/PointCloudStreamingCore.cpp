@@ -72,15 +72,17 @@ bool FPointCloudStreamingCore::SetInput(TArray<FLinearColor> &pointPositions, TA
 	check(pointPositions.Num() * 4 == pointColors.Num());
 
 	if (pointColors.Num() < pointPositions.Num() * 4)
-		pointColors.Reserve(pointPositions.Num() * 4);
+		pointColors.SetNumZeroed(pointPositions.Num() * 4);
 
 	Initialize(pointPositions.Num());
-
 	mPointPosDataPointer = &pointPositions;
 	mPointColorDataPointer = &pointColors;
 
-	if (sortData)
-		SortPointCloudData();
+	// Resize arrays with zero values if neccessary
+	if (pointPositions.Num() < (int32)mPointCount)
+		pointPositions.SetNumZeroed(mPointCount);
+	if (pointColors.Num() < (int32)mPointCount*4)
+		pointColors.SetNumZeroed(mPointCount*4);
 
 	return UpdateTextureBuffer();
 }
@@ -101,8 +103,9 @@ bool FPointCloudStreamingCore::SetInput(TArray<FLinearColor> &pointPositions, TA
 	}
 	mPointPosDataPointer = &pointPositions;
 
-	if (sortData)
-		SortPointCloudData();
+	// Resize arrays with zero values if neccessary
+	if (pointPositions.Num() < (int32)mPointCount)
+		pointPositions.SetNumZeroed(mPointCount);
 
 	return UpdateTextureBuffer();
 }
@@ -167,8 +170,9 @@ void FPointCloudStreamingCore::Initialize(unsigned int pointCount)
 		return;
 
 	int32 pointsPerAxis = FMath::CeilToInt(FMath::Sqrt(pointCount));
-	// Ensure even sized textures to avoid inaccuracies
+	// Ensure even-sized, power-of-two textures to avoid inaccuracies
 	if (pointsPerAxis % 2 == 1) pointsPerAxis++;
+	pointsPerAxis = GetUpperPowerOfTwo(pointsPerAxis);
 
 	// Check if update is neccessary
 	if (mPointPosTexture && mPointColorTexture && mPointScalingTexture && mUpdateTextureRegion)
@@ -177,8 +181,8 @@ void FPointCloudStreamingCore::Initialize(unsigned int pointCount)
 
 	mPointCount = pointsPerAxis * pointsPerAxis;
 
-	CreateTextures(pointsPerAxis);
 	ResetPointData(pointsPerAxis);
+	CreateTextures(pointsPerAxis);
 
 	mGlobalStreamCounter = 0;
 }
@@ -187,13 +191,11 @@ void FPointCloudStreamingCore::ResetPointData(const int32 &pointsPerAxis)
 {
 	mPointPosData.Empty();
 	mPointPosData.AddUninitialized(mPointCount);
-	if (!mPointPosDataPointer)
-		mPointPosDataPointer = &mPointPosData;
+	mPointPosDataPointer = &mPointPosData;
 
 	mPointColorData.Empty();
 	mPointColorData.AddUninitialized(mPointCount * 4);
-	if (!mPointColorDataPointer)
-		mPointColorDataPointer = &mPointColorData;
+	mPointColorDataPointer = &mPointColorData;
 
 	mPointScalingData.Empty();
 	mPointScalingData.Init(FVector::OneVector, mPointCount);
@@ -206,7 +208,7 @@ void FPointCloudStreamingCore::CreateTextures(const int32 &pointsPerAxis)
 {
 	// create point cloud positions texture
 	mPointPosTexture = UTexture2D::CreateTransient(pointsPerAxis, pointsPerAxis, EPixelFormat::PF_A32B32G32R32F);
-	mPointPosTexture->CompressionSettings = TextureCompressionSettings::TC_HDR;
+	mPointPosTexture->CompressionSettings = TextureCompressionSettings::TC_VectorDisplacementmap;
 	mPointPosTexture->SRGB = 0;
 	mPointPosTexture->AddToRoot();
 	mPointPosTexture->UpdateResource();
@@ -216,7 +218,7 @@ void FPointCloudStreamingCore::CreateTextures(const int32 &pointsPerAxis)
 
 	// create point cloud scalings texture
 	mPointScalingTexture = UTexture2D::CreateTransient(pointsPerAxis, pointsPerAxis, EPixelFormat::PF_A32B32G32R32F);
-	mPointScalingTexture->CompressionSettings = TextureCompressionSettings::TC_HDR;
+	mPointScalingTexture->CompressionSettings = TextureCompressionSettings::TC_VectorDisplacementmap;
 	mPointScalingTexture->SRGB = 0;
 	mPointScalingTexture->AddToRoot();
 	mPointScalingTexture->UpdateResource();
@@ -260,11 +262,13 @@ bool FPointCloudStreamingCore::UpdateTextureBuffer()
 
 	if (!mPointColorDataPointer || !mPointPosDataPointer || !mPointPosTexture || !mPointColorTexture || !mPointScalingTexture)
 		return false;
-	if (&mPointPosDataPointer == nullptr || &mPointColorDataPointer == nullptr)
+	if (mPointPosDataPointer == nullptr || mPointColorDataPointer == nullptr)
 		return false;
 	if (mPointColorDataPointer->Num() == 0 || mPointPosDataPointer->Num() == 0)
 		return false;
 	if (mPointColorDataPointer->Num() > mPointColorTexture->GetSizeX() * mPointColorTexture->GetSizeY() * 4 || mPointPosDataPointer->Num() > mPointPosTexture->GetSizeX()*mPointPosTexture->GetSizeY())
+		return false;
+	if (mUpdateTextureRegion == nullptr)
 		return false;
 
 	mPointPosTexture->WaitForStreaming();
