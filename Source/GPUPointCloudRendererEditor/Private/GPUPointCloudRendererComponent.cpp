@@ -222,10 +222,10 @@ void UGPUPointCloudRendererComponent::BuildTriangleStack(TArray<FCustomMeshTrian
 	triangles.SetNumUninitialized(pointCount);
 
 	// construct equilateral triangle with x, y, z as center and normal facing z
-	float a = 1.0f; // side lenght
+	float a = 1.0f;				// side lenght
 	float sqrt3 = FMath::Sqrt(3);
-	float r = sqrt3 / 6 * a; // radius of inscribed circle
-							 //float h_minus_r = a / sqrt3; // from center to tip. height - r
+	float r = sqrt3 / 6 * a;	// radius of inscribed circle
+	//float h_minus_r = a / sqrt3; // from center to tip. height - r
 	float x = 0;
 	float y = 0;
 

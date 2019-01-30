@@ -377,7 +377,7 @@ void FPointCloudStreamingCore::UpdateShaderParameter()
 		}
 		if (mComputeShader->GetSortedPointColorsTexture()) {
 			mDynamicMatInstance->SetTextureParameterValue("ColorTexture", mSortedPointColorTex);
-			mDynamicMatInstance->SetScalarParameterValue("ColorTextureSize", mPointColorRT->SizeX);
+			//mDynamicMatInstance->SetScalarParameterValue("ColorTextureSize", mPointColorRT->SizeX);
 		}
 	}
 
