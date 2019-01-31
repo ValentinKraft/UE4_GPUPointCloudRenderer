@@ -207,7 +207,7 @@ void UGPUPointCloudRendererComponent::CreateStreamingBaseMesh(int32 pointCount)
 
 	// Create base mesh
 	TArray<FCustomMeshTriangle> triangles;
-	BuildTriangleStack(triangles, NUM_ELEMENTS);
+	BuildTriangleStack(triangles, pointCount);
 	mBaseMesh->SetCustomMeshTriangles(triangles);
 	mBaseMesh->RegisterComponent();
 	mBaseMesh->AttachToComponent(this, FAttachmentTransformRules::KeepRelativeTransform);
