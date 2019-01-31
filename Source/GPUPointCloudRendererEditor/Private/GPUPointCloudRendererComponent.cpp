@@ -199,6 +199,10 @@ void UGPUPointCloudRendererComponent::CreateStreamingBaseMesh(int32 pointCount)
 	if (pointCount == 0 || !mPointCloudCore)
 		return;
 
+	// ensure at least enough elements are created for rendering the sorted point clouds
+	if (pointCount < NUM_ELEMENTS)
+		pointCount = NUM_ELEMENTS;
+
 	mBaseMesh = NewObject<UPointCloudMeshComponent>(this, FName("PointCloud Mesh"));
 
 	// Create base mesh
