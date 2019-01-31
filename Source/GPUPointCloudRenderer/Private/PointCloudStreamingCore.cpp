@@ -93,8 +93,8 @@ bool FPointCloudStreamingCore::SetInput(TArray<FLinearColor> &pointPositions, TA
 	// Resize arrays with zero values if neccessary
 	if (pointPositions.Num() < (int32)mPointCount)
 		pointPositions.SetNumZeroed(mPointCount);
-	if (pointColors.Num() < (int32)mPointCount*4)
-		pointColors.SetNumZeroed(mPointCount*4);
+	if (pointColors.Num() < (int32)mPointCount * 4)
+		pointColors.SetNumZeroed(mPointCount * 4);
 
 	return UpdateTextureBuffer();
 }
@@ -249,7 +249,7 @@ void FPointCloudStreamingCore::CreateShader(const int32 &pointsPerAxis)
 {
 	// Create shader
 	if (!mComputeShader && currentWorld)
-		mComputeShader = new FComputeShader(1.0f, GetUpperPowerOfTwo(pointsPerAxis), GetUpperPowerOfTwo(pointsPerAxis), currentWorld->Scene->GetFeatureLevel());
+		mComputeShader = new FComputeShader(1.0f, BITONIC_BLOCK_SIZE, BITONIC_BLOCK_SIZE, currentWorld->Scene->GetFeatureLevel());
 	if (!mPixelShader && currentWorld)
 		mPixelShader = new FPixelShader(FColor::Green, currentWorld->Scene->GetFeatureLevel());
 	if (!mPixelShader2 && currentWorld)
@@ -299,7 +299,7 @@ void FPointCloudStreamingCore::CreateTextures(const int32 &pointsPerAxis)
 		mPointPosRT->MipGenSettings = TextureMipGenSettings::TMGS_NoMipmaps;
 		mPointPosRT->RenderTargetFormat = ETextureRenderTargetFormat::RTF_RGBA32f;
 		mPointPosRT->CompressionSettings = TextureCompressionSettings::TC_VectorDisplacementmap;
-		mPointPosRT->InitAutoFormat(GetUpperPowerOfTwo(pointsPerAxis), GetUpperPowerOfTwo(pointsPerAxis));
+		mPointPosRT->InitAutoFormat(BITONIC_BLOCK_SIZE, BITONIC_BLOCK_SIZE);
 		mPointPosRT->UpdateResourceImmediate();
 		//mPointPosRT->InitCustomFormat(pointsPerAxis, pointsPerAxis, EPixelFormat::PF_A32B32G32R32F, false);
 		checkf(mPointPosRT != nullptr, TEXT("Unable to create or find valid render target"));
@@ -315,7 +315,7 @@ void FPointCloudStreamingCore::CreateTextures(const int32 &pointsPerAxis)
 		mPointColorRT->MipGenSettings = TextureMipGenSettings::TMGS_NoMipmaps;
 		mPointColorRT->RenderTargetFormat = ETextureRenderTargetFormat::RTF_RGBA8;
 		mPointColorRT->CompressionSettings = TextureCompressionSettings::TC_Default;
-		mPointColorRT->InitAutoFormat(GetUpperPowerOfTwo(pointsPerAxis), GetUpperPowerOfTwo(pointsPerAxis));
+		mPointColorRT->InitAutoFormat(BITONIC_BLOCK_SIZE, BITONIC_BLOCK_SIZE);
 		mPointColorRT->UpdateResourceImmediate();
 		//mPointPosRT->InitCustomFormat(pointsPerAxis, pointsPerAxis, EPixelFormat::PF_A32B32G32R32F, false);
 		checkf(mPointColorRT != nullptr, TEXT("Unable to create or find valid render target"));
@@ -356,29 +356,22 @@ void FPointCloudStreamingCore::UpdateShaderParameter()
 {
 	SCOPE_CYCLE_COUNTER(STAT_UpdateShaderTextures);
 
-	if (!mPointPosTexture || !mPointColorTexture || !mPointScalingTexture)
-		return;
 	if (!mDynamicMatInstance)
 		return;
 
-	WaitForTextureUpdates();
-
-	// Set unsorted textures as fallback
-	mDynamicMatInstance->SetTextureParameterValue("PositionTexture", mPointPosTexture);
-	mDynamicMatInstance->SetScalarParameterValue("TextureSize", mPointPosTexture->GetSizeX());
-	mDynamicMatInstance->SetTextureParameterValue("ColorTexture", mPointColorTexture);
-	mDynamicMatInstance->SetScalarParameterValue("ColorTextureSize", mPointColorTexture->GetSizeX());
-
-	// Optionally, update with sorted textures
-	if (mWasSorted && mComputeShader) {
-		if (mComputeShader->GetSortedPointPosTexture()) {
-			mDynamicMatInstance->SetTextureParameterValue("PositionTexture", mSortedPointPosTex);
-			mDynamicMatInstance->SetScalarParameterValue("TextureSize", mPointPosRT->SizeX);
-		}
-		if (mComputeShader->GetSortedPointColorsTexture()) {
-			mDynamicMatInstance->SetTextureParameterValue("ColorTexture", mSortedPointColorTex);
-			//mDynamicMatInstance->SetScalarParameterValue("ColorTextureSize", mPointColorRT->SizeX);
-		}
+	if (mWasSorted) {
+		if (!mComputeShader || !mSortedPointPosTex || !mSortedPointColorTex)
+			return;
+		mDynamicMatInstance->SetTextureParameterValue("PositionTexture", mSortedPointPosTex);
+		mDynamicMatInstance->SetScalarParameterValue("TextureSize", mPointPosRT->SizeX);
+		mDynamicMatInstance->SetTextureParameterValue("ColorTexture", mSortedPointColorTex);
+	}
+	else {
+		if (!mPointPosTexture || !mPointColorTexture)
+			return;
+		mDynamicMatInstance->SetTextureParameterValue("PositionTexture", mPointPosTexture);
+		mDynamicMatInstance->SetScalarParameterValue("TextureSize", mPointPosTexture->GetSizeX());
+		mDynamicMatInstance->SetTextureParameterValue("ColorTexture", mPointColorTexture);
 	}
 
 	//if (mHasSurfaceReconstructed)

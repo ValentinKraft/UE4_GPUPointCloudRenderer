@@ -203,7 +203,7 @@ void UGPUPointCloudRendererComponent::CreateStreamingBaseMesh(int32 pointCount)
 
 	// Create base mesh
 	TArray<FCustomMeshTriangle> triangles;
-	BuildTriangleStack(triangles, pointCount);
+	BuildTriangleStack(triangles, NUM_ELEMENTS);
 	mBaseMesh->SetCustomMeshTriangles(triangles);
 	mBaseMesh->RegisterComponent();
 	mBaseMesh->AttachToComponent(this, FAttachmentTransformRules::KeepRelativeTransform);
@@ -216,6 +216,7 @@ void UGPUPointCloudRendererComponent::CreateStreamingBaseMesh(int32 pointCount)
 	mPointCloudMaterial = mBaseMesh->CreateAndSetMaterialInstanceDynamic(0);
 	mPointCloudCore->UpdateDynamicMaterialForStreaming(mPointCloudMaterial);
 }
+
 
 void UGPUPointCloudRendererComponent::BuildTriangleStack(TArray<FCustomMeshTriangle> &triangles, const int32 &pointCount)
 {
