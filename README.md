@@ -17,13 +17,13 @@ __Usage__
 
 The Point Cloud Renderer is implemented as a component you can add to Unreal actors/objects. For rendering point clouds, simply use the *PCR Set/Stream Input* nodes. The rendering properties can be changed by the *PCR Set Dynamic Properties* node.
 
-Please mind that the depth-ordering of the points is not correct. For proper depth ordering, change the Blend Mode of the *DynPCMat* material to "Masked" or use my Sorting Compute Shader for in-place depth-ordering of the points: https://github.com/ValentinKraft/UE4_SortingComputeShader (and use the "WithComputeShaderSort" branch).
+Please mind that the depth-ordering of the points is not correct. For proper depth ordering, change the Blend Mode of the *DynPCMat* material to "Masked" or use my Sorting Compute Shader for in-place depth-ordering of the points: https://github.com/ValentinKraft/UE4_SortingComputeShader (and use the "WithComputeShaderSort" branch of this repository).
 
 __License__
 
 The plugin is free for personal and academic use. Commercial use has to be negotiated. For more information, send me an E-Mail or read the LICENSE.md.
 
-The plugin was created in the context of a master thesis at the CGVR institute of the University of Bremen.
+The plugin was created in the context of a master thesis at the [CGVR institute of the University of Bremen](http://cgvr.cs.uni-bremen.de/).
 
 __Basics Tutorial:__
 
