@@ -11,6 +11,10 @@ Currently supported Unreal Versions:
 
 The ComputeShader-powered version for proper in-place depth-ordering of the points is still in development (see other branch).
 
+__License__
+
+The plugin is free for personal and academic use. Commercial use has to be negotiated. For more information, send me an E-Mail or read the LICENSE.md.
+
 __Basics Tutorial:__
 
 [![Tutorial](https://img.youtube.com/vi/95rdEG5H8sI/0.jpg)](https://www.youtube.com/watch?v=95rdEG5H8sI)
