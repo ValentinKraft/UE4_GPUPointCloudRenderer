@@ -1,19 +1,29 @@
 **Unreal Engine GPU Point Cloud Renderer**
 
-This is a GPU-based Plugin for Real-Time rendering of dynamic and massive point cloud data in Unreal. This project is still under development and not (yet) a finalised plugin.
+This is a GPU-based Plugin for Real-Time rendering of dynamic and massive point cloud data in Unreal.
 
 __This plugin is only for rendering point clouds and does NOT load point cloud files or visualise Kinect data.__
 __For loading PCD files, processing point clouds with PCL or fetching data from a Kinect, another plugin will follow soon.__
 
+__Installation__
+
 Currently supported Unreal Versions:
-* __UE4.21__
+* __UE4.21__ (master branch)
 * UE4.19 (see other branch)
 
-The ComputeShader-powered version for proper in-place depth-ordering of the points is still in development (see other branch).
+For installation, copy the plugin to your Engine' or Project's Plugins folder.
+
+__Usage__
+
+The Point Cloud Renderer is implemented as a component you can add to Unreal actors/objects. For rendering point clouds, simply use the *PCR Set/Stream Input* nodes. The rendering properties can be changed by the *PCR Set Dynamic Properties* node.
+
+Please mind that the depth-ordering of the points is not correct. For proper depth ordering, change the Blend Mode of the *DynPCMat* material to "Masked" or use my Sorting Compute Shader for in-place depth-ordering of the points: https://github.com/ValentinKraft/UE4_SortingComputeShader (and use the "WithComputeShaderSort" branch).
 
 __License__
 
 The plugin is free for personal and academic use. Commercial use has to be negotiated. For more information, send me an E-Mail or read the LICENSE.md.
+
+The plugin was created in the context of a master thesis at the CGVR institute of the University of Bremen.
 
 __Basics Tutorial:__
 
