@@ -51,4 +51,4 @@ Please print this copyright notice / license agreement, sign it (if you are not 
     Germany
     Phone: +49 421 218 - 644 50
 
-If you want to use the Software for a non-academic purpose, please send me a quick email to zach in.tu-clausthal.de and we will quickly and smoothly negotiate something. 
+If you want to use the Software for a non-academic purpose, please send me a quick email to zach[at]informatik.uni-bremen.de and we will quickly and smoothly negotiate something. 
