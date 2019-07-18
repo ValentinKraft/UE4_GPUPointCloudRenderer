@@ -165,8 +165,8 @@ void UGPUPointCloudRendererComponent::CreateStreamingBaseMesh(int32 pointCount)
 	CHECK_PCR_STATUS
 
 	//Check if update is neccessary
-	//if (mBaseMesh && mBaseMesh->NumPoints == pointCount)
-	//	return;
+	if (mBaseMesh && mPointCount == pointCount)
+		return;
 	if (pointCount == 0 || !mPointCloudCore)
 		return;
 
