@@ -96,6 +96,9 @@ bool FPointCloudStreamingCore::SetInput(TArray<FLinearColor> &pointPositions, TA
 	if (pointColors.Num() < (int32)mPointCount * 4)
 		pointColors.SetNumZeroed(mPointCount * 4);
 
+	if (mComputeShader)
+		mComputeShader->UpdateDataInShader();
+
 	return UpdateTextureBuffer();
 }
 
@@ -118,6 +121,9 @@ bool FPointCloudStreamingCore::SetInput(TArray<FLinearColor> &pointPositions, TA
 	// Resize arrays with zero values if neccessary
 	if (pointPositions.Num() < (int32)mPointCount)
 		pointPositions.SetNumZeroed(mPointCount);
+
+	if (mComputeShader)
+		mComputeShader->UpdateDataInShader();
 
 	return UpdateTextureBuffer();
 }
@@ -145,6 +151,9 @@ bool FPointCloudStreamingCore::SetInput(TArray<FVector> &pointPositions, TArray<
 		mPointColorData[i * 4 + 2] = pointColors[i].B;
 		mPointColorData[i * 4 + 3] = pointColors[i].A;
 	}
+
+	if (mComputeShader)
+		mComputeShader->UpdateDataInShader();
 
 	return UpdateTextureBuffer();
 }
@@ -230,13 +239,8 @@ void FPointCloudStreamingCore::Initialize(unsigned int pointCount)
 
 void FPointCloudStreamingCore::ResetPointData(const int32 &pointsPerAxis)
 {
-	mPointPosData.Empty();
-	mPointPosData.AddUninitialized(mPointCount);
-	mPointPosDataPointer = &mPointPosData;
-
-	mPointColorData.Empty();
-	mPointColorData.AddUninitialized(mPointCount * 4);
-	mPointColorDataPointer = &mPointColorData;
+	InitPointPosBuffer();
+	InitColorBuffer();
 
 	mPointScalingData.Empty();
 	mPointScalingData.Init(FVector::OneVector, mPointCount);
