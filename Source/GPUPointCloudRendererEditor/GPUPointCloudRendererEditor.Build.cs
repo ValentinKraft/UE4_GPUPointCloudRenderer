@@ -21,7 +21,7 @@ public class GPUPointCloudRendererEditor : ModuleRules
                     "PropertyEditor",
                     "BlueprintGraph",
                     "GPUPointCloudRenderer",
-                    "ShaderCore",
+                    //"ShaderCore",
                     "RenderCore",
                     "CustomMeshComponent",
                     "RHI"
