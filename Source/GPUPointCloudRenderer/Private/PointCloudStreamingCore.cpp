@@ -6,7 +6,7 @@
 #include "PointCloudStreamingCore.h"
 #include "Engine/TextureRenderTarget2D.h"
 #include "Engine/World.h"
-#include "App.h"
+//#include "App.h"
 #include "Runtime/Engine/Classes/Materials/MaterialInstanceDynamic.h"
 //#include "ComputeShaderUsageExample.h"
 //#include "PixelShaderUsageExample.h"
