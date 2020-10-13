@@ -5,7 +5,7 @@
 #include "GPUPointCloudRendererComponent.h"
 #include "IGPUPointCloudRenderer.h"
 #include "PointCloudStreamingCore.h"
-//#include "ConstructorHelpers.h"
+#include "UObject/ConstructorHelpers.h"
 
 
 DEFINE_LOG_CATEGORY(GPUPointCloudRenderer);
@@ -28,8 +28,8 @@ UGPUPointCloudRendererComponent::UGPUPointCloudRendererComponent(const FObjectIn
 	PrimaryComponentTick.bCanEverTick = true;
 	//this->GetOwner()->AutoReceiveInput = EAutoReceiveInput::Player0;
 
-	//ConstructorHelpers::FObjectFinder<UMaterial> MaterialRef(TEXT("Material'/GPUPointCloudRenderer/Streaming/DynPCMat.DynPCMat'"));
-	//mStreamingBaseMat = MaterialRef.Object;
+	ConstructorHelpers::FObjectFinder<UMaterial> MaterialRef(TEXT("Material'/GPUPointCloudRenderer/Streaming/DynPCMat.DynPCMat'"));
+	mStreamingBaseMat = MaterialRef.Object;
 	mPointCloudMaterial = UMaterialInstanceDynamic::Create(mStreamingBaseMat, this->GetOwner());
 
 	if (mPointCloudCore)
