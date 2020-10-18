@@ -78,7 +78,7 @@ public:
 	* @param	overrideColor				Overrides the point cloud colors with the given colormap.
 	*/
 	UFUNCTION(DisplayName = "PCR Set Dynamic Point Cloud Properties", BlueprintCallable, Category = "GPUPointCloudRenderer", meta = (Keywords = "point cloud update set properties"))
-	void SetDynamicProperties(float cloudScaling = 1.0f, float falloff = 1.0f, float splatSize = 1.0f, float distanceScaling = 1000.f, float distanceFalloff = 1.0f, bool overrideColor = false);
+	void SetDynamicProperties(float cloudScaling = 1.0f, float falloff = 1.0f, float splatSize = 1.0f, float distanceScaling = 1000.f, float distanceFalloff = 1.0f, bool overrideColor = false, float frequencyOne = 0.0f, float frequencyTwo = 0.0f, float fOneIntensity = 1.0f, float fTwoIntensity = 1.0f);
 
 	/**
 	* Send your own, custom point data stream to the renderer. Could be used for a kinect point stream or similar. Can be called every frame. Point positions have to be encoded as a array of LinearColors with the following mapping:
@@ -141,12 +141,20 @@ private:
 	int32 mPointCount = 0;
 	UPROPERTY(VisibleAnywhere, Category = "GPUPointCloudRenderer")
 	FString mExtent = "No data.";
-	UPROPERTY(VisibleAnywhere, Category = "GPUPointCloudRenderer")
+	UPROPERTY(EditAnywhere, Category = "GPUPointCloudRenderer")
 	class UMaterialInstanceDynamic* mPointCloudMaterial = nullptr;
 	UPROPERTY(VisibleAnywhere, Category = "GPUPointCloudRenderer")
 	float mSplatSize = 1.0f;
 	UPROPERTY(VisibleAnywhere, Category = "GPUPointCloudRenderer")
 	float mCloudScaling = 1.0f;
+	UPROPERTY(VisibleAnywhere, Category = "GPUPointCloudRenderer")
+	float mFrequencyOne = 1.0f;
+	UPROPERTY(VisibleAnywhere, Category = "GPUPointCloudRenderer")
+	float mFrequencyTwo = 1.0f;
+	UPROPERTY(VisibleAnywhere, Category = "GPUPointCloudRenderer")
+	float mFOneIntensity = 1.0f;
+	UPROPERTY(VisibleAnywhere, Category = "GPUPointCloudRenderer")
+	float mFTwoIntensity = 1.0f;
 
 	/// Streaming-specific variables
 	UPROPERTY()
