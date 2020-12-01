@@ -2,7 +2,6 @@
 * Written by Valentin Kraft <valentin.kraft@online.de>, http://www.valentinkraft.de, 2018
 **************************************************************************************************/
 
-#include "CoreMinimal.h"
 #include "PointCloudStreamingCore.h"
 #include "Engine/TextureRenderTarget2D.h"
 #include "Engine/World.h"

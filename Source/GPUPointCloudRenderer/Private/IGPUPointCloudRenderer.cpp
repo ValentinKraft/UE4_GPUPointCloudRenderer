@@ -2,10 +2,10 @@
 * Written by Valentin Kraft <valentin.kraft@online.de>, http://www.valentinkraft.de, 2018
 **************************************************************************************************/
 
-#include "CoreMinimal.h"
 #include "PointCloudStreamingCore.h"
-#include "Modules/ModuleManager.h"
 #include "IGPUPointCloudRenderer.h"
+#include "Modules/ModuleManager.h"
+
 
 class FGPUPointCloudRendererPlugin : public IGPUPointCloudRenderer
 {
@@ -21,7 +21,7 @@ class FGPUPointCloudRendererPlugin : public IGPUPointCloudRenderer
 	/**
 	* Returns a instance of the Point Cloud Core class.
 	*/
-	FPointCloudStreamingCore* CreateStreamingInstance(UMaterialInstanceDynamic* pointCloudShaderDynInstance) {
+	FPointCloudStreamingCore* CreateStreamingInstance(UMaterialInstanceDynamic* pointCloudShaderDynInstance) override {
 		return new FPointCloudStreamingCore(pointCloudShaderDynInstance);
 	}
 };
