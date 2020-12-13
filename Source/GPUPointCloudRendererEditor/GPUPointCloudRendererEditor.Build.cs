@@ -21,7 +21,7 @@ public class GPUPointCloudRendererEditor : ModuleRules
                     "CoreUObject",
                     "Engine",
                     //"PropertyEditor",
-                    "BlueprintGraph",
+                    //"BlueprintGraph",
                     "GPUPointCloudRenderer",
                     //"ShaderCore",
                     "RenderCore",

@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Class.h"
-#include "PropertyEditorModule.h"
+//#include "PropertyEditorModule.h"
 #include "Modules/ModuleManager.h"
 #include "GPUPointCloudRendererComponent.h"
 #include "IGPUPointCloudRendererEditorPlugin.h"

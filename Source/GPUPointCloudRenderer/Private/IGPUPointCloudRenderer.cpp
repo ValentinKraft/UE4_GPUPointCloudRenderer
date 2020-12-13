@@ -23,7 +23,7 @@ class FGPUPointCloudRendererPlugin : public IGPUPointCloudRenderer
 	/**
 	* Returns a instance of the Point Cloud Core class.
 	*/
-	FPointCloudStreamingCore* CreateStreamingInstance(UMaterialInstanceDynamic* pointCloudShaderDynInstance) override {
+	FPointCloudStreamingCore* CreateStreamingInstance(UMaterialInstanceDynamic* pointCloudShaderDynInstance) {
 		return new FPointCloudStreamingCore(pointCloudShaderDynInstance);
 	}
 };

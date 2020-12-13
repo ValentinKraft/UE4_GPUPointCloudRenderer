@@ -10,6 +10,7 @@
 #include "Modules/ModuleManager.h"
 
 class UMaterialInstanceDynamic;
+class FPointCloudStreamingCore;
 
 /**
  * The public interface to the Point Cloud Renderer module.
