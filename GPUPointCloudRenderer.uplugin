@@ -24,8 +24,8 @@
     },
     {
       "Name": "GPUPointCloudRendererEditor",
-      "Type": "Editor",
-      "LoadingPhase": "PostEngineInit"
+      "Type": "Runtime",
+      "LoadingPhase": "Default"
     }
   ]
 }

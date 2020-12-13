@@ -1,5 +1,7 @@
 
 using UnrealBuildTool;
+using System.IO;
+using System;
 
 public class GPUPointCloudRendererEditor : ModuleRules
 {
@@ -9,8 +11,8 @@ public class GPUPointCloudRendererEditor : ModuleRules
 
         //Type = ModuleType.Editor;
 
-        PublicIncludePaths.Add("GPUPointCloudRendererEditor/Public");
-        PrivateIncludePaths.Add("GPUPointCloudRendererEditor/Private");
+        PrivateIncludePaths.Add(Path.Combine(ModuleDirectory, "Private"));
+        PublicIncludePaths.Add(Path.Combine(ModuleDirectory, "Public"));
 
         PublicDependencyModuleNames.AddRange(
                 new string[]
@@ -18,7 +20,7 @@ public class GPUPointCloudRendererEditor : ModuleRules
                     "Core",
                     "CoreUObject",
                     "Engine",
-                    "PropertyEditor",
+                    //"PropertyEditor",
                     "BlueprintGraph",
                     "GPUPointCloudRenderer",
                     //"ShaderCore",
@@ -31,13 +33,13 @@ public class GPUPointCloudRendererEditor : ModuleRules
         //if (UEBuildConfiguration.bBuildEditor)
         //    PublicDependencyModuleNames.Add("UnrealEd");
 
-        PrivateDependencyModuleNames.AddRange(
-            new string[]
-            {
-                    "EditorStyle",
-                    "AssetRegistry"
-            }
-        );
+        //PrivateDependencyModuleNames.AddRange(
+        //    new string[]
+        //    {
+        //            "EditorStyle",
+        //            "AssetRegistry"
+        //    }
+        //);
 
         // DynamicallyLoadedModuleNames.AddRange(new string[] { "GPUPointCloudRenderer" });
 
