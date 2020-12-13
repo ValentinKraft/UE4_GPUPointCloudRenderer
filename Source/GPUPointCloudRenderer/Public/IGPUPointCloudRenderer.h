@@ -5,9 +5,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Materials/MaterialInstanceDynamic.h"
+//#include "Materials/MaterialInstanceDynamic.h"
 #include "Modules/ModuleInterface.h"
 #include "Modules/ModuleManager.h"
+
+class UMaterialInstanceDynamic;
 
 /**
  * The public interface to the Point Cloud Renderer module.
