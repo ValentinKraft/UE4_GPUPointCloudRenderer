@@ -4,6 +4,7 @@
 
 #include "GPUPointCloudRendererComponent.h"
 #include "IGPUPointCloudRenderer.h"
+#include "Materials/MaterialInstanceDynamic.h"
 #include "PointCloudStreamingCore.h"
 #include "UObject/ConstructorHelpers.h"
 

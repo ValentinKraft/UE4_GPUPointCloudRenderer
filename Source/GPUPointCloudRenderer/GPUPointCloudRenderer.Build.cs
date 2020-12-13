@@ -28,7 +28,7 @@ namespace UnrealBuildTool.Rules
             PublicIncludePaths.Add(Path.Combine(ModuleDirectory, "Public"));
 
             PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "RHI", "CustomMeshComponent" });
-            PrivateDependencyModuleNames.AddRange(new string[] { "Core", "Projects" });
+            PrivateDependencyModuleNames.AddRange(new string[] { "Core", "Projects", "CustomMeshComponent" });
 
         }
     }
