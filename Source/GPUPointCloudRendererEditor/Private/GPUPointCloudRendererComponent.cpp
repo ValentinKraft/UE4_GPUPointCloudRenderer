@@ -25,22 +25,23 @@ if (!mPointCloudCore) {																	\
 
 UGPUPointCloudRendererComponent::UGPUPointCloudRendererComponent(const FObjectInitializer& ObjectInitializer)
 {
-	/// Set default values
-	PrimaryComponentTick.bCanEverTick = true;
-	//this->GetOwner()->AutoReceiveInput = EAutoReceiveInput::Player0;
+    /// Set default values
+    PrimaryComponentTick.bCanEverTick = true;
+    //this->GetOwner()->AutoReceiveInput = EAutoReceiveInput::Player0;
 
-	ConstructorHelpers::FObjectFinder<UMaterial> MaterialRef(TEXT("Material'/GPUPointCloudRenderer/Streaming/DynPCMat.DynPCMat'"));
-	mStreamingBaseMat = MaterialRef.Object;
-	mPointCloudMaterial = UMaterialInstanceDynamic::Create(mStreamingBaseMat, this->GetOwner());
+    ConstructorHelpers::FObjectFinder<UMaterial> MaterialRef(TEXT("Material'/GPUPointCloudRenderer/Streaming/DynPCMat.DynPCMat'"));
+    mStreamingBaseMat = MaterialRef.Object;
+    if (!mPointCloudMaterial)
+        mPointCloudMaterial = UMaterialInstanceDynamic::Create(mStreamingBaseMat, this->GetOwner());
 
-	if (mPointCloudCore)
-		delete mPointCloudCore;
-	mPointCloudCore = IGPUPointCloudRenderer::Get().CreateStreamingInstance(mPointCloudMaterial);
+    if (mPointCloudCore)
+        delete mPointCloudCore;
+    mPointCloudCore = IGPUPointCloudRenderer::Get().CreateStreamingInstance(mPointCloudMaterial);
 }
 
 UGPUPointCloudRendererComponent::~UGPUPointCloudRendererComponent() {
-	if (mPointCloudCore)
-		delete mPointCloudCore;
+    if (mPointCloudCore)
+        delete mPointCloudCore;
 }
 
 //////////////////////
@@ -48,91 +49,117 @@ UGPUPointCloudRendererComponent::~UGPUPointCloudRendererComponent() {
 //////////////////////
 
 
-void UGPUPointCloudRendererComponent::SetDynamicProperties(float cloudScaling, float falloff, float splatSize, float distanceScaling, float distanceFalloff, bool overrideColor, float frequencyOne, float frequencyTwo, float fOneIntensity, float fTwoIntensity) {
-	
-	mSplatFalloff = falloff;
-	mCloudScaling = cloudScaling;
-	mSplatSize = splatSize;
-	mDistanceScaling = distanceScaling;
-	mDistanceFalloff = distanceFalloff;
-	mShouldOverrideColor = overrideColor;
-	mFrequencyOne = frequencyOne;
-	mFrequencyTwo = frequencyTwo;
-	mFOneIntensity = fOneIntensity;
-	mFTwoIntensity = fTwoIntensity;
+void UGPUPointCloudRendererComponent::SetDynamicProperties(
+    FLinearColor F2Colouring,
+    FLinearColor F1Colouring,
+    FLinearColor OverallColouring,
+    float cloudScaling,
+    float falloff,
+    float splatSize,
+    float distanceScaling,
+    float distanceFalloff,
+    //bool overrideColor = false,
+    float frequencyOne,
+    float frequencyTwo,
+    float fOneIntensity,
+    float fTwoIntensity,
+    float FTwoColorImpact,
+    float FOneColorImpact,
+    float FOneSpeed,
+    float FTwoSpeed
+) {
+
+    mSplatFalloff = falloff;
+    mCloudScaling = cloudScaling;
+    mSplatSize = splatSize;
+    mDistanceScaling = distanceScaling;
+    mDistanceFalloff = distanceFalloff;
+    //mShouldOverrideColor = overrideColor;
+    mFrequencyOne = frequencyOne;
+    mFrequencyTwo = frequencyTwo;
+    mFOneIntensity = fOneIntensity;
+    mFTwoIntensity = fTwoIntensity;
+
+    mFTwoColorImpact = FTwoColorImpact;
+    mFOneColorImpact = FOneColorImpact;
+    mFOneSpeed = FOneSpeed;
+    mFTwoSpeed = FTwoSpeed;
+    mF2Colouring = F2Colouring;
+    mF1Colouring = F1Colouring;
+    mOverallColouring = OverallColouring;
 }
 
-void UGPUPointCloudRendererComponent::SetInputAndConvert1(TArray<FLinearColor> &pointPositions, TArray<FColor> &pointColors) {
-	
-	CHECK_PCR_STATUS
+void UGPUPointCloudRendererComponent::SetInputAndConvert1(TArray<FLinearColor>& pointPositions, TArray<FColor>& pointColors) {
 
-	if (pointPositions.Num() != pointColors.Num())
-		UE_LOG(GPUPointCloudRenderer, Warning, TEXT("The number of point positions doesn't match the number of point colors."));
-	if (pointPositions.Num() == 0 || pointColors.Num() == 0) {
-		UE_LOG(GPUPointCloudRenderer, Error, TEXT("Empty point position and/or color data."));
-		return;
-	}
+    CHECK_PCR_STATUS
 
-	CreateStreamingBaseMesh(pointPositions.Num());
-	mPointCloudCore->SetInput(pointPositions, pointColors);
+        if (pointPositions.Num() != pointColors.Num())
+            UE_LOG(GPUPointCloudRenderer, Warning, TEXT("The number of point positions doesn't match the number of point colors."));
+    if (pointPositions.Num() == 0 || pointColors.Num() == 0) {
+        UE_LOG(GPUPointCloudRenderer, Error, TEXT("Empty point position and/or color data."));
+        return;
+    }
+
+    CreateStreamingBaseMesh(pointPositions.Num());
+    mPointCloudCore->SetInput(pointPositions, pointColors);
 }
 
-void UGPUPointCloudRendererComponent::AddSnapshot(TArray<FLinearColor> &pointPositions, TArray<uint8> &pointColors, FVector offsetTranslation, FRotator offsetRotation) {
-	
-	CHECK_PCR_STATUS
+void UGPUPointCloudRendererComponent::AddSnapshot(TArray<FLinearColor>& pointPositions, TArray<uint8>& pointColors, FVector offsetTranslation, FRotator offsetRotation) {
 
-	if (pointPositions.Num() * 4 != pointColors.Num())
-		UE_LOG(GPUPointCloudRenderer, Warning, TEXT("The number of point positions doesn't match the number of point colors."));
-	if (pointPositions.Num() == 0 || pointColors.Num() == 0) {
-		UE_LOG(GPUPointCloudRenderer, Error, TEXT("Empty point position and/or color data."));
-		return;
-	}
+    CHECK_PCR_STATUS
 
-	CreateStreamingBaseMesh(MAXTEXRES * MAXTEXRES);
+        if (pointPositions.Num() * 4 != pointColors.Num())
+            UE_LOG(GPUPointCloudRenderer, Warning, TEXT("The number of point positions doesn't match the number of point colors."));
+    if (pointPositions.Num() == 0 || pointColors.Num() == 0) {
+        UE_LOG(GPUPointCloudRenderer, Error, TEXT("Empty point position and/or color data."));
+        return;
+    }
 
-	// Since the point is later transformed to the local coordinate system, we have to inverse transform it beforehand
-	FMatrix objMatrix = this->GetComponentToWorld().ToMatrixWithScale();
-	offsetTranslation = objMatrix.InverseTransformVector(offsetTranslation);
+    CreateStreamingBaseMesh(MAXTEXRES * MAXTEXRES);
 
-	mPointCloudCore->AddSnapshot(pointPositions, pointColors, offsetTranslation, offsetRotation);
+    // Since the point is later transformed to the local coordinate system, we have to inverse transform it beforehand
+    FMatrix objMatrix = this->GetComponentToWorld().ToMatrixWithScale();
+    offsetTranslation = objMatrix.InverseTransformVector(offsetTranslation);
+
+    mPointCloudCore->AddSnapshot(pointPositions, pointColors, offsetTranslation, offsetRotation);
 }
 
-void UGPUPointCloudRendererComponent::SetInput(TArray<FLinearColor> &pointPositions, TArray<uint8> &pointColors) {
-	
-	CHECK_PCR_STATUS
+void UGPUPointCloudRendererComponent::SetInput(TArray<FLinearColor>& pointPositions, TArray<uint8>& pointColors) {
 
-	if (pointPositions.Num()*4 != pointColors.Num())
-		UE_LOG(GPUPointCloudRenderer, Warning, TEXT("The number of point positions doesn't match the number of point colors."));
-	if (pointPositions.Num() == 0 || pointColors.Num() == 0) {
-		UE_LOG(GPUPointCloudRenderer, Error, TEXT("Empty point position and/or color data."));
-		return;
-	}
+    CHECK_PCR_STATUS
 
-	CreateStreamingBaseMesh(pointPositions.Num());
-	mPointCloudCore->SetInput(pointPositions, pointColors);
+        if (pointPositions.Num() * 4 != pointColors.Num())
+            UE_LOG(GPUPointCloudRenderer, Warning, TEXT("The number of point positions doesn't match the number of point colors."));
+    if (pointPositions.Num() == 0 || pointColors.Num() == 0) {
+        UE_LOG(GPUPointCloudRenderer, Error, TEXT("Empty point position and/or color data."));
+        return;
+    }
+
+    CreateStreamingBaseMesh(pointPositions.Num());
+    mPointCloudCore->SetInput(pointPositions, pointColors);
 }
 
-void UGPUPointCloudRendererComponent::SetInputAndConvert2(TArray<FVector> &pointPositions, TArray<FColor> &pointColors) {
-	
-	CHECK_PCR_STATUS
+void UGPUPointCloudRendererComponent::SetInputAndConvert2(TArray<FVector>& pointPositions, TArray<FColor>& pointColors) {
 
-	if (pointPositions.Num() != pointColors.Num())
-		UE_LOG(GPUPointCloudRenderer, Warning, TEXT("The number of point positions doesn't match the number of point colors."));
-	if (pointPositions.Num() == 0 || pointColors.Num() == 0) {
-		UE_LOG(GPUPointCloudRenderer, Error, TEXT("Empty point position and/or color data."));
-		return;
-	}
+    CHECK_PCR_STATUS
 
-	CreateStreamingBaseMesh(pointPositions.Num());
-	mPointCloudCore->SetInput(pointPositions, pointColors);
+        if (pointPositions.Num() != pointColors.Num())
+            UE_LOG(GPUPointCloudRenderer, Warning, TEXT("The number of point positions doesn't match the number of point colors."));
+    if (pointPositions.Num() == 0 || pointColors.Num() == 0) {
+        UE_LOG(GPUPointCloudRenderer, Error, TEXT("Empty point position and/or color data."));
+        return;
+    }
+
+    CreateStreamingBaseMesh(pointPositions.Num());
+    mPointCloudCore->SetInput(pointPositions, pointColors);
 }
 
 void UGPUPointCloudRendererComponent::SetExtent(FBox extent) {
-	
-	CHECK_PCR_STATUS
 
-	mPointCloudCore->SetExtent(extent);
-	mExtent = extent.ToString();
+    CHECK_PCR_STATUS
+
+        mPointCloudCore->SetExtent(extent);
+    mExtent = extent.ToString();
 }
 
 //////////////////////////
@@ -142,20 +169,20 @@ void UGPUPointCloudRendererComponent::SetExtent(FBox extent) {
 
 void UGPUPointCloudRendererComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+    Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	// Update core
-	if (mPointCloudCore) {
-		mPointCloudCore->Update(DeltaTime);
-		mPointCount = mPointCloudCore->GetPointCount();
-	}
+    // Update core
+    if (mPointCloudCore) {
+        mPointCloudCore->Update(DeltaTime);
+        mPointCount = mPointCloudCore->GetPointCount();
+    }
 
-	// Update shader properties
-	UpdateShaderProperties();
+    // Update shader properties
+    UpdateShaderProperties();
 }
 
 void UGPUPointCloudRendererComponent::BeginPlay() {
-	Super::BeginPlay();
+    Super::BeginPlay();
 
 }
 
@@ -167,74 +194,82 @@ void UGPUPointCloudRendererComponent::BeginPlay() {
 
 void UGPUPointCloudRendererComponent::CreateStreamingBaseMesh(int32 pointCount)
 {
-	CHECK_PCR_STATUS
+    CHECK_PCR_STATUS
 
-	//Check if update is neccessary
-	if (mBaseMesh && mPointCount == pointCount)
-		return;
-	if (pointCount == 0 || !mPointCloudCore)
-		return;
+        //Check if update is neccessary
+        if (mBaseMesh && mPointCount == pointCount)
+            return;
+    if (pointCount == 0 || !mPointCloudCore)
+        return;
 
-	mBaseMesh = NewObject<UPointCloudMeshComponent>(this, FName("PointCloud Mesh"));
+    mBaseMesh = NewObject<UPointCloudMeshComponent>(this, FName("PointCloud Mesh"));
 
-	// Create base mesh
-	TArray<FCustomMeshTriangle> triangles;
-	BuildTriangleStack(triangles, pointCount);
-	mBaseMesh->SetCustomMeshTriangles(triangles);
-	mBaseMesh->RegisterComponent();
-	mBaseMesh->AttachToComponent(this, FAttachmentTransformRules::KeepRelativeTransform);
-	mBaseMesh->SetMaterial(0, mStreamingBaseMat);
-	mBaseMesh->SetAbsolute(false, true, true);	// Disable scaling for the mesh - the scaling vector is transferred via a shader parameter in UpdateShaderProperties()
-	mBaseMesh->bNeverDistanceCull = true;
-	//mBaseMesh->SetCustomBounds(mPointCloudCore->GetExtent());
+    // Create base mesh
+    TArray<FCustomMeshTriangle> triangles;
+    BuildTriangleStack(triangles, pointCount);
+    mBaseMesh->SetCustomMeshTriangles(triangles);
+    mBaseMesh->RegisterComponent();
+    mBaseMesh->AttachToComponent(this, FAttachmentTransformRules::KeepRelativeTransform);
+    mBaseMesh->SetMaterial(0, mStreamingBaseMat);
+    mBaseMesh->SetAbsolute(false, true, true);	// Disable scaling for the mesh - the scaling vector is transferred via a shader parameter in UpdateShaderProperties()
+    mBaseMesh->bNeverDistanceCull = true;
+    //mBaseMesh->SetCustomBounds(mPointCloudCore->GetExtent());
 
-	// Update material
-	mPointCloudMaterial = mBaseMesh->CreateAndSetMaterialInstanceDynamic(0);
-	mPointCloudCore->UpdateDynamicMaterialForStreaming(mPointCloudMaterial);
+    // Update material
+    mPointCloudMaterial = mBaseMesh->CreateAndSetMaterialInstanceDynamic(0);
+    mPointCloudCore->UpdateDynamicMaterialForStreaming(mPointCloudMaterial);
 }
 
-void UGPUPointCloudRendererComponent::BuildTriangleStack(TArray<FCustomMeshTriangle> &triangles, const int32 &pointCount)
+void UGPUPointCloudRendererComponent::BuildTriangleStack(TArray<FCustomMeshTriangle>& triangles, const int32& pointCount)
 {
-	triangles.SetNumUninitialized(pointCount);
+    triangles.SetNumUninitialized(pointCount);
 
-	// construct equilateral triangle with x, y, z as center and normal facing z
-	float a = 1.0f;				// side lenght
-	float sqrt3 = FMath::Sqrt(3);
-	float r = sqrt3 / 6 * a;	// radius of inscribed circle
-	//float h_minus_r = a / sqrt3; // from center to tip. height - r
-	float x = 0;
-	float y = 0;
+    // construct equilateral triangle with x, y, z as center and normal facing z
+    float a = 1.0f;				// side lenght
+    float sqrt3 = FMath::Sqrt(3);
+    float r = sqrt3 / 6 * a;	// radius of inscribed circle
+    //float h_minus_r = a / sqrt3; // from center to tip. height - r
+    float x = 0;
+    float y = 0;
 
-	for (int i = 0; i < pointCount; i++) {
+    for (int i = 0; i < pointCount; i++) {
 
-		double z = i / 10.0f;
+        double z = i / 10.0f;
 
-		FCustomMeshTriangle t;
-		t.Vertex2 = FVector(x - a / 2.f, y - r, z);
-		t.Vertex1 = FVector(x + a / 2.f, y - r, z);
-		t.Vertex0 = FVector(x, y + a / sqrt3, z);
+        FCustomMeshTriangle t;
+        t.Vertex2 = FVector(x - a / 2.f, y - r, z);
+        t.Vertex1 = FVector(x + a / 2.f, y - r, z);
+        t.Vertex0 = FVector(x, y + a / sqrt3, z);
 
-		triangles[i] = t;
-	}
+        triangles[i] = t;
+    }
 }
 
 void UGPUPointCloudRendererComponent::UpdateShaderProperties()
 {
-	if (!mPointCloudMaterial)
-		return;
+    if (!mPointCloudMaterial)
+        return;
 
-	auto streamingMeshMatrix = this->GetComponentToWorld().ToMatrixWithScale();
-	mPointCloudMaterial->SetVectorParameterValue("ObjTransformMatrixXAxis", streamingMeshMatrix.GetUnitAxis(EAxis::X));
-	mPointCloudMaterial->SetVectorParameterValue("ObjTransformMatrixYAxis", streamingMeshMatrix.GetUnitAxis(EAxis::Y));
-	mPointCloudMaterial->SetVectorParameterValue("ObjTransformMatrixZAxis", streamingMeshMatrix.GetUnitAxis(EAxis::Z));
-	mPointCloudMaterial->SetVectorParameterValue("ObjScale", this->GetComponentScale() * mCloudScaling);
-	mPointCloudMaterial->SetScalarParameterValue("FalloffExpo", mSplatFalloff);
-	mPointCloudMaterial->SetScalarParameterValue("SplatSize", mSplatSize);
-	mPointCloudMaterial->SetScalarParameterValue("DistanceScaling", mDistanceScaling);
-	mPointCloudMaterial->SetScalarParameterValue("DistanceFalloff", mDistanceFalloff);
-	mPointCloudMaterial->SetScalarParameterValue("ShouldOverrideColor", (int)mShouldOverrideColor);
-	mPointCloudMaterial->SetScalarParameterValue("Frequency1", mFrequencyOne);
-	mPointCloudMaterial->SetScalarParameterValue("Frequency2", mFrequencyTwo);
-	mPointCloudMaterial->SetScalarParameterValue("F1Intensity", mFOneIntensity);
-	mPointCloudMaterial->SetScalarParameterValue("F2Intensity", mFTwoIntensity);
+    auto streamingMeshMatrix = this->GetComponentToWorld().ToMatrixWithScale();
+    mPointCloudMaterial->SetVectorParameterValue("ObjTransformMatrixXAxis", streamingMeshMatrix.GetUnitAxis(EAxis::X));
+    mPointCloudMaterial->SetVectorParameterValue("ObjTransformMatrixYAxis", streamingMeshMatrix.GetUnitAxis(EAxis::Y));
+    mPointCloudMaterial->SetVectorParameterValue("ObjTransformMatrixZAxis", streamingMeshMatrix.GetUnitAxis(EAxis::Z));
+    mPointCloudMaterial->SetVectorParameterValue("ObjScale", this->GetComponentScale() * mCloudScaling);
+    mPointCloudMaterial->SetVectorParameterValue("OverallColouring", mOverallColouring);
+    mPointCloudMaterial->SetVectorParameterValue("F1Colouring", mF1Colouring);
+    mPointCloudMaterial->SetVectorParameterValue("F2Colouring", mF2Colouring);
+
+    //mPointCloudMaterial->SetScalarParameterValue("FalloffExpo", mSplatFalloff);
+    mPointCloudMaterial->SetScalarParameterValue("SplatSize", mSplatSize);
+    mPointCloudMaterial->SetScalarParameterValue("DistanceScaling", mDistanceScaling);
+    mPointCloudMaterial->SetScalarParameterValue("DistanceFalloff", mDistanceFalloff);
+    //mPointCloudMaterial->SetScalarParameterValue("ShouldOverrideColor", (int)mShouldOverrideColor);
+    mPointCloudMaterial->SetScalarParameterValue("Frequency1", mFrequencyOne);
+    mPointCloudMaterial->SetScalarParameterValue("Frequency2", mFrequencyTwo);
+    mPointCloudMaterial->SetScalarParameterValue("F1Intensity", mFOneIntensity);
+    mPointCloudMaterial->SetScalarParameterValue("F2Intensity", mFTwoIntensity);
+    mPointCloudMaterial->SetScalarParameterValue("F1Speed", mFOneSpeed);
+    mPointCloudMaterial->SetScalarParameterValue("F2Speed", mFTwoSpeed);
+    mPointCloudMaterial->SetScalarParameterValue("F1ColorImpact", mFOneColorImpact);
+    mPointCloudMaterial->SetScalarParameterValue("F2ColorImpact", mFTwoColorImpact);
 }
