@@ -50,8 +50,8 @@ UGPUPointCloudRendererComponent::~UGPUPointCloudRendererComponent() {
 
 
 void UGPUPointCloudRendererComponent::SetDynamicProperties(
-    FLinearColor F2Colouring,
-    FLinearColor F1Colouring,
+    FLinearColor Wave1Colouring,
+    FLinearColor Wave2Colouring,
     FLinearColor OverallColouring,
     float cloudScaling,
     float falloff,
@@ -59,14 +59,14 @@ void UGPUPointCloudRendererComponent::SetDynamicProperties(
     float distanceScaling,
     float distanceFalloff,
     //bool overrideColor = false,
-    float frequencyOne,
-    float frequencyTwo,
-    float fOneIntensity,
-    float fTwoIntensity,
-    float FTwoColorImpact,
-    float FOneColorImpact,
-    float FOneSpeed,
-    float FTwoSpeed
+    float Wave1Intensity,
+    float Wave1Frequency,
+    float Wave1ColorImpact,
+    float Wave1Speed,
+    float Wave2Intensity,
+    float Wave2Frequency,
+    float Wave2ColorImpact,
+    float Wave2Speed
 ) {
 
     mSplatFalloff = falloff;
@@ -75,17 +75,17 @@ void UGPUPointCloudRendererComponent::SetDynamicProperties(
     mDistanceScaling = distanceScaling;
     mDistanceFalloff = distanceFalloff;
     //mShouldOverrideColor = overrideColor;
-    mFrequencyOne = frequencyOne;
-    mFrequencyTwo = frequencyTwo;
-    mFOneIntensity = fOneIntensity;
-    mFTwoIntensity = fTwoIntensity;
+    mFrequencyOne = Wave1Frequency;
+    mFrequencyTwo = Wave2Frequency;
+    mFOneIntensity = Wave1Intensity;
+    mFTwoIntensity = Wave2Intensity;
 
-    mFTwoColorImpact = FTwoColorImpact;
-    mFOneColorImpact = FOneColorImpact;
-    mFOneSpeed = FOneSpeed;
-    mFTwoSpeed = FTwoSpeed;
-    mF2Colouring = F2Colouring;
-    mF1Colouring = F1Colouring;
+    mFTwoColorImpact = Wave2ColorImpact;
+    mFOneColorImpact = Wave1ColorImpact;
+    mFOneSpeed = Wave1Speed;
+    mFTwoSpeed = Wave2Speed;
+    mF2Colouring = Wave2Colouring;
+    mF1Colouring = Wave1Colouring;
     mOverallColouring = OverallColouring;
 }
 

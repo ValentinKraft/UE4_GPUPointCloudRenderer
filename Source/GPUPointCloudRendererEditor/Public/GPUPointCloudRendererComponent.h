@@ -79,23 +79,23 @@ public:
     */
     UFUNCTION(DisplayName = "PCR Set Dynamic Point Cloud Properties", BlueprintCallable, Category = "GPUPointCloudRenderer", meta = (Keywords = "point cloud update set properties"))
         void SetDynamicProperties(
-            FLinearColor F2Colouring,
-            FLinearColor F1Colouring,
+            FLinearColor Wave1Colouring,
+            FLinearColor Wave2Colouring,
             FLinearColor OverallColouring,
             float cloudScaling = 1.0f,
             float falloff = 1.0f,
             float splatSize = 1.0f,
-            float distanceScaling = 1000.f,
-            float distanceFalloff = 1.0f,
+            float distanceScaling = 1.0f,
+            float distanceFalloff = 1000.0f,
             //bool overrideColor = false,
-            float frequencyOne = 1.0f,
-            float frequencyTwo = 1.0f,
-            float fOneIntensity = 1.0f,
-            float fTwoIntensity = 1.0f,
-            float FTwoColorImpact = 1.0f,
-            float FOneColorImpact = 1.0f,
-            float FOneSpeed = 1.0f,
-            float FTwoSpeed = 1.0f
+            float Wave1Intensity = 1.0f,
+            float Wave1Frequency = 100.0f,
+            float Wave1ColorImpact = 1.0f,
+            float Wave1Speed = 1.0f,
+            float Wave2Intensity = 1.0f,
+            float Wave2Frequency = 100.0f,
+            float Wave2ColorImpact = 1.0f,
+            float Wave2Speed = 1.0f
         );
 
     /**
