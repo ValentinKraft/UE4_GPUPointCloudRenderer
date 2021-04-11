@@ -165,8 +165,8 @@ void UGPUPointCloudRendererComponent::CreateStreamingBaseMesh(int32 pointCount)
 {
 	CHECK_PCR_STATUS
 
+	// Dirty fix: Avoid recreation of point cloud mesh every frame
 	int32 pointsPerAxis = FMath::CeilToInt(FMath::Sqrt(pointCount));
-	// Ensure even-sized, power-of-two textures to avoid inaccuracies
 	if (pointsPerAxis % 2 == 1) pointsPerAxis++;
 	pointsPerAxis = GetUpperPowerOfTwo(pointsPerAxis);
 	auto totalPointCount = pointsPerAxis* pointsPerAxis;
