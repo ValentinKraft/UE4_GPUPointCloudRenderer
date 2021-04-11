@@ -165,8 +165,14 @@ void UGPUPointCloudRendererComponent::CreateStreamingBaseMesh(int32 pointCount)
 {
 	CHECK_PCR_STATUS
 
+	int32 pointsPerAxis = FMath::CeilToInt(FMath::Sqrt(pointCount));
+	// Ensure even-sized, power-of-two textures to avoid inaccuracies
+	if (pointsPerAxis % 2 == 1) pointsPerAxis++;
+	pointsPerAxis = GetUpperPowerOfTwo(pointsPerAxis);
+	auto totalPointCount = pointsPerAxis* pointsPerAxis;
+
 	//Check if update is neccessary
-	if (mBaseMesh && mPointCount == pointCount)
+	if (mBaseMesh && mPointCount == totalPointCount)
 		return;
 	if (pointCount == 0 || !mPointCloudCore)
 		return;
