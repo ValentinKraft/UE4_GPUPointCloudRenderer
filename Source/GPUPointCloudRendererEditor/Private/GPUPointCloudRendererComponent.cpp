@@ -48,14 +48,15 @@ UGPUPointCloudRendererComponent::~UGPUPointCloudRendererComponent() {
 //////////////////////
 
 
-void UGPUPointCloudRendererComponent::SetDynamicProperties(float cloudScaling, float falloff, float splatSize, float distanceScaling, float distanceFalloff, bool overrideColor) {
+void UGPUPointCloudRendererComponent::SetDynamicProperties(FLinearColor overallColouring, float cloudScaling, float splatSize, float distanceScaling, bool overrideColor) {
 	
-	mSplatFalloff = falloff;
+	//mSplatFalloff = falloff;
 	mCloudScaling = cloudScaling;
 	mSplatSize = splatSize;
 	mDistanceScaling = distanceScaling;
-	mDistanceFalloff = distanceFalloff;
+	//mDistanceFalloff = distanceFalloff;
 	mShouldOverrideColor = overrideColor;
+	mOverallColouring = overallColouring;
 }
 
 void UGPUPointCloudRendererComponent::SetInputAndConvert1(TArray<FLinearColor> &pointPositions, TArray<FColor> &pointColors) {
@@ -229,10 +230,11 @@ void UGPUPointCloudRendererComponent::UpdateShaderProperties()
 	mPointCloudMaterial->SetVectorParameterValue("ObjTransformMatrixXAxis", streamingMeshMatrix.GetUnitAxis(EAxis::X));
 	mPointCloudMaterial->SetVectorParameterValue("ObjTransformMatrixYAxis", streamingMeshMatrix.GetUnitAxis(EAxis::Y));
 	mPointCloudMaterial->SetVectorParameterValue("ObjTransformMatrixZAxis", streamingMeshMatrix.GetUnitAxis(EAxis::Z));
+	mPointCloudMaterial->SetVectorParameterValue("OverallColouring", mOverallColouring);
 	mPointCloudMaterial->SetVectorParameterValue("ObjScale", this->GetComponentScale() * mCloudScaling);
-	mPointCloudMaterial->SetScalarParameterValue("FalloffExpo", mSplatFalloff);
+	//mPointCloudMaterial->SetScalarParameterValue("FalloffExpo", mSplatFalloff);
 	mPointCloudMaterial->SetScalarParameterValue("SplatSize", mSplatSize);
 	mPointCloudMaterial->SetScalarParameterValue("DistanceScaling", mDistanceScaling);
-	mPointCloudMaterial->SetScalarParameterValue("DistanceFalloff", mDistanceFalloff);
+	//mPointCloudMaterial->SetScalarParameterValue("DistanceFalloff", mDistanceFalloff);
 	mPointCloudMaterial->SetScalarParameterValue("ShouldOverrideColor", (int)mShouldOverrideColor);
 }
