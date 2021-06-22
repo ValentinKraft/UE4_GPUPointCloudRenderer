@@ -48,7 +48,7 @@ UGPUPointCloudRendererComponent::~UGPUPointCloudRendererComponent() {
 //////////////////////
 
 
-void UGPUPointCloudRendererComponent::SetDynamicProperties(FLinearColor overallColouring, float cloudScaling, float splatSize, float distanceScaling, bool overrideColor) {
+void UGPUPointCloudRendererComponent::SetDynamicProperties(UTexture2D* colormap, float maxDepth, FLinearColor overallColouring, float cloudScaling, float splatSize, float distanceScaling, bool overrideColor) {
 	
 	//mSplatFalloff = falloff;
 	mCloudScaling = cloudScaling;
@@ -57,6 +57,8 @@ void UGPUPointCloudRendererComponent::SetDynamicProperties(FLinearColor overallC
 	//mDistanceFalloff = distanceFalloff;
 	mShouldOverrideColor = overrideColor;
 	mOverallColouring = overallColouring;
+	mMaxDepth = maxDepth;
+	mColormap = colormap;
 }
 
 void UGPUPointCloudRendererComponent::SetInputAndConvert1(TArray<FLinearColor> &pointPositions, TArray<FColor> &pointColors) {
@@ -235,6 +237,8 @@ void UGPUPointCloudRendererComponent::UpdateShaderProperties()
 	//mPointCloudMaterial->SetScalarParameterValue("FalloffExpo", mSplatFalloff);
 	mPointCloudMaterial->SetScalarParameterValue("SplatSize", mSplatSize);
 	mPointCloudMaterial->SetScalarParameterValue("DistanceScaling", mDistanceScaling);
+	mPointCloudMaterial->SetScalarParameterValue("maxDepth", mMaxDepth);
+	mPointCloudMaterial->SetTextureParameterValue("colorMap", (UTexture*)mColormap);
 	//mPointCloudMaterial->SetScalarParameterValue("DistanceFalloff", mDistanceFalloff);
 	mPointCloudMaterial->SetScalarParameterValue("ShouldOverrideColor", (int)mShouldOverrideColor);
 }

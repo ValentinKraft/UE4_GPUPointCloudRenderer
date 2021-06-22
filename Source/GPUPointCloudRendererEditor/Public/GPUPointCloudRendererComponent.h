@@ -78,7 +78,7 @@ public:
 	* @param	overrideColor				Overrides the point cloud colors with the given colormap.
 	*/
 	UFUNCTION(DisplayName = "PCR Set Dynamic Point Cloud Properties", BlueprintCallable, Category = "GPUPointCloudRenderer", meta = (Keywords = "point cloud update set properties"))
-	void SetDynamicProperties(FLinearColor overallColouring = FLinearColor::White, float cloudScaling = 1.0f, float splatSize = 1.0f, float distanceScaling = 1000.f, bool overrideColor = false);
+	void SetDynamicProperties(UTexture2D* colormap, float maxDepth = 500.0f, FLinearColor overallColouring = FLinearColor::White, float cloudScaling = 1.0f, float splatSize = 1.0f, float distanceScaling = 1000.f, bool overrideColor = false);
 
 	/**
 	* Send your own, custom point data stream to the renderer. Could be used for a kinect point stream or similar. Can be called every frame. Point positions have to be encoded as a array of LinearColors with the following mapping:
@@ -154,6 +154,8 @@ private:
 	//float mSplatFalloff = 2.0f;
 	float mDistanceScaling = 1000.f;
 	//float mDistanceFalloff = 1.f;
+	float mMaxDepth = 500.f;
+	UTexture2D* mColormap = nullptr;
 	bool mShouldOverrideColor = false;
 	FLinearColor mOverallColouring = FLinearColor::White;
 
