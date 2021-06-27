@@ -8,8 +8,7 @@ __For loading PCD files, processing point clouds with PCL or fetching data from 
 __Installation__
 
 Currently supported/tested Unreal Versions:
-* __UE4.23__ (master branch)
-* UE4.19 (see other branch)
+* __UE4.26__ (master branch)
 
 Newer versions of the engine should probably work as well. For installation, copy the plugin to your Engine' or Project's Plugins folder.
 
