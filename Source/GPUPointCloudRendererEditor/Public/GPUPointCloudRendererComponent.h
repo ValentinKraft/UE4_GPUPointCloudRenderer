@@ -81,7 +81,7 @@ public:
         void SetDynamicProperties(
             FLinearColor Wave1Colouring,
             FLinearColor Wave2Colouring,
-            FLinearColor OverallColouring,
+            FLinearColor OverallColouring = FLinearColor::White,
             float cloudScaling = 1.0f,
             float falloff = 1.0f,
             float splatSize = 1.0f,
